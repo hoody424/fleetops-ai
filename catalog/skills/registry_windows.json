@@ -1,0 +1,60 @@
+{
+  "slug": "registry",
+  "name": "Registry Management",
+  "node_type": "windows",
+  "description": "Browse, search, create, modify, copy, rename, and delete Windows Registry keys and values for system tuning and configuration",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "browse",
+        "description": "Navigate and read registry"
+      },
+      {
+        "name": "search",
+        "description": "Find keys and values"
+      },
+      {
+        "name": "create",
+        "description": "Create new keys and values"
+      },
+      {
+        "name": "modify",
+        "description": "Change values"
+      },
+      {
+        "name": "delete",
+        "description": "Remove keys and values"
+      },
+      {
+        "name": "export",
+        "description": "Export registry branches"
+      },
+      {
+        "name": "permissions",
+        "description": "Registry key ACLs"
+      }
+    ],
+    "allowed_commands": [
+      "Get-ItemProperty",
+      "Set-ItemProperty",
+      "New-ItemProperty",
+      "Remove-ItemProperty",
+      "Get-Item",
+      "New-Item",
+      "Remove-Item",
+      "Rename-Item",
+      "Copy-Item",
+      "Rename-ItemProperty",
+      "Copy-ItemProperty",
+      "Move-ItemProperty",
+      "Get-ChildItem",
+      "Test-Path",
+      "Get-Acl",
+      "Set-Acl",
+      "reg.exe"
+    ],
+    "system_prompt": "You are a Windows Registry management agent. Registry hives accessed via PSDrive: HKLM:\\ (local machine), HKCU:\\ (current user). Use Get-ItemProperty 'HKLM:\\path' for reading. Use Set-ItemProperty -Path 'HKLM:\\path' -Name 'value' -Value data for writing. Always verify the current value before modifying. Use reg export for backup before changes."
+  }
+}

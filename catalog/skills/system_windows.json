@@ -1,0 +1,81 @@
+{
+  "slug": "system",
+  "name": "System Administration",
+  "node_type": "windows",
+  "description": "Manage hostname, time sync, time zone, locale, environment variables, system features, power plans, activation, system restore, and restart",
+  "version": "3",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "hostname",
+        "description": "View or change the computer hostname"
+      },
+      {
+        "name": "timezone",
+        "description": "View or set the system time zone"
+      },
+      {
+        "name": "environment",
+        "description": "Manage system and user environment variables"
+      },
+      {
+        "name": "features",
+        "description": "Install, remove, or list Windows features and roles"
+      },
+      {
+        "name": "restart",
+        "description": "Restart or shut down the computer"
+      },
+      {
+        "name": "info",
+        "description": "View detailed system information, hotfixes, and boot configuration"
+      }
+    ],
+    "allowed_modules": [
+      "ServerManager",
+      "Dism",
+      "International"
+    ],
+    "allowed_commands": [
+      "Rename-Computer",
+      "Set-TimeZone",
+      "Get-TimeZone",
+      "[System.Environment]::SetEnvironmentVariable",
+      "[System.Environment]::GetEnvironmentVariable",
+      "setx",
+      "Restart-Computer",
+      "Stop-Computer",
+      "shutdown",
+      "Get-ComputerInfo",
+      "systeminfo",
+      "Get-HotFix",
+      "bcdedit",
+      "w32tm",
+      "powercfg",
+      "slmgr",
+      "slmgr.vbs",
+      "Get-Culture",
+      "Enable-ComputerRestore",
+      "Disable-ComputerRestore",
+      "Checkpoint-Computer",
+      "Restore-Computer",
+      "Clear-RecycleBin"
+    ],
+    "system_prompt": "You are a Windows system configuration agent. Use PowerShell cmdlets for system configuration. For environment variables use [System.Environment]::SetEnvironmentVariable('NAME','VALUE','Machine') for system-wide. Always confirm before restart."
+  },
+  "quick_reports": [
+    {
+      "id": "system_summary",
+      "label": "System Summary",
+      "icon": "Gauge",
+      "instruction": "Report hostname, Windows edition and build, uptime, total and available memory, and usage for every fixed volume. Derive uptime from (Get-CimInstance Win32_OperatingSystem).LastBootUpTime \u2014 Get-Uptime does not exist on Windows PowerShell 5.1 and will fail. In the summary give the actual values, not a description of what was collected. Do not run follow-up commands on individual items."
+    },
+    {
+      "id": "top_processes",
+      "label": "Top Processes",
+      "icon": "Activity",
+      "instruction": "List the 10 processes using the most CPU and the 10 using the most memory (Get-Process sorted by CPU, then by WorkingSet, 10 rows each). Report WorkingSet in MB. In the summary name the top consumers with their figures. Do not run follow-up commands on individual processes."
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "slug": "email",
+  "name": "Email Server Management",
+  "node_type": "linux",
+  "description": "Manage email servers — Postfix, Exim, Dovecot, Cyrus IMAP, Courier, mail queues, aliases, DKIM, DMARC, ARC, SPF, and spam filtering",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show email server status — MTA, IMAP/POP3, mail queue size, and service health"
+      },
+      {
+        "name": "queue",
+        "description": "Manage the mail queue — list, flush, delete, or retry messages"
+      },
+      {
+        "name": "aliases",
+        "description": "Manage email aliases and virtual mailbox mappings"
+      },
+      {
+        "name": "domains",
+        "description": "Manage virtual domains hosted by the mail server"
+      },
+      {
+        "name": "config",
+        "description": "View or edit mail server configuration"
+      },
+      {
+        "name": "dkim",
+        "description": "Manage DKIM signing — generate keys, configure signing, verify setup"
+      },
+      {
+        "name": "logs",
+        "description": "View and analyze mail logs — delivery status, bounces, rejections"
+      },
+      {
+        "name": "imap",
+        "description": "Manage IMAP/POP3 services — Dovecot, Cyrus IMAP, or Courier: status, mailboxes, quotas, and configuration"
+      },
+      {
+        "name": "spam",
+        "description": "Manage spam filtering — SpamAssassin, Rspamd, or Amavis"
+      }
+    ],
+    "allowed_commands": [
+      "postfix",
+      "postconf",
+      "postmap",
+      "postqueue",
+      "postsuper",
+      "postalias",
+      "postcat",
+      "newaliases",
+      "mailq",
+      "sendmail",
+      "exim",
+      "exim4",
+      "exiqgrp",
+      "exiqsumm",
+      "exipick",
+      "exigrep",
+      "dovecot",
+      "doveconf",
+      "doveadm",
+      "cyradm",
+      "cyrus",
+      "reconstruct",
+      "quota",
+      "mbpath",
+      "ctl_mboxlist",
+      "ctl_cyrusdb",
+      "squatter",
+      "courierlogger",
+      "maildirmake",
+      "deliverquota",
+      "imapd",
+      "pop3d",
+      "authdaemond",
+      "userdb",
+      "authtest",
+      "opendkim",
+      "opendkim-genkey",
+      "opendkim-testkey",
+      "opendmarc",
+      "openarc",
+      "postfwd",
+      "fetchmail",
+      "spamassassin",
+      "sa-update",
+      "sa-learn",
+      "spamc",
+      "spamd",
+      "rspamc",
+      "rspamadm",
+      "amavisd",
+      "amavisd-new",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are an email server management agent. First detect which MTA is installed: check 'which postconf' (Postfix), 'which exim4' or 'which exim' (Exim), 'which sendmail' (Sendmail). Also detect IMAP server: 'which doveconf' (Dovecot), 'which cyradm' or check for /etc/imapd.conf (Cyrus IMAP), 'which imapd' in /usr/lib/courier-imap (Courier). For Postfix: main config in /etc/postfix/main.cf, use 'postconf' to view/set parameters, 'postqueue -p' to list queue, 'postsuper -d ALL' to flush deferred. After changing maps (aliases, virtual, transport), run 'postmap FILE' to rebuild the hash DB, or 'newaliases' for /etc/aliases. For Exim: config in /etc/exim4/, use 'exim -bpc' for queue count. For Dovecot: config in /etc/dovecot/, use 'doveconf -n' for non-default settings, 'doveadm' for mailbox operations and quotas. For Cyrus IMAP: config in /etc/imapd.conf and /etc/cyrus.conf, use 'cyradm' for admin operations, 'reconstruct' to repair mailboxes, 'quota' to manage quotas, 'squatter' to rebuild search indexes. For Courier: config in /etc/courier/, use 'maildirmake' for mailboxes, 'authtest' to verify auth. For DKIM: keys in /etc/opendkim/keys/. Always test config before reloading. Always back up config files before editing.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "slug": "users",
+  "name": "Users & Access Management",
+  "node_type": "linux",
+  "description": "Manage user accounts, groups, passwords, and file permissions",
+  "version": "1",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list_users",
+        "description": "List user accounts on the system"
+      },
+      {
+        "name": "add_user",
+        "description": "Create a new user account"
+      },
+      {
+        "name": "remove_user",
+        "description": "Remove a user account"
+      },
+      {
+        "name": "modify_user",
+        "description": "Modify user account properties \u2014 UID, GID, groups, shell, home directory, comment/GECOS, lock/unlock, expiry"
+      },
+      {
+        "name": "ssh_key",
+        "description": "Manage SSH authorized keys for a user"
+      },
+      {
+        "name": "sudo",
+        "description": "Manage sudo access for a user or group"
+      },
+      {
+        "name": "groups",
+        "description": "Manage groups \u2014 list, create, delete, or modify groups"
+      }
+    ],
+    "allowed_commands": [
+      "useradd",
+      "userdel",
+      "usermod",
+      "passwd",
+      "chpasswd",
+      "chage",
+      "chsh",
+      "groupadd",
+      "groupdel",
+      "groupmod",
+      "gpasswd",
+      "newgrp",
+      "getent",
+      "groups",
+      "visudo",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "chmod",
+      "chown",
+      "ln"
+    ],
+    "system_prompt": "You are a user and access management agent. To list real users: getent passwd | awk -F: '$3 >= 1000 {print $1, $3, $6, $7}'. To create: useradd -m USERNAME. To add to group: usermod -aG GROUP USERNAME (always use -a to append, never omit it). To set password: echo 'USERNAME:PASSWORD' | chpasswd. For SSH keys: use <write> to create ~/.ssh/authorized_keys (create .ssh dir with 700, authorized_keys with 600) or <edit> to add/remove keys. For sudo: use <write> to create /etc/sudoers.d/USERNAME (never edit /etc/sudoers directly). Always verify changes with 'id USERNAME' after modifications. Never modify the root account unless explicitly requested.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/home",
+        "/root"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "user_accounts",
+      "label": "User Accounts",
+      "icon": "UserCheck",
+      "instruction": "List the user accounts with UID >= 1000 (getent passwd) with their UID, GID, home directory and login shell, then the groups (getent group). In the summary give the account count and name each account exactly as it appears in the output \u2014 do not invent, rename or substitute an account that is not listed. Flag any account with a UID of 0, and any account with an interactive login shell. Do not run follow-up commands on individual accounts."
+    }
+  ]
+}

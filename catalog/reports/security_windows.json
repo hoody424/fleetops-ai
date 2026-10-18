@@ -1,0 +1,537 @@
+{
+  "type": "security",
+  "name": "Security Audit",
+  "node_type": "windows",
+  "version": "1",
+  "checks": {
+    "rdp_config": {
+      "name": "RDP Config",
+      "command": "$deny = (Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections -ErrorAction SilentlyContinue).fDenyTSConnections; if ($deny -eq 1 -or $null -eq $deny) { 'RDP_DISABLED' } else { $rdp = Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name UserAuthentication, SecurityLayer -ErrorAction SilentlyContinue; \"fDenyTSConnections=$deny\"; \"UserAuthentication=$($rdp.UserAuthentication)\"; \"SecurityLayer=$($rdp.SecurityLayer)\" }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "rdp-nla-enabled",
+          "name": "RDP Network Level Authentication enabled (or RDP disabled)",
+          "finding": "RDP Network Level Authentication not required",
+          "eval": {
+            "type": "regex_match",
+            "value": "(RDP_DISABLED|UserAuthentication=1)"
+          },
+          "severity_public": "critical",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-18.9.65.3.9.1"
+          ],
+          "category": "rdp",
+          "explanation": "RDP is enabled but Network Level Authentication (NLA) is not required, allowing unauthenticated users to reach the login screen and attempt brute-force attacks.",
+          "remediation": "Enable NLA: Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' UserAuthentication 1. Or disable RDP entirely if unused."
+        }
+      ]
+    },
+    "openssh_config": {
+      "name": "OpenSSH Config",
+      "command": "if (Get-Service sshd -ErrorAction SilentlyContinue) { Get-Content \"$env:ProgramData\\ssh\\sshd_config\" -ErrorAction SilentlyContinue | Select-String -Pattern 'PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|MaxAuthTries' | Out-String } else { 'NOT_INSTALLED' }",
+      "timeout": 10,
+      "rules": []
+    },
+    "listening_ports": {
+      "name": "Listening Ports",
+      "command": "Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess | Sort-Object LocalPort | Format-Table -AutoSize | Out-String -Width 200",
+      "timeout": 10,
+      "rules": []
+    },
+    "firewall": {
+      "name": "Windows Firewall",
+      "command": "Get-NetFirewallProfile | Select-Object Name, Enabled, DefaultInboundAction, DefaultOutboundAction | Format-Table -AutoSize | Out-String -Width 200",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "firewall-active",
+          "name": "Windows Firewall is enabled on all profiles",
+          "finding": "Windows Firewall disabled on one or more profiles",
+          "eval": {
+            "type": "not_contains",
+            "value": "False"
+          },
+          "severity_public": "critical",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-WIN-9.1.1"
+          ],
+          "category": "firewall",
+          "explanation": "Windows Firewall is disabled on one or more network profiles (Domain, Private, Public), leaving the server unprotected.",
+          "remediation": "Enable Windows Firewall: Set-NetFirewallProfile -All -Enabled True"
+        }
+      ]
+    },
+    "local_admins": {
+      "name": "Local Administrators",
+      "command": "Get-LocalGroupMember -Group 'Administrators' -ErrorAction SilentlyContinue | Select-Object Name, ObjectClass, PrincipalSource | Format-Table -AutoSize | Out-String -Width 200",
+      "timeout": 10,
+      "rules": []
+    },
+    "guest_account": {
+      "name": "Guest Account",
+      "command": "$g = Get-LocalUser -Name Guest -ErrorAction SilentlyContinue; if ($g) { \"Enabled=$($g.Enabled)\" } else { 'NOT_FOUND' }",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "guest-disabled",
+          "name": "Guest account is disabled",
+          "finding": "Guest account is enabled",
+          "eval": {
+            "type": "contains",
+            "value": "Enabled=False"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-1.1.2"
+          ],
+          "category": "users",
+          "explanation": "The built-in Guest account is enabled, providing anonymous access to the system.",
+          "remediation": "Disable the guest account: Disable-LocalUser -Name Guest"
+        }
+      ]
+    },
+    "password_policy": {
+      "name": "Password Policy",
+      "command": "$tmp = [System.IO.Path]::GetTempFileName(); try { secedit /export /areas SECURITYPOLICY /cfg $tmp /quiet | Out-Null; Get-Content $tmp -ErrorAction SilentlyContinue | Where-Object { $_ -match '^\\s*(MinimumPasswordLength|LockoutBadCount|PasswordComplexity|MaximumPasswordAge|PasswordHistorySize)\\s*=' } } catch { 'EXPORT_FAILED' } finally { Remove-Item $tmp -Force -ErrorAction SilentlyContinue }",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "password-min-length",
+          "name": "Minimum password length at least 14 characters",
+          "finding": "Minimum password length below 14 characters",
+          "eval": {
+            "type": "regex_match",
+            "value": "MinimumPasswordLength\\s*=\\s*(1[4-9]|[2-9]\\d|\\d{3,})"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-1.1.4"
+          ],
+          "category": "users",
+          "explanation": "Minimum password length is set below 14 characters, making passwords easier to brute-force.",
+          "remediation": "Set MinimumPasswordLength to 14 via Group Policy or: secedit /configure with an INF containing 'MinimumPasswordLength = 14'."
+        },
+        {
+          "slug": "account-lockout",
+          "name": "Account lockout threshold configured",
+          "finding": "No account lockout threshold configured",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "LockoutBadCount\\s*=\\s*0\\b"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-1.2.1"
+          ],
+          "category": "users",
+          "explanation": "No account lockout threshold is set (LockoutBadCount=0), allowing unlimited brute-force attempts.",
+          "remediation": "Set LockoutBadCount to a positive value (e.g. 5) via Group Policy or secedit."
+        },
+        {
+          "slug": "password-complexity",
+          "name": "Password complexity enabled",
+          "finding": "Password complexity disabled",
+          "eval": {
+            "type": "regex_match",
+            "value": "PasswordComplexity\\s*=\\s*1\\b"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-1.1.5"
+          ],
+          "category": "users",
+          "explanation": "Password complexity is disabled, allowing simple dictionary-based passwords.",
+          "remediation": "Enable password complexity via Group Policy or secedit: 'PasswordComplexity = 1'."
+        }
+      ]
+    },
+    "windows_defender": {
+      "name": "Windows Defender",
+      "command": "$s = Get-MpComputerStatus -ErrorAction SilentlyContinue; if ($s) { \"AntivirusEnabled=$($s.AntivirusEnabled)\"; \"RealTimeProtectionEnabled=$($s.RealTimeProtectionEnabled)\"; \"SignatureLastUpdated=$($s.AntivirusSignatureLastUpdated)\"; \"QuickScanAge=$($s.QuickScanAge)\" } else { 'NOT_AVAILABLE' }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "defender-realtime",
+          "name": "Windows Defender real-time protection enabled",
+          "finding": "Windows Defender real-time protection disabled",
+          "eval": {
+            "type": "contains",
+            "value": "RealTimeProtectionEnabled=True"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-WIN-18.9.47.4.1"
+          ],
+          "category": "antivirus",
+          "explanation": "Windows Defender real-time protection is disabled, leaving the server vulnerable to malware.",
+          "remediation": "Enable real-time protection: Set-MpPreference -DisableRealtimeMonitoring $false"
+        },
+        {
+          "slug": "defender-antivirus-enabled",
+          "name": "Windows Defender antivirus enabled",
+          "finding": "Windows Defender antivirus not enabled",
+          "eval": {
+            "type": "contains",
+            "value": "AntivirusEnabled=True"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-WIN-18.9.47"
+          ],
+          "category": "antivirus",
+          "explanation": "Windows Defender antivirus is not enabled. The server has no active malware protection.",
+          "remediation": "Enable Windows Defender via Group Policy or Security Center."
+        }
+      ]
+    },
+    "defender_signature_age": {
+      "name": "Windows Defender Signature Age",
+      "command": "$s = Get-MpComputerStatus -ErrorAction SilentlyContinue; if ($s -and $s.AntivirusSignatureLastUpdated) { [int][math]::Floor((New-TimeSpan -Start $s.AntivirusSignatureLastUpdated -End (Get-Date)).TotalDays) } else { 0 }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "defender-signatures-fresh",
+          "name": "Windows Defender signatures updated within the last 7 days",
+          "finding": "Windows Defender signatures older than 7 days",
+          "eval": {
+            "type": "numeric_lt",
+            "value": 8
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-18.9.47.4"
+          ],
+          "category": "antivirus",
+          "explanation": "Windows Defender malware definitions are older than 7 days. Stale signatures miss current threats.",
+          "remediation": "Force an immediate signature update: Update-MpSignature. Ensure the Windows Update service is enabled and the host can reach Microsoft update servers."
+        }
+      ]
+    },
+    "security_updates": {
+      "name": "Security Updates",
+      "command": "$Session = New-Object -ComObject Microsoft.Update.Session; $Searcher = $Session.CreateUpdateSearcher(); try { $Results = $Searcher.Search('IsInstalled=0 and Type=\"Software\"'); if ($Results.Updates.Count -eq 0) { 'No security updates available' } else { \"$($Results.Updates.Count) updates available\"; $Results.Updates | Select-Object -First 10 -ExpandProperty Title } } catch { 'Windows Update check failed' }",
+      "timeout": 60,
+      "rules": [
+        {
+          "slug": "security-updates-applied",
+          "name": "No pending security updates",
+          "finding": "Pending security updates",
+          "eval": {
+            "type": "contains",
+            "value": "No security updates"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-18.9.108"
+          ],
+          "category": "updates",
+          "explanation": "Windows updates are available but not installed, leaving known vulnerabilities unpatched.",
+          "remediation": "Install pending updates via Windows Update or WSUS."
+        }
+      ]
+    },
+    "failed_logins": {
+      "name": "Failed Logins (24h)",
+      "command": "$since = (Get-Date).AddHours(-24); try { (Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=$since} -ErrorAction SilentlyContinue | Measure-Object).Count } catch { '0' }",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "failed-logins-low",
+          "name": "Failed logins under 100 in 24h",
+          "finding": "Over 100 failed logins in 24h",
+          "eval": {
+            "type": "numeric_lt",
+            "value": 100
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "logs",
+          "explanation": "Over 100 failed login attempts in the last 24 hours, indicating a brute-force attack or misconfigured client.",
+          "remediation": "Investigate source of failed logins in Event Viewer (Security log, Event ID 4625). Consider enabling account lockout policy."
+        }
+      ]
+    },
+    "audit_policy": {
+      "name": "Audit Policy",
+      "command": "$gpocsv = Join-Path $env:SystemRoot 'System32\\GroupPolicy\\Machine\\Microsoft\\Windows NT\\Audit\\audit.csv'; if (Test-Path $gpocsv) { $row = Import-Csv $gpocsv | Where-Object { $_.'Subcategory GUID' -eq '{0CCE9215-69AE-11D9-BED3-505054503030}' }; if ($row -and $row.'Setting Value') { \"Logon_SettingValue=$($row.'Setting Value')\" } else { 'Logon_SettingValue=0' } } else { 'Logon_SettingValue=unknown' }; auditpol /get /category:* 2>$null | Out-String -Width 200",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "audit-logon-events",
+          "name": "Logon events auditing enabled (Success + Failure)",
+          "finding": "Logon events auditing not enabled (Success + Failure)",
+          "eval": {
+            "type": "regex_match",
+            "value": "(Logon_SettingValue=3|Logon\\s+Success and Failure)"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-WIN-17.5.1"
+          ],
+          "category": "audit",
+          "explanation": "Logon event auditing (subcategory {0CCE9215-69AE-11D9-BED3-505054503030}) is not configured for both Success and Failure. Attack detection and incident response depend on these events.",
+          "remediation": "Enable via auditpol (English): auditpol /set /subcategory:{0CCE9215-69AE-11D9-BED3-505054503030} /success:enable /failure:enable. Or set via GPO: Computer Configuration → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Logon/Logoff → Logon = Success and Failure."
+        }
+      ]
+    },
+    "smb_signing": {
+      "name": "SMB Signing",
+      "command": "$smb = Get-SmbServerConfiguration -ErrorAction SilentlyContinue; if ($smb) { \"RequireSecuritySignature=$($smb.RequireSecuritySignature)\"; \"EnableSecuritySignature=$($smb.EnableSecuritySignature)\" } else { 'NOT_AVAILABLE' }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "smb-signing-required",
+          "name": "SMB signing required",
+          "finding": "SMB signing not required",
+          "eval": {
+            "type": "contains",
+            "value": "RequireSecuritySignature=True"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-2.3.9.2"
+          ],
+          "category": "network",
+          "explanation": "SMB signing is not required, making the server vulnerable to man-in-the-middle attacks on file sharing.",
+          "remediation": "Enable required SMB signing: Set-SmbServerConfiguration -RequireSecuritySignature $true -Force"
+        }
+      ]
+    },
+    "service_accounts": {
+      "name": "Service Accounts",
+      "command": "Get-WmiObject Win32_Service | Where-Object { $_.StartName -and $_.StartName -ne 'LocalSystem' -and $_.StartName -ne 'NT AUTHORITY\\LocalService' -and $_.StartName -ne 'NT AUTHORITY\\NetworkService' -and $_.StartName -ne 'NT Authority\\LocalService' -and $_.StartName -ne 'NT Authority\\NetworkService' } | Select-Object Name, StartName, State | Format-Table -AutoSize | Out-String -Width 200",
+      "timeout": 15,
+      "rules": []
+    },
+    "tls_protocols": {
+      "name": "TLS Protocols",
+      "command": "foreach ($proto in @('SSL 2.0','SSL 3.0','TLS 1.0','TLS 1.1','TLS 1.2','TLS 1.3')) { $path = \"HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\$proto\\Server\"; $enabled = (Get-ItemProperty -Path $path -Name Enabled -ErrorAction SilentlyContinue).Enabled; if ($null -eq $enabled) { \"$proto : Default\" } elseif ($enabled -eq 0) { \"$proto : Disabled\" } else { \"$proto : Enabled\" } }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "no-weak-tls-protocols",
+          "name": "No weak TLS protocols (SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1)",
+          "finding": "Weak TLS protocols enabled (SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1)",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "(SSL 2\\.0|SSL 3\\.0|TLS 1\\.0|TLS 1\\.1) : Enabled"
+          },
+          "severity_public": "critical",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-18.3.7",
+            "PCI-DSS-4.1"
+          ],
+          "category": "tls",
+          "explanation": "Weak TLS/SSL protocols are explicitly enabled in the registry. These are vulnerable to known attacks (POODLE, BEAST).",
+          "remediation": "Disable weak protocols via registry: set Enabled=0 under HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\<version>\\Server"
+        }
+      ]
+    },
+    "smb1_disabled": {
+      "name": "SMB1 Protocol",
+      "command": "$c = Get-SmbServerConfiguration -ErrorAction SilentlyContinue; if ($c) { \"EnableSMB1Protocol=$($c.EnableSMB1Protocol)\" } else { 'NOT_AVAILABLE' }",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "smb1-disabled",
+          "name": "SMB1 protocol disabled",
+          "finding": "SMB1 protocol enabled",
+          "eval": {
+            "type": "contains",
+            "value": "EnableSMB1Protocol=False"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-WIN-18.3.3"
+          ],
+          "category": "network",
+          "explanation": "SMB1 is an obsolete and insecure file-sharing protocol. It is the attack vector for WannaCry, NotPetya, and EternalBlue. It must be disabled on all modern Windows servers.",
+          "remediation": "Disable SMB1: Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force. Also remove the feature: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol"
+        }
+      ]
+    },
+    "uac_enabled": {
+      "name": "User Account Control",
+      "command": "$v = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name EnableLUA -ErrorAction SilentlyContinue).EnableLUA; if ($null -eq $v) { 'EnableLUA=unset' } else { \"EnableLUA=$v\" }",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "uac-enabled",
+          "name": "User Account Control (UAC) enabled",
+          "finding": "User Account Control (UAC) disabled",
+          "eval": {
+            "type": "contains",
+            "value": "EnableLUA=1"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-2.3.17.6"
+          ],
+          "category": "users",
+          "explanation": "User Account Control is disabled. UAC is a baseline privilege-escalation barrier — without it, any process running as administrator executes with full privileges, and standard user prompts for elevation are bypassed.",
+          "remediation": "Enable UAC via registry: Set-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' EnableLUA 1. Reboot to apply."
+        }
+      ]
+    },
+    "wdigest_off": {
+      "name": "WDigest Credentials",
+      "command": "$v = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' -Name UseLogonCredential -ErrorAction SilentlyContinue).UseLogonCredential; if ($null -eq $v) { 'UseLogonCredential=0 (default)' } else { \"UseLogonCredential=$v\" }",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "wdigest-off",
+          "name": "WDigest cleartext credential storage disabled",
+          "finding": "WDigest cleartext credential storage enabled",
+          "eval": {
+            "type": "contains",
+            "value": "UseLogonCredential=0"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-WIN-2.3.10.2"
+          ],
+          "category": "users",
+          "explanation": "WDigest can be forced to cache cleartext credentials in LSASS memory, where tools like Mimikatz can harvest them. On modern Windows this is disabled by default but can be re-enabled by attackers or malware.",
+          "remediation": "Explicitly disable: Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' UseLogonCredential 0 -Type DWord"
+        }
+      ]
+    },
+    "auto_login_disabled": {
+      "name": "Automatic Login",
+      "command": "$wl = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon' -ErrorAction SilentlyContinue; \"AutoAdminLogon=$($wl.AutoAdminLogon)\"; \"DefaultPassword_set=$([bool]$wl.DefaultPassword)\"",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "auto-login-disabled",
+          "name": "Automatic login disabled and no default password stored",
+          "finding": "Automatic login enabled with a stored password",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "(AutoAdminLogon=1|DefaultPassword_set=True)"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-WIN-2.3.7.1"
+          ],
+          "category": "users",
+          "explanation": "Automatic login with a stored cleartext password in the registry is enabled. Anyone with local read access to the SAM/Registry can retrieve the credentials, and the host logs in without authentication on reboot.",
+          "remediation": "Disable autologon: Set-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon' AutoAdminLogon 0. Remove DefaultPassword: Remove-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon' DefaultPassword -ErrorAction SilentlyContinue"
+        }
+      ]
+    },
+    "bitlocker": {
+      "name": "BitLocker Volume Encryption",
+      "command": "$bl = Get-BitLockerVolume -ErrorAction SilentlyContinue | Where-Object { $_.VolumeType -eq 'OperatingSystem' -or $_.VolumeType -eq 'FixedData' }; if ($bl) { $bl | ForEach-Object { \"Volume=$($_.MountPoint) Type=$($_.VolumeType) Protection=$($_.ProtectionStatus) Encrypt=$($_.EncryptionPercentage)%\" } } else { 'NOT_AVAILABLE' }",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "bitlocker-protection-on",
+          "name": "BitLocker protection enabled on fixed volumes",
+          "finding": "BitLocker protection disabled on one or more fixed volumes",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "Protection=Off"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "PCI-DSS-3.5",
+            "HIPAA-164.312(a)(2)(iv)"
+          ],
+          "category": "encryption",
+          "explanation": "One or more fixed volumes has BitLocker protection disabled. Physical theft or disposal of the disk exposes all data unencrypted.",
+          "remediation": "Enable BitLocker on each fixed volume: Enable-BitLocker -MountPoint C: -EncryptionMethod XtsAes256 -UsedSpaceOnly -TpmProtector -ErrorAction Stop. Store recovery keys in a secure offline location (or Entra / Active Directory if joined)."
+        },
+        {
+          "slug": "disk-encryption-active",
+          "name": "Disk encryption (BitLocker) active",
+          "finding": "No disk encryption (BitLocker) active",
+          "eval": {
+            "type": "regex_match",
+            "value": "Protection=On"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "encryption",
+          "explanation": "No BitLocker-protected fixed volume detected. Data on disk is not protected if the device is lost, stolen, or decommissioned without proper wiping.",
+          "remediation": "Enable BitLocker on the OS volume (manage-bde -on C:) and on data volumes. Use a TPM-backed protector and store recovery keys centrally."
+        }
+      ]
+    },
+    "powershell_logging": {
+      "name": "PowerShell Logging",
+      "command": "$sbl = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name EnableScriptBlockLogging -ErrorAction SilentlyContinue).EnableScriptBlockLogging; if ($null -eq $sbl) { 'ScriptBlockLogging=unset' } else { \"ScriptBlockLogging=$sbl\" }; $ml = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging' -Name EnableModuleLogging -ErrorAction SilentlyContinue).EnableModuleLogging; if ($null -eq $ml) { 'ModuleLogging=unset' } else { \"ModuleLogging=$ml\" }",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "powershell-script-block-logging",
+          "name": "PowerShell Script Block Logging enabled",
+          "finding": "PowerShell Script Block Logging not enabled",
+          "eval": {
+            "type": "contains",
+            "value": "ScriptBlockLogging=1"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-WIN-18.9.100.2"
+          ],
+          "category": "audit",
+          "explanation": "PowerShell Script Block Logging is not enabled. Without it, malicious PowerShell activity (common attacker tradecraft) leaves little forensic trace.",
+          "remediation": "Enable via GPO (Administrative Templates → Windows Components → Windows PowerShell → Turn on PowerShell Script Block Logging) or registry: Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' EnableScriptBlockLogging 1 -Type DWord -Force. Create the key first if it doesn't exist."
+        }
+      ]
+    },
+    "llmnr_disabled": {
+      "name": "LLMNR",
+      "command": "$v = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' -Name EnableMulticast -ErrorAction SilentlyContinue).EnableMulticast; if ($null -eq $v) { 'LLMNR=default_enabled' } else { \"LLMNR=$v\" }",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "llmnr-disabled",
+          "name": "LLMNR (Link-Local Multicast Name Resolution) disabled",
+          "finding": "LLMNR (Link-Local Multicast Name Resolution) enabled",
+          "eval": {
+            "type": "contains",
+            "value": "LLMNR=0"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-WIN-18.5.4.2"
+          ],
+          "category": "network",
+          "explanation": "LLMNR is a legacy name-resolution protocol that is abused by attackers (Responder, Inveigh) to capture NTLMv2 hashes for offline cracking. It is enabled by default on Windows.",
+          "remediation": "Disable via GPO (Computer Configuration → Administrative Templates → Network → DNS Client → Turn off multicast name resolution = Enabled) or registry: New-Item 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' -Force; Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' EnableMulticast 0 -Type DWord"
+        }
+      ]
+    },
+    "installed_packages": {
+      "name": "Installed Packages",
+      "command": "$ErrorActionPreference='SilentlyContinue'; try { pip3 list --format=freeze 2>$null | Where-Object { $_ -match '==' } | ForEach-Object { $p = $_ -split '==',2; 'PyPI' + [char]9 + $p[0] + [char]9 + $p[1] } } catch {}; try { pip list --format=freeze 2>$null | Where-Object { $_ -match '==' } | ForEach-Object { $p = $_ -split '==',2; 'PyPI' + [char]9 + $p[0] + [char]9 + $p[1] } } catch {}",
+      "timeout": 30,
+      "max_output": 60000,
+      "rules": []
+    }
+  }
+}

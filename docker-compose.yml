@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fleetops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fleetops_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-fleetops}
+    volumes:
+      - fleetops_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fleetops} -d ${POSTGRES_DB:-fleetops}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - fleetops_redisdata:/data
+
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fleetops-ai:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fleetops}:${POSTGRES_PASSWORD:-fleetops_secret}@postgres:5432/${POSTGRES_DB:-fleetops}
+      REDIS_URL: redis://redis:6379
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      SESSION_SECRET: ${SESSION_SECRET:-fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
+      AI_PROFILES_DIR: /data/ai-profiles
+      FALLBACK_LLM_URL: ${FALLBACK_LLM_URL:-}
+      FALLBACK_LLM_MODEL: ${FALLBACK_LLM_MODEL:-qwen3.5:9b}
+    volumes:
+      - fleetops_aiprofiles:/data/ai-profiles
+
+volumes:
+  fleetops_pgdata:
+  fleetops_redisdata:
+  fleetops_aiprofiles:

@@ -1,0 +1,149 @@
+{
+  "id": "nist_csf",
+  "name": "NIST CSF",
+  "description": "NIST Cybersecurity Framework v2.0 — technical controls mapped to Identify, Protect, and Detect functions",
+  "version": "2.0",
+  "url": "https://www.nist.gov/cyberframework",
+  "controls": [
+    {
+      "ref": "PR.PS-2",
+      "name": "Software is maintained and patched",
+      "desc": "Software is maintained, replaced, and removed commensurate with risk. Security updates close known vulnerabilities promptly.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    },
+    {
+      "ref": "PR.AA-1",
+      "name": "Identity and credential management",
+      "desc": "No duplicate UID 0 accounts, root SSH disabled, key-based authentication enforced, password policies in place.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-pubkey-auth",
+        "ssh-password-auth",
+        "no-extra-uid0",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "password-min-length",
+        "password-complexity",
+        "account-lockout"
+      ]
+    },
+    {
+      "ref": "PR.AA-3",
+      "name": "Remote access hardening",
+      "desc": "SSH secured with key auth, root login blocked, brute-force limited, X11 forwarding disabled. RDP requires Network Level Authentication.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "ssh-max-auth-tries",
+        "ssh-x11-forwarding",
+        "rdp-nla-enabled"
+      ]
+    },
+    {
+      "ref": "PR.AA-5",
+      "name": "Least privilege enforcement",
+      "desc": "No extra UID 0, SUID binaries audited, no world-writable system files or directories. UAC enabled and Guest account disabled on Windows.",
+      "rule_slugs": [
+        "no-extra-uid0",
+        "suid-binaries-reasonable",
+        "no-world-writable-files",
+        "no-world-writable-dirs",
+        "uac-enabled",
+        "guest-disabled",
+        "wdigest-off"
+      ]
+    },
+    {
+      "ref": "PR.DS-1",
+      "name": "Data-at-rest and in-transit encryption",
+      "desc": "Strong TLS protocols enforced, weak ciphers disabled, certificates valid, BitLocker active on Windows endpoints.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "disk-encryption-active",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    },
+    {
+      "ref": "PR.IR-1",
+      "name": "Network filtering and segmentation",
+      "desc": "Host firewall active, IP forwarding disabled, ICMP redirect and spoofing protections enabled. Legacy SMBv1 and LLMNR disabled.",
+      "rule_slugs": [
+        "firewall-active",
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "pt-nmap-discovery",
+        "pt-nmap-full"
+      ]
+    },
+    {
+      "ref": "PR.PS-1",
+      "name": "Security configuration baselines",
+      "desc": "Mandatory access control active, address-space layout randomization on, SUID core dumps disabled, hardened SSH and Windows defaults.",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "ssh-root-login",
+        "ssh-password-auth",
+        "auto-login-disabled",
+        "pt-nuclei-headers",
+        "pt-ffuf-common",
+        "pt-spf-check",
+        "pt-dmarc-check"
+      ]
+    },
+    {
+      "ref": "DE.CM-1",
+      "name": "Network monitoring",
+      "desc": "Firewall active for traffic inspection, audit daemon running, time synchronized so log correlation is reliable.",
+      "rule_slugs": [
+        "firewall-active",
+        "auditd-active",
+        "time-synchronized",
+        "audit-logon-events",
+        "failed-logins-low",
+        "pt-subfinder-enum"
+      ]
+    },
+    {
+      "ref": "DE.CM-6",
+      "name": "Brute-force detection",
+      "desc": "Failed login count monitored, SSH authentication attempts limited, account lockout configured.",
+      "rule_slugs": [
+        "failed-logins-low",
+        "ssh-max-auth-tries",
+        "account-lockout"
+      ]
+    },
+    {
+      "ref": "DE.CM-9",
+      "name": "Endpoint malware monitoring",
+      "desc": "Real-time anti-malware protection enabled, signatures fresh, PowerShell script content logged for forensic review.",
+      "rule_slugs": [
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh",
+        "powershell-script-block-logging"
+      ]
+    }
+  ]
+}

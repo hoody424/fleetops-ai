@@ -1,0 +1,61 @@
+{
+  "slug": "vpn",
+  "name": "VPN & Tunnel Management",
+  "node_type": "windows",
+  "description": "Manage VPNs and tunnels — RRAS, Always On VPN, DirectAccess, NPS/RADIUS, WireGuard, OpenVPN, IPsec, and SSTP",
+  "version": "3",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show VPN status — active tunnels, connected clients, routing"
+      },
+      {
+        "name": "clients",
+        "description": "Manage VPN clients — list connected, disconnect, configure profiles"
+      },
+      {
+        "name": "config",
+        "description": "View or modify VPN server configuration"
+      },
+      {
+        "name": "tunnels",
+        "description": "Manage site-to-site tunnels and demand-dial interfaces"
+      },
+      {
+        "name": "certificates",
+        "description": "Manage VPN-related certificates for IKEv2, SSTP, or Always On VPN"
+      }
+    ],
+    "allowed_modules": [
+      "RemoteAccess",
+      "VpnClient",
+      "NPS",
+      "DirectAccessClientComponents",
+      "NetworkConnectivityStatus",
+      "NetworkTransition"
+    ],
+    "allowed_commands": [
+      "Get-DAConnectionStatus",
+      "netsh",
+      "rasdial",
+      "rasphone",
+      "route",
+      "Get-NetIPsecRule",
+      "Get-NetIPsecMainModeSA",
+      "Get-NetIPsecQuickModeSA",
+      "wg",
+      "wireguard",
+      "openvpn",
+      "Get-Service",
+      "Start-Service",
+      "Stop-Service",
+      "Restart-Service"
+    ],
+    "slow_commands": [
+      "Install-RemoteAccess"
+    ],
+    "system_prompt": "You are a Windows VPN management agent. CRITICAL: First detect which VPN is in use: 'Get-RemoteAccess' (RRAS/Always On VPN), 'Get-Service WireGuardTunnel*' (WireGuard), 'Get-Service OpenVPNService*' (OpenVPN).\n\nRRAS: Requires Remote Access role. Check with Get-WindowsFeature RemoteAccess. Use Get-RemoteAccess for status, Get-RemoteAccessConnectionStatistics for connected clients. For site-to-site use Get-VpnS2SInterface. Config VPN auth: Get-VpnAuthProtocol / Set-VpnAuthProtocol. For legacy config: 'netsh ras show conf'.\n\nALWAYS ON VPN: Uses IKEv2 or SSTP. Requires certificates in Cert:\\LocalMachine\\My. Configure with Set-VpnServerConfiguration. Client profiles deployed via Intune or PowerShell (Add-VpnConnection).\n\nWIREGUARD: Config in C:\\Program Files\\WireGuard\\Data\\Configurations\\. Use 'wg show' for status. Managed via WireGuard service.\n\nOPENVPN: Config in C:\\Program Files\\OpenVPN\\config\\. Managed as a Windows service.\n\nALWAYS: Verify routing and firewall rules after VPN changes. For DirectAccess clients use Get-DAConnectionStatus / Get-DAClientExperienceConfiguration and check the IP-HTTPS tunnel with Get-NetIPHttpsState. Check IPsec SAs with Get-NetIPsecMainModeSA for IKEv2 troubleshooting."
+  }
+}

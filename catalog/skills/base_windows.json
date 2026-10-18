@@ -1,0 +1,81 @@
+{
+  "slug": "base",
+  "name": "Base Utilities",
+  "node_type": "windows",
+  "description": "Core read-only utilities for file reading, search, system info, resource usage, and network diagnostics \u2014 always available across all skills",
+  "version": "2",
+  "required": true,
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "inspect",
+        "description": "Read files, list directories, search content, view registry keys and file metadata"
+      },
+      {
+        "name": "system_info",
+        "description": "Check OS, hostname, uptime, hardware, and logged-in users"
+      },
+      {
+        "name": "resources",
+        "description": "Monitor disk, memory, CPU, processes, and performance counters"
+      },
+      {
+        "name": "network",
+        "description": "Check adapters, connections, DNS, ping, traceroute, and fetch URLs"
+      }
+    ],
+    "allowed_commands": [
+      "Get-Content",
+      "Get-ChildItem",
+      "Get-Item",
+      "Get-ItemProperty",
+      "Select-String",
+      "Select-Object",
+      "Where-Object",
+      "ForEach-Object",
+      "Sort-Object",
+      "Format-Table",
+      "Format-List",
+      "Out-String",
+      "Measure-Object",
+      "Test-Path",
+      "Resolve-Path",
+      "Get-FileHash",
+      "Get-Process",
+      "Get-Service",
+      "Get-ComputerInfo",
+      "systeminfo",
+      "hostname",
+      "whoami",
+      "Get-Date",
+      "Get-Command",
+      "Get-Module",
+      "Get-Help",
+      "Get-Uptime",
+      "Get-CimInstance",
+      "Get-WmiObject",
+      "Get-Volume",
+      "Get-PSDrive",
+      "Get-Counter",
+      "Get-NetTCPConnection",
+      "Get-NetUDPEndpoint",
+      "Get-NetAdapter",
+      "Get-NetIPAddress",
+      "Get-NetRoute",
+      "Get-DnsClientServerAddress",
+      "Test-Connection",
+      "Test-NetConnection",
+      "Resolve-DnsName",
+      "ipconfig",
+      "nslookup",
+      "tracert",
+      "netstat",
+      "ping",
+      "pathping",
+      "curl",
+      "Invoke-WebRequest"
+    ],
+    "system_prompt": "You are a Windows system inspection agent. Use PowerShell cmdlets. For reading files use Get-Content. For registry use Get-ItemProperty 'HKLM:\\...'. Format output with Format-Table -AutoSize | Out-String -Width 200 for readability. If unsure a cmdlet exists on this host, check with Get-Command <name> (or Get-Command -Noun <noun>*) before using it — never guess."
+  }
+}

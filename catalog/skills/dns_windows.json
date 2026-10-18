@@ -1,0 +1,37 @@
+{
+  "slug": "dns",
+  "name": "DNS Management",
+  "node_type": "windows",
+  "description": "Manage DNS server zones, records, and forwarders",
+  "version": "2",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "zones",
+        "description": "Manage DNS zones"
+      },
+      {
+        "name": "records",
+        "description": "Add/modify/remove DNS records"
+      },
+      {
+        "name": "forwarders",
+        "description": "Manage forwarders"
+      },
+      {
+        "name": "diagnostics",
+        "description": "DNS server diagnostics"
+      }
+    ],
+    "allowed_modules": [
+      "DnsServer",
+      "DnsClient"
+    ],
+    "allowed_commands": [
+      "dnscmd",
+      "Resolve-DnsName"
+    ],
+    "system_prompt": "You are a Windows DNS Server management agent. Requires the DNS Server role. Check with Get-WindowsFeature DNS. Use Get-DnsServerZone to list zones. For records, use the type-specific cmdlets (Add-DnsServerResourceRecordA for A records, etc.). Always verify with Resolve-DnsName after changes. Client side: inspect or flush the resolver cache with Get-DnsClientCache / Clear-DnsClientCache and manage NRPT rules and DoH servers with the DnsClient cmdlets."
+  }
+}

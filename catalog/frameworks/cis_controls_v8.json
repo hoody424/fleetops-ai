@@ -1,0 +1,184 @@
+{
+  "id": "cis_controls_v8",
+  "name": "CIS Controls v8 — Implementation Group 1",
+  "description": "CIS Critical Security Controls v8.1 — Implementation Group 1 (essential cyber hygiene). This is the prioritised top-18 controls list, distinct from the CIS Linux/Windows Benchmarks. Only safeguards mappable to host-level rules are included.",
+  "version": "8.1",
+  "url": "https://www.cisecurity.org/controls/v8",
+  "controls": [
+    {
+      "ref": "4.1",
+      "name": "Establish and maintain a secure configuration process",
+      "desc": "All assets follow a hardened configuration baseline: MAC, kernel hardening, disabled legacy protocols, hardened SSH/RDP defaults.",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter",
+        "uac-enabled",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "wdigest-off",
+        "auto-login-disabled",
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-x11-forwarding",
+        "rdp-nla-enabled"
+      ]
+    },
+    {
+      "ref": "4.5",
+      "name": "Implement and manage a firewall on servers",
+      "desc": "Host firewall active on all servers and end-user devices.",
+      "rule_slugs": [
+        "firewall-active",
+        "pt-nmap-discovery",
+        "pt-nmap-full"
+      ]
+    },
+    {
+      "ref": "5.2",
+      "name": "Use unique passwords",
+      "desc": "Each account uses a unique, complex password subject to length and lockout policies; modern hashing protects stored credentials.",
+      "rule_slugs": [
+        "password-min-length",
+        "password-complexity",
+        "account-lockout",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "ssh-password-auth",
+        "ssh-pubkey-auth"
+      ]
+    },
+    {
+      "ref": "5.3",
+      "name": "Disable dormant accounts",
+      "desc": "Default and rarely-used accounts must be disabled; built-in Guest off, no extra UID 0.",
+      "rule_slugs": [
+        "guest-disabled",
+        "no-extra-uid0"
+      ]
+    },
+    {
+      "ref": "6.1",
+      "name": "Establish an access-granting process",
+      "desc": "Privileged access controlled: no shared root, SSH MaxAuthTries limits brute-force, RDP requires Network Level Authentication.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-max-auth-tries",
+        "no-extra-uid0",
+        "rdp-nla-enabled",
+        "uac-enabled"
+      ]
+    },
+    {
+      "ref": "6.5",
+      "name": "Require MFA for administrative access",
+      "desc": "Strong authentication for administrators — public-key SSH (cryptographically equivalent to MFA factor 'something you have'), password complexity, and lockout.",
+      "rule_slugs": [
+        "ssh-pubkey-auth",
+        "password-complexity",
+        "account-lockout"
+      ]
+    },
+    {
+      "ref": "7.1",
+      "name": "Establish and maintain a vulnerability management process",
+      "desc": "Track and remediate known vulnerabilities: no Known-Exploited / critical / high CVEs outstanding.",
+      "rule_slugs": [
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    },
+    {
+      "ref": "7.4",
+      "name": "Perform automated application patch management",
+      "desc": "Security patches applied automatically where supported; no patches pending reboot for extended periods.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled"
+      ]
+    },
+    {
+      "ref": "8.2",
+      "name": "Collect audit logs",
+      "desc": "Audit subsystem captures security-relevant events on every host.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "powershell-script-block-logging",
+        "failed-logins-low"
+      ]
+    },
+    {
+      "ref": "8.4",
+      "name": "Standardize time synchronization",
+      "desc": "All systems synchronise to a reliable time source so audit records correlate.",
+      "rule_slugs": [
+        "time-synchronized"
+      ]
+    },
+    {
+      "ref": "10.1",
+      "name": "Deploy and maintain anti-malware software",
+      "desc": "Anti-malware enabled with real-time protection and current signatures.",
+      "rule_slugs": [
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh"
+      ]
+    },
+    {
+      "ref": "12.2",
+      "name": "Establish and maintain secure network architecture",
+      "desc": "Network segmentation, no IP forwarding between subnets, ICMP redirect protection, reverse-path filter.",
+      "rule_slugs": [
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter"
+      ]
+    },
+    {
+      "ref": "13.x",
+      "name": "Network monitoring and defense",
+      "desc": "Continuous network monitoring with audit logs, failed-login surveillance and time-synchronised clocks.",
+      "rule_slugs": [
+        "auditd-active",
+        "failed-logins-low",
+        "time-synchronized",
+        "pt-subfinder-enum",
+        "pt-nmap-dns"
+      ]
+    },
+    {
+      "ref": "3.10",
+      "name": "Encrypt sensitive data in transit",
+      "desc": "Strong TLS protocols and ciphers, valid certificates, mandatory SMB signing, legacy WDigest credential store off.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "wdigest-off",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    },
+    {
+      "ref": "3.6",
+      "name": "Encrypt data on end-user devices",
+      "desc": "Full-disk encryption (BitLocker on Windows / equivalent on Linux) on portable devices.",
+      "rule_slugs": [
+        "disk-encryption-active"
+      ]
+    }
+  ]
+}

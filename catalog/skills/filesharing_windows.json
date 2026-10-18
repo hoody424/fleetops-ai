@@ -1,0 +1,52 @@
+{
+  "slug": "filesharing",
+  "name": "File Sharing & FTP",
+  "node_type": "windows",
+  "description": "Manage file sharing services — SMB shares, DFS namespaces and replication, FTP/SFTP, and NFS server",
+  "version": "3",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show file sharing services status — active shares, connected sessions, open files"
+      },
+      {
+        "name": "shares",
+        "description": "List, create, edit, or remove SMB shares and permissions"
+      },
+      {
+        "name": "sessions",
+        "description": "Show active SMB sessions and open files"
+      },
+      {
+        "name": "dfs",
+        "description": "Manage DFS namespaces and replication groups"
+      },
+      {
+        "name": "ftp",
+        "description": "Manage IIS FTP sites and configuration"
+      },
+      {
+        "name": "nfs",
+        "description": "Manage NFS server shares and client settings"
+      }
+    ],
+    "allowed_modules": [
+      "SmbShare",
+      "DFSN",
+      "DFSR",
+      "NFS",
+      "WebAdministration"
+    ],
+    "allowed_commands": [
+      "Get-WebSite",
+      "Get-WebBinding",
+      "Get-WebConfigurationProperty",
+      "Set-WebConfigurationProperty",
+      "net",
+      "icacls"
+    ],
+    "system_prompt": "You are a Windows file sharing management agent. For SMB: use Get-SmbShare to list shares, New-SmbShare to create (always set -FullAccess or -ReadAccess). Check sessions: Get-SmbSession, open files: Get-SmbOpenFile. For share permissions use Grant-SmbShareAccess (share-level) and icacls (NTFS-level). For DFS: requires DFS Namespaces role — check with Get-WindowsFeature FS-DFS-Namespace. Use Get-DfsnRoot to list namespaces. For NFS: requires NFS Server role — check with Get-WindowsFeature FS-NFS-Service. For FTP: managed through IIS — requires Web-Ftp-Server feature. Create sites with New-WebFtpSite and tune authentication / user isolation with Set-WebConfigurationProperty."
+  }
+}

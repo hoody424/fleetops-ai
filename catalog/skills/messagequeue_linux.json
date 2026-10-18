@@ -1,0 +1,116 @@
+{
+  "slug": "messagequeue",
+  "name": "Message Queue Management",
+  "node_type": "linux",
+  "description": "Manage message queues and brokers — RabbitMQ, Kafka, NATS, ActiveMQ, MQTT/Mosquitto, and Redis pub/sub",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show message broker status — server health, connections, queue/topic counts, cluster state"
+      },
+      {
+        "name": "queues",
+        "description": "Manage queues or topics — list, create, delete, purge, inspect"
+      },
+      {
+        "name": "consumers",
+        "description": "View and manage consumers and consumer groups"
+      },
+      {
+        "name": "messages",
+        "description": "Inspect, publish, or manage messages"
+      },
+      {
+        "name": "users",
+        "description": "Manage broker users, vhosts, and permissions"
+      },
+      {
+        "name": "config",
+        "description": "View or edit broker configuration"
+      },
+      {
+        "name": "performance",
+        "description": "Analyze broker performance — throughput, latency, memory, connections"
+      }
+    ],
+    "allowed_commands": [
+      "rabbitmqctl",
+      "rabbitmq-plugins",
+      "rabbitmq-diagnostics",
+      "rabbitmqadmin",
+      "kafka-topics.sh",
+      "kafka-console-producer.sh",
+      "kafka-console-consumer.sh",
+      "kafka-consumer-groups.sh",
+      "kafka-configs.sh",
+      "kafka-broker-api-versions.sh",
+      "kafka-topics",
+      "kafka-console-producer",
+      "kafka-console-consumer",
+      "kafka-consumer-groups",
+      "kafka-configs",
+      "nats",
+      "nsc",
+      "activemq",
+      "mosquitto_pub",
+      "mosquitto_sub",
+      "mosquitto_passwd",
+      "kcat",
+      "kafkacat",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a message queue management agent. CRITICAL: First detect which broker is installed: 'which rabbitmqctl' (RabbitMQ), check for /opt/kafka or 'which kafka-topics.sh' or 'which kafka-topics' (Kafka), 'which nats' (NATS), check for /opt/activemq or 'which activemq' (ActiveMQ).\n\nRABBITMQ: Use 'rabbitmqctl status' for server health, 'rabbitmqctl list_queues' for queues, 'rabbitmqctl list_connections' for connections, 'rabbitmqctl list_users' for users. Enable management plugin: 'rabbitmq-plugins enable rabbitmq_management'. API via curl on port 15672.\n\nKAFKA: Use kafka-topics.sh (or kafka-topics without .sh on newer versions) with --bootstrap-server localhost:9092. List: '--list'. Create: '--create --topic NAME --partitions N --replication-factor N'. Describe: '--describe --topic NAME'. Consumer groups: kafka-consumer-groups.sh --list/--describe.\n\nNATS: Use 'nats' CLI. Server info: 'nats server info'. Streams (JetStream): 'nats stream ls', 'nats stream add'. Pub/sub: 'nats pub SUBJECT MSG', 'nats sub SUBJECT'.\n\nACTIVEMQ: Management typically via web console (port 8161) or REST API with curl. Config in /opt/activemq/conf/.\n\nALWAYS: Check broker health before operations. Be cautious with purge/delete — data loss is irreversible.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "type": "inventory",
+  "name": "System Inventory",
+  "node_type": "windows",
+  "version": "1",
+  "checks": {
+    "system_info": {
+      "name": "System Info",
+      "command": "$os = Get-CimInstance Win32_OperatingSystem; $cs = Get-CimInstance Win32_ComputerSystem; \"OS=$($os.Caption)\"; \"Version=$($os.Version)\"; \"Arch=$($os.OSArchitecture)\"; \"Hostname=$($cs.Name)\"; \"Domain=$($cs.Domain)\"; \"UptimeHours=$([math]::Round(((Get-Date) - $os.LastBootUpTime).TotalHours,1))\"; \"CPUs=$($cs.NumberOfLogicalProcessors)\"; \"RAMGB=$([math]::Round($cs.TotalPhysicalMemory / 1GB, 1))\"; \"Manufacturer=$($cs.Manufacturer)\"; \"Model=$($cs.Model)\"",
+      "timeout": 15
+    },
+    "running_services": {
+      "name": "Services (Auto-Start)",
+      "command": "Get-CimInstance Win32_Service | Where-Object { $_.State -eq 'Running' -or $_.StartMode -eq 'Auto' } | Select-Object Name, DisplayName, State, StartMode, PathName | Sort-Object Name | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 10,
+      "max_output": 30000
+    },
+    "listening_ports": {
+      "name": "Listening Ports",
+      "command": "Get-NetTCPConnection -State Listen | Select-Object LocalPort, @{N='ProcessName';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).ProcessName}}, @{N='Path';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Path}} | Sort-Object LocalPort -Unique | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 10,
+      "max_output": 20000
+    },
+    "installed_packages": {
+      "name": "Installed Software",
+      "command": "Get-Package -ProviderName Programs, msi -ErrorAction SilentlyContinue | Select-Object Name, Version | Sort-Object Name | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 30,
+      "max_output": 40000
+    },
+    "containers": {
+      "name": "Docker Containers",
+      "command": "if (Get-Command docker -ErrorAction SilentlyContinue) { 'RUNTIME=docker'; docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' 2>$null } else { 'NOT_INSTALLED' }",
+      "timeout": 15
+    },
+    "scheduled_tasks": {
+      "name": "Scheduled Tasks",
+      "command": "Get-ScheduledTask | Where-Object { $_.State -ne 'Disabled' -and $_.TaskPath -notmatch '^\\\\Microsoft' } | Select-Object TaskName, TaskPath, State, @{N='Author';E={$_.Principal.UserId}} | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 15,
+      "max_output": 20000
+    },
+    "network_interfaces": {
+      "name": "Network Interfaces",
+      "command": "Get-NetIPAddress | Where-Object { $_.AddressFamily -eq 'IPv4' -and $_.IPAddress -ne '127.0.0.1' } | Select-Object InterfaceAlias, IPAddress, PrefixLength | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 10
+    },
+    "mounted_filesystems": {
+      "name": "Drives & Volumes",
+      "command": "'[VOLUMES]'; Get-Volume | Where-Object { $_.DriveLetter -or $_.FileSystemLabel } | Select-Object DriveLetter, FileSystemLabel, FileSystem, HealthStatus, @{N='SizeGB';E={[math]::Round($_.Size/1GB,1)}}, @{N='FreeGB';E={[math]::Round($_.SizeRemaining/1GB,1)}} | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 10
+    },
+    "hardware_info": {
+      "name": "Hardware Info",
+      "command": "$c = Get-CimInstance Win32_Processor | Select-Object -First 1; \"CPU=$($c.Name)\"; \"Cores=$($c.NumberOfCores)\"; \"LogicalProcessors=$($c.NumberOfLogicalProcessors)\"; \"MaxClockMHz=$($c.MaxClockSpeed)\"; $m = Get-CimInstance Win32_PhysicalMemory; \"RAMModules=$(($m | Measure-Object).Count)\"; \"RAMGB=$([math]::Round((($m | Measure-Object -Property Capacity -Sum).Sum)/1GB,1))\"; '[DISKS]'; Get-PhysicalDisk | Select-Object FriendlyName, MediaType, @{N='SizeGB';E={[math]::Round($_.Size/1GB,1)}}, HealthStatus | ConvertTo-Csv -NoTypeInformation",
+      "timeout": 10
+    },
+    "web_servers": {
+      "name": "Web Servers",
+      "command": "if (Get-Service W3SVC -ErrorAction SilentlyContinue) { 'IIS=RUNNING'; Import-Module WebAdministration -ErrorAction SilentlyContinue; '[SITES]'; Get-Website | Select-Object Name, State, PhysicalPath | ConvertTo-Csv -NoTypeInformation } else { 'IIS=NOT_INSTALLED' }",
+      "timeout": 10
+    },
+    "databases": {
+      "name": "Databases",
+      "command": "foreach ($svc in @('MSSQLSERVER','MSSQL$*','MySQL*','postgresql*','MongoDB*','Redis*')) { Get-Service -Name $svc -ErrorAction SilentlyContinue | Where-Object Status -eq Running | ForEach-Object { \"$($_.Name)=RUNNING\" } }",
+      "timeout": 10
+    },
+    "login_users": {
+      "name": "Local Users",
+      "command": "Get-LocalUser | Where-Object Enabled | Select-Object Name, @{N='LastLogon';E={if ($_.LastLogon) { $_.LastLogon.ToString('yyyy-MM-dd') } else { '' }}}, PasswordExpires | ConvertTo-Csv -NoTypeInformation; '[GROUPS]'; foreach ($u in (Get-LocalUser | Where-Object Enabled)) { $names = @(); foreach ($grp in (Get-LocalGroup)) { if (Get-LocalGroupMember -Group $grp -ErrorAction SilentlyContinue | Where-Object { $_.Name -like \"*\\$($u.Name)\" }) { $names += $grp.Name } }; if ($names) { \"$($u.Name)=$($names -join ', ')\" } }",
+      "timeout": 15,
+      "max_output": 20000
+    },
+    "package_versions": {
+      "name": "Package Versions",
+      "command": "$hf = (Get-HotFix | Measure-Object).Count; \"WindowsUpdates=$hf\"",
+      "timeout": 15
+    }
+  }
+}

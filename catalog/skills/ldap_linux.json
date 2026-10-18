@@ -1,0 +1,116 @@
+{
+  "slug": "ldap",
+  "name": "Directory Services & LDAP",
+  "node_type": "linux",
+  "description": "Manage directory services — OpenLDAP, FreeIPA, SSSD, centralized authentication, and user directory management",
+  "version": "1",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show directory service status — server health, replication, connection count"
+      },
+      {
+        "name": "search",
+        "description": "Search the directory — find users, groups, OUs, or any LDAP entries"
+      },
+      {
+        "name": "users",
+        "description": "Manage directory users — add, modify, delete, enable/disable, reset password"
+      },
+      {
+        "name": "groups",
+        "description": "Manage directory groups — create, delete, add/remove members"
+      },
+      {
+        "name": "config",
+        "description": "View or edit directory server configuration"
+      },
+      {
+        "name": "client",
+        "description": "Configure LDAP/SSSD client authentication on this server"
+      }
+    ],
+    "allowed_commands": [
+      "ldapsearch",
+      "ldapadd",
+      "ldapmodify",
+      "ldapdelete",
+      "ldappasswd",
+      "ldapwhoami",
+      "slapcat",
+      "slapadd",
+      "slaptest",
+      "slappasswd",
+      "ipa",
+      "ipa-server-install",
+      "ipa-client-install",
+      "ipa-replica-install",
+      "kinit",
+      "klist",
+      "kdestroy",
+      "kadmin",
+      "sssd",
+      "sssctl",
+      "sss_cache",
+      "authselect",
+      "authconfig",
+      "realm",
+      "adcli",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a directory service management agent. CRITICAL: First detect which directory service is installed: 'which slapcat' or check /etc/ldap or /etc/openldap (OpenLDAP), 'which ipa' or check /etc/ipa (FreeIPA/IdM), 'which sssctl' (SSSD client), 'which adcli' (AD integration).\n\nOPENLDAP: Config via cn=config (dynamic) or /etc/ldap/slapd.d/. Search: 'ldapsearch -x -LLL -b BASE FILTER'. Add: 'ldapadd -x -D BINDDN -W -f file.ldif'. Export: 'slapcat'. Use -H ldap://HOST for remote.\n\nFREEIPA: Use 'ipa' CLI (requires Kerberos ticket — 'kinit admin' first). Users: 'ipa user-add/find/show/mod/del'. Groups: 'ipa group-add/add-member/find'. DNS: 'ipa dnsrecord-add'. Sudo: 'ipa sudorule-add'.\n\nSSSD: Config in /etc/sssd/sssd.conf. Status: 'sssctl domain-status DOMAIN'. Clear cache: 'sss_cache -E'. Debug: check /var/log/sssd/.\n\nALWAYS: Back up before schema changes. Test LDAP binds before modifying ACLs. Be careful with delete operations — directory changes can affect all connected systems.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

@@ -1,0 +1,829 @@
+{
+  "type": "security",
+  "name": "Security Audit",
+  "node_type": "linux",
+  "version": "1",
+  "checks": {
+    "ssh_config": {
+      "name": "SSH Config",
+      "command": "sshd -T 2>/dev/null | grep -iE '^(permitrootlogin|passwordauthentication|maxauthtries|pubkeyauthentication|x11forwarding|usepam|allowusers|allowgroups|protocol)' || echo 'NOT_FOUND'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "ssh-root-login",
+          "name": "SSH root login disabled",
+          "finding": "SSH root login enabled",
+          "eval": {
+            "type": "not_contains",
+            "value": "PermitRootLogin yes"
+          },
+          "severity_public": "critical",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-5.2.10"
+          ],
+          "category": "ssh",
+          "explanation": "SSH is configured to allow direct root login, which bypasses audit trails and increases brute-force risk.",
+          "remediation": "Set 'PermitRootLogin no' in /etc/ssh/sshd_config and restart sshd."
+        },
+        {
+          "slug": "ssh-password-auth",
+          "name": "SSH password authentication disabled",
+          "finding": "SSH password authentication enabled",
+          "eval": {
+            "type": "not_contains",
+            "value": "PasswordAuthentication yes"
+          },
+          "severity_public": "critical",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-5.2.3"
+          ],
+          "category": "ssh",
+          "explanation": "SSH allows password-based login, which is vulnerable to brute-force attacks. Key-based authentication is more secure.",
+          "remediation": "Set 'PasswordAuthentication no' in /etc/ssh/sshd_config and restart sshd."
+        },
+        {
+          "slug": "ssh-max-auth-tries",
+          "name": "SSH MaxAuthTries not set too high",
+          "finding": "SSH MaxAuthTries set too high",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "MaxAuthTries\\s+([5-9]|\\d{2,})\\b"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-5.2.7"
+          ],
+          "category": "ssh",
+          "explanation": "SSH MaxAuthTries is set higher than recommended, allowing more brute-force attempts per connection.",
+          "remediation": "Set 'MaxAuthTries 4' in /etc/ssh/sshd_config and restart sshd."
+        },
+        {
+          "slug": "ssh-x11-forwarding",
+          "name": "SSH X11 forwarding disabled",
+          "finding": "SSH X11 forwarding enabled",
+          "eval": {
+            "type": "not_contains",
+            "value": "X11Forwarding yes"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-5.2.6"
+          ],
+          "category": "ssh",
+          "explanation": "X11 forwarding is enabled, which exposes the X11 display to potential hijacking over SSH tunnels.",
+          "remediation": "Set 'X11Forwarding no' in /etc/ssh/sshd_config and restart sshd."
+        },
+        {
+          "slug": "ssh-pubkey-auth",
+          "name": "SSH public key authentication enabled",
+          "finding": "SSH public key authentication disabled",
+          "eval": {
+            "type": "not_contains",
+            "value": "PubkeyAuthentication no"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-5.2.4"
+          ],
+          "category": "ssh",
+          "explanation": "Public key authentication is disabled, forcing less secure authentication methods.",
+          "remediation": "Set 'PubkeyAuthentication yes' in /etc/ssh/sshd_config and restart sshd."
+        }
+      ]
+    },
+    "listening_ports": {
+      "name": "Listening Ports",
+      "command": "ss -tuln | awk 'NR>1 {print $1,$2,$5}' | head -30",
+      "timeout": 5,
+      "rules": []
+    },
+    "firewall": {
+      "name": "Firewall",
+      "command": "echo 'UFW:'; ufw status 2>/dev/null || echo 'not installed'; echo '---'; echo 'FIREWALLD:'; firewall-cmd --state 2>/dev/null || echo 'not installed'; firewall-cmd --list-all 2>/dev/null | head -10; echo '---'; echo 'NFTABLES:'; nft list ruleset 2>/dev/null | head -15 || echo 'not installed'; echo '---'; echo 'IPTABLES:'; iptables -S 2>/dev/null | head -15 || echo 'not installed'",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "firewall-active",
+          "name": "Firewall is active",
+          "finding": "No active firewall",
+          "eval": {
+            "type": "regex_match",
+            "value": "(Status: active|FIREWALLD:\\s*running|table inet |table ip |-j (DROP|REJECT)|DROP\\s|REJECT\\s)"
+          },
+          "severity_public": "critical",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-3.5.1"
+          ],
+          "category": "firewall",
+          "explanation": "No active firewall detected. The server has no host-level packet filtering.",
+          "remediation": "Enable and start the firewall (ufw enable, systemctl start firewalld, or configure iptables/nftables)."
+        }
+      ]
+    },
+    "login_users": {
+      "name": "Login Users",
+      "command": "awk -F: '$7 !~ /nologin|false/ {printf \"%s (uid=%s)\\n\",$1,$3}' /etc/passwd",
+      "timeout": 5,
+      "rules": []
+    },
+    "uid0_check": {
+      "name": "UID 0 Check",
+      "command": "awk -F: '$3==0 {print $1}' /etc/passwd",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "no-extra-uid0",
+          "name": "No non-root UID 0 accounts",
+          "finding": "Non-root UID 0 accounts present",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "^(?!root$)\\S+"
+          },
+          "severity_public": "critical",
+          "severity_private": "critical",
+          "frameworks": [
+            "CIS-L1-6.2.2"
+          ],
+          "category": "users",
+          "explanation": "Non-root accounts with UID 0 have full root privileges, bypassing access controls.",
+          "remediation": "Remove or change the UID of non-root accounts with UID 0."
+        }
+      ]
+    },
+    "sudoers": {
+      "name": "Sudoers",
+      "command": "grep -v '^#' /etc/sudoers 2>/dev/null | grep -v '^$' | grep -v '^Defaults' | head -15; echo '---'; ls /etc/sudoers.d/ 2>/dev/null",
+      "timeout": 5,
+      "rules": []
+    },
+    "suid_binaries": {
+      "name": "SUID Binaries",
+      "command": "find / -maxdepth 4 -type f -perm -4000 2>/dev/null | wc -l; echo '---'; find / -maxdepth 3 -type f -perm -4000 2>/dev/null | head -10",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "suid-binaries-reasonable",
+          "name": "SUID binaries count under 50",
+          "finding": "Over 50 SUID binaries",
+          "eval": {
+            "type": "numeric_lt",
+            "value": 50
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-6.1.13"
+          ],
+          "category": "permissions",
+          "explanation": "Unusually high number of SUID binaries. Each SUID binary is a potential privilege escalation vector.",
+          "remediation": "Review SUID binaries: find / -perm -4000. Remove SUID bit from unnecessary binaries."
+        }
+      ]
+    },
+    "security_updates": {
+      "name": "Security Updates",
+      "command": "if command -v dnf >/dev/null 2>&1; then dnf check-update --security 2>/dev/null; rc=$?; if [ $rc -eq 100 ]; then echo 'Security updates available'; exit 0; fi; elif command -v yum >/dev/null 2>&1; then yum check-update --security 2>/dev/null; rc=$?; if [ $rc -eq 100 ]; then echo 'Security updates available'; exit 0; fi; elif command -v apt >/dev/null 2>&1; then apt list --upgradable 2>/dev/null | grep -i security && exit 0; elif command -v zypper >/dev/null 2>&1; then zypper list-patches --category security 2>/dev/null | grep needed && exit 0; elif command -v apk >/dev/null 2>&1; then apk upgrade --simulate 2>/dev/null | grep -c '^(' | grep -v '^0$' && exit 0; fi; echo 'No security updates available'",
+      "timeout": 30,
+      "rules": [
+        {
+          "slug": "security-updates-applied",
+          "name": "No pending security updates",
+          "finding": "Pending security updates",
+          "eval": {
+            "type": "contains",
+            "value": "No security updates"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-1.9"
+          ],
+          "category": "updates",
+          "explanation": "Security patches are available but not installed, leaving known vulnerabilities unpatched.",
+          "remediation": "Apply pending security updates: dnf update --security / apt upgrade."
+        }
+      ]
+    },
+    "reboot_required": {
+      "name": "Reboot Required",
+      "command": "{ [ -f /var/run/reboot-required ] && echo 'REBOOT_REQUIRED pending (/var/run/reboot-required)'; if command -v needs-restarting >/dev/null 2>&1; then needs-restarting -r 2>&1 | grep -iq 'needed\\|required' && echo 'REBOOT_REQUIRED dnf needs-restarting'; fi; latest=$(rpm -q --last kernel 2>/dev/null | head -1 | awk '{print $1}' | sed 's/^kernel-//'); running=$(uname -r); if [ -n \"$latest\" ] && [ \"$latest\" != \"$running\" ]; then echo \"REBOOT_REQUIRED kernel (running=$running latest=$latest)\"; fi; } 2>/dev/null; echo 'DONE'",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "no-pending-reboot",
+          "name": "No pending reboot for patched kernel or libraries",
+          "finding": "Pending reboot for patched kernel or libraries",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "REBOOT_REQUIRED"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-1.9"
+          ],
+          "category": "updates",
+          "explanation": "The host has applied updates that require a reboot to take effect. Kernel CVEs and library vulnerabilities remain exploitable until reboot.",
+          "remediation": "Schedule a maintenance window and reboot the host: sudo systemctl reboot. For zero-downtime on RHEL, consider kpatch/kernel live-patching."
+        }
+      ]
+    },
+    "auto_updates_enabled": {
+      "name": "Automatic Security Updates",
+      "command": "{ [ -f /etc/alpine-release ] && echo 'ALPINE_DETECTED'; if systemctl is-enabled unattended-upgrades 2>/dev/null | grep -q '^enabled'; then echo 'APT_AUTO=enabled'; fi; grep -hEs '^APT::Periodic::Unattended-Upgrade[[:space:]]+\"1\"' /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/50unattended-upgrades 2>/dev/null | head -1 | grep -q . && echo 'APT_AUTO_CONF=yes'; if systemctl is-enabled dnf-automatic.timer 2>/dev/null | grep -q '^enabled'; then echo 'DNF_AUTO=enabled'; fi; if systemctl is-active dnf-automatic.timer 2>/dev/null | grep -q '^active'; then echo 'DNF_AUTO_ACTIVE=yes'; fi; if systemctl is-enabled yum-cron 2>/dev/null | grep -q '^enabled'; then echo 'YUM_CRON=enabled'; fi; } 2>/dev/null; echo 'DONE'",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "auto-updates-enabled",
+          "name": "Automatic security updates enabled",
+          "finding": "Automatic security updates disabled",
+          "eval": {
+            "type": "regex_match",
+            "value": "(APT_AUTO=enabled|APT_AUTO_CONF=yes|DNF_AUTO=enabled|DNF_AUTO_ACTIVE=yes|YUM_CRON=enabled|ALPINE_DETECTED)"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-1.9"
+          ],
+          "category": "updates",
+          "explanation": "Automatic security update installation is not enabled. Manual patching is delay-prone; auto-updates close known-exploit windows faster.",
+          "remediation": "Debian/Ubuntu: 'sudo apt install unattended-upgrades && sudo dpkg-reconfigure -plow unattended-upgrades'. RHEL/Rocky/Alma: 'sudo dnf install dnf-automatic && sudo systemctl enable --now dnf-automatic.timer'."
+        }
+      ]
+    },
+    "failed_logins": {
+      "name": "Failed Logins (24h)",
+      "command": "if command -v journalctl >/dev/null 2>&1 && journalctl --no-pager -n1 >/dev/null 2>&1; then journalctl -u sshd -u ssh --since '24 hours ago' --no-pager 2>/dev/null | grep -ic 'failed\\|invalid' || echo '0'; elif [ -f /var/log/auth.log ]; then awk -v d=$(date -d '24 hours ago' '+%b %e' 2>/dev/null || date '+%b %e') '$0 >= d' /var/log/auth.log 2>/dev/null | grep -ic 'failed\\|invalid' || echo '0'; elif [ -f /var/log/secure ]; then awk -v d=$(date -d '24 hours ago' '+%b %e' 2>/dev/null || date '+%b %e') '$0 >= d' /var/log/secure 2>/dev/null | grep -ic 'failed\\|invalid' || echo '0'; else echo '0'; fi",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "failed-logins-low",
+          "name": "Failed SSH logins under 100 in 24h",
+          "finding": "Over 100 failed SSH logins in 24h",
+          "eval": {
+            "type": "numeric_lt",
+            "value": 100
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "logs",
+          "explanation": "Over 100 failed SSH login attempts in the last 24 hours, indicating a brute-force attack or misconfigured client.",
+          "remediation": "Investigate source IPs of failed logins. Consider firewall rules or VPN-only SSH access."
+        }
+      ]
+    },
+    "selinux_apparmor": {
+      "name": "SELinux/AppArmor",
+      "command": "getenforce 2>/dev/null || aa-status 2>/dev/null | head -5 || echo 'NONE'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "selinux-apparmor-active",
+          "name": "SELinux or AppArmor is active",
+          "finding": "Neither SELinux nor AppArmor is active",
+          "eval": {
+            "type": "regex_match",
+            "value": "(enforcing|enabled|profiles are loaded)"
+          },
+          "severity_public": "high",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-1.6.1"
+          ],
+          "category": "kernel",
+          "explanation": "No mandatory access control (SELinux/AppArmor) is active. MAC limits damage from compromised services.",
+          "remediation": "Enable SELinux (setenforce 1 + SELINUX=enforcing in /etc/selinux/config) or AppArmor (systemctl enable apparmor)."
+        }
+      ]
+    },
+    "kernel_security": {
+      "name": "Kernel Security",
+      "command": "sysctl net.ipv4.ip_forward net.ipv4.conf.all.accept_redirects net.ipv4.conf.all.send_redirects net.ipv4.conf.all.rp_filter kernel.randomize_va_space fs.suid_dumpable 2>/dev/null",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "kernel-ip-forward",
+          "name": "IP forwarding disabled",
+          "finding": "IP forwarding enabled",
+          "eval": {
+            "type": "contains",
+            "value": "net.ipv4.ip_forward = 0"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-3.2.1"
+          ],
+          "category": "kernel",
+          "explanation": "IP forwarding is enabled, allowing the server to route packets between networks. This is a risk unless the server is intentionally a router.",
+          "remediation": "Set 'net.ipv4.ip_forward = 0' in /etc/sysctl.d/ and run sysctl --system."
+        },
+        {
+          "slug": "kernel-accept-redirects",
+          "name": "ICMP redirects rejected",
+          "finding": "ICMP redirects accepted",
+          "eval": {
+            "type": "contains",
+            "value": "net.ipv4.conf.all.accept_redirects = 0"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-3.2.2"
+          ],
+          "category": "kernel",
+          "explanation": "The server accepts ICMP redirect messages, which could be used to alter routing tables in a MITM attack.",
+          "remediation": "Set 'net.ipv4.conf.all.accept_redirects = 0' in /etc/sysctl.d/ and run sysctl --system."
+        },
+        {
+          "slug": "kernel-send-redirects",
+          "name": "ICMP send redirects disabled",
+          "finding": "ICMP send redirects enabled",
+          "eval": {
+            "type": "contains",
+            "value": "net.ipv4.conf.all.send_redirects = 0"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-3.2.2"
+          ],
+          "category": "kernel",
+          "explanation": "The server sends ICMP redirect messages, which could be exploited for traffic redirection.",
+          "remediation": "Set 'net.ipv4.conf.all.send_redirects = 0' in /etc/sysctl.d/ and run sysctl --system."
+        },
+        {
+          "slug": "kernel-rp-filter",
+          "name": "Reverse path filtering enabled",
+          "finding": "Reverse path filtering disabled",
+          "eval": {
+            "type": "contains",
+            "value": "net.ipv4.conf.all.rp_filter = 1"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-3.2.7"
+          ],
+          "category": "kernel",
+          "explanation": "Reverse path filtering is disabled, allowing spoofed packets to be accepted.",
+          "remediation": "Set 'net.ipv4.conf.all.rp_filter = 1' in /etc/sysctl.d/ and run sysctl --system."
+        },
+        {
+          "slug": "aslr-enabled",
+          "name": "Address Space Layout Randomization (ASLR) fully enabled",
+          "finding": "Address Space Layout Randomization (ASLR) not fully enabled",
+          "eval": {
+            "type": "contains",
+            "value": "kernel.randomize_va_space = 2"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-1.5.3"
+          ],
+          "category": "kernel",
+          "explanation": "ASLR is not fully enabled. Randomizing process address space layout makes memory-corruption exploits much harder to weaponize.",
+          "remediation": "Set 'kernel.randomize_va_space = 2' in /etc/sysctl.d/99-security.conf and run 'sysctl --system'."
+        },
+        {
+          "slug": "suid-dumpable-disabled",
+          "name": "Core dumps from SUID binaries disabled",
+          "finding": "Core dumps from SUID binaries enabled",
+          "eval": {
+            "type": "contains",
+            "value": "fs.suid_dumpable = 0"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [
+            "CIS-L1-1.5.1"
+          ],
+          "category": "kernel",
+          "explanation": "SUID programs are allowed to produce core dumps, which can leak sensitive in-memory data to disk.",
+          "remediation": "Set 'fs.suid_dumpable = 0' in /etc/sysctl.d/99-security.conf and run 'sysctl --system'."
+        }
+      ]
+    },
+    "tls_ciphers": {
+      "name": "TLS/SSL Ciphers",
+      "command": "ports=$(ss -tlnH | awk '{n=split($4,a,\":\"); print a[n]}' | sort -un | head -3); for port in $ports; do r=$(timeout 2 openssl s_client -connect 127.0.0.1:$port </dev/null 2>&1); cipher=$(echo \"$r\" | grep '^ *Cipher' | head -1 | awk '{print $NF}'); [ \"$cipher\" = '0000' -o \"$cipher\" = '(NONE)' -o -z \"$cipher\" ] && continue; proto=$(echo \"$r\" | grep '^ *Protocol' | awk '{print $NF}'); echo \"Port $port: proto=$proto cipher=$cipher\"; for wf in '-ssl3:SSLv3' '-tls1:TLSv1' '-tls1_1:TLSv1.1'; do flag=${wf%%:*}; name=${wf##*:}; wc=$(timeout 2 openssl s_client $flag -connect 127.0.0.1:$port </dev/null 2>&1 | grep '^ *Cipher' | head -1 | awk '{print $NF}'); [ -n \"$wc\" ] && [ \"$wc\" != '0000' ] && [ \"$wc\" != '(NONE)' ] && echo \"  WEAK_PROTO: $name accepted (cipher=$wc)\"; done; for wc in RC4 DES NULL EXPORT MD5; do nc=$(timeout 2 openssl s_client -cipher $wc -connect 127.0.0.1:$port </dev/null 2>&1 | grep '^ *Cipher' | head -1 | awk '{print $NF}'); [ -n \"$nc\" ] && [ \"$nc\" != '0000' ] && [ \"$nc\" != '(NONE)' ] && echo \"  WEAK_CIPHER: $wc accepted ($nc)\"; done; done; echo 'DONE'",
+      "timeout": 60,
+      "rules": [
+        {
+          "slug": "no-weak-tls-protocols",
+          "name": "No weak TLS protocols (SSLv3, TLSv1, TLSv1.1)",
+          "finding": "Weak TLS protocols accepted (SSLv3, TLSv1, TLSv1.1)",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "WEAK_PROTO"
+          },
+          "severity_public": "critical",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-2.2.1",
+            "PCI-DSS-4.1"
+          ],
+          "category": "tls",
+          "explanation": "Weak TLS protocols (SSLv3, TLSv1, or TLSv1.1) are accepted on one or more ports. These are vulnerable to POODLE, BEAST, and other attacks.",
+          "remediation": "Disable SSLv3, TLSv1, and TLSv1.1 in all TLS-enabled services. Use TLSv1.2+ only."
+        },
+        {
+          "slug": "no-weak-ciphers",
+          "name": "No weak TLS ciphers (RC4, DES, NULL, EXPORT, MD5)",
+          "finding": "Weak TLS ciphers accepted (RC4, DES, NULL, EXPORT, MD5)",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "WEAK_CIPHER"
+          },
+          "severity_public": "critical",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-2.2.1",
+            "PCI-DSS-4.1"
+          ],
+          "category": "tls",
+          "explanation": "Weak ciphers are accepted on one or more TLS ports. RC4, DES, NULL, EXPORT, and MD5-based ciphers are cryptographically broken.",
+          "remediation": "Remove weak ciphers from TLS configuration. Use only strong cipher suites (AES-GCM, ChaCha20)."
+        }
+      ]
+    },
+    "cert_expiry": {
+      "name": "Certificate Expiry",
+      "command": "ports=$(ss -tlnH | awk '{n=split($4,a,\":\"); print a[n]}' | sort -un | head -5); for port in $ports; do cert=$(timeout 2 openssl s_client -connect 127.0.0.1:$port </dev/null 2>&1); enddate=$(echo \"$cert\" | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2); [ -z \"$enddate\" ] && continue; if echo \"$cert\" | openssl x509 -noout -checkend 2592000 >/dev/null 2>&1; then status='ok'; else status='expiring'; fi; exp_epoch=$(date -d \"$enddate\" +%s 2>/dev/null); if [ -n \"$exp_epoch\" ]; then now_epoch=$(date +%s); days_left=$(( (exp_epoch - now_epoch) / 86400 )); else days_left=$status; fi; echo \"Port $port: expires='$enddate' days_left=$days_left status=$status\"; done",
+      "timeout": 30,
+      "rules": [
+        {
+          "slug": "cert-not-expired",
+          "name": "TLS certificates not expiring within 30 days",
+          "finding": "TLS certificates expiring within 30 days",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "status=expiring"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [],
+          "category": "tls",
+          "explanation": "One or more TLS certificates will expire within 30 days. Expired certificates cause service outages and security warnings.",
+          "remediation": "Renew expiring TLS certificates. Consider automating with certbot/Let's Encrypt."
+        }
+      ]
+    },
+    "world_writable": {
+      "name": "World-Writable Files",
+      "command": "echo 'WORLD_WRITABLE_SCAN'; find /etc /usr /var -maxdepth 3 -type f -perm -0002 2>/dev/null | head -20 | sed 's@^@FILE:@'; find /etc /usr /var -maxdepth 3 -type d -perm -0002 ! -perm -1000 2>/dev/null | head -20 | sed 's@^@DIR:@'",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "no-world-writable-files",
+          "name": "No world-writable files in sensitive paths",
+          "finding": "World-writable files in sensitive paths",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "^FILE:"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-6.1.10"
+          ],
+          "category": "permissions",
+          "explanation": "World-writable files found in /etc, /usr, or /var. Any user can modify these files, risking configuration tampering.",
+          "remediation": "Remove world-writable permission: chmod o-w on flagged files in /etc, /usr, /var."
+        },
+        {
+          "slug": "no-world-writable-dirs",
+          "name": "No world-writable directories without sticky bit",
+          "finding": "World-writable directories without sticky bit",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "^DIR:"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-6.1.10"
+          ],
+          "category": "permissions",
+          "explanation": "World-writable directories without sticky bit found. Any user can create, rename, or delete files in these directories.",
+          "remediation": "Set sticky bit (chmod +t) or remove world-writable permission on flagged directories."
+        }
+      ]
+    },
+    "cron_jobs": {
+      "name": "Cron Jobs",
+      "command": "echo 'SYSTEM:'; cat /etc/crontab 2>/dev/null | grep -v '^#' | grep -v '^$'; echo '---'; echo 'CRON.D:'; ls /etc/cron.d/ 2>/dev/null; echo '---'; echo 'USER CRONTABS:'; for user in $(awk -F: '{print $1}' /etc/passwd | head -100); do jobs=$(timeout 2 crontab -l -u \"$user\" 2>/dev/null | grep -v '^#' | grep -v '^$'); [ -n \"$jobs\" ] && echo \"[$user]\" && echo \"$jobs\"; done",
+      "timeout": 10,
+      "rules": []
+    },
+    "ssh_keys": {
+      "name": "SSH Authorized Keys",
+      "command": "find /home /root -name authorized_keys -type f 2>/dev/null | while read f; do count=$(wc -l < \"$f\"); echo \"$f: $count key(s)\"; awk '{print \"  \" $1, $NF}' \"$f\" 2>/dev/null; done",
+      "timeout": 10,
+      "rules": []
+    },
+    "docker_security": {
+      "name": "Docker Security",
+      "command": "if ! command -v docker >/dev/null 2>&1; then echo 'NOT_INSTALLED'; else echo 'SOCKET:'; ls -laL /var/run/docker.sock 2>/dev/null; echo '---'; echo 'CONTAINERS:'; docker ps -q 2>/dev/null | head -8 | while read c; do docker inspect --format '{{.Name}}: privileged={{.HostConfig.Privileged}} user={{if .Config.User}}{{.Config.User}}{{else}}root{{end}} pid_mode={{.HostConfig.PidMode}} net_mode={{.HostConfig.NetworkMode}}' \"$c\" 2>/dev/null; done; echo '---'; echo 'INFO:'; docker info 2>/dev/null | grep -e 'Security Options' -e 'Runtimes'; fi",
+      "timeout": 15,
+      "rules": [
+        {
+          "slug": "docker-no-privileged",
+          "name": "No privileged Docker containers",
+          "finding": "Privileged Docker containers running",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "privileged=true"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-Docker-5.4"
+          ],
+          "category": "docker",
+          "explanation": "One or more containers are running in privileged mode, granting full host access and bypassing all security boundaries.",
+          "remediation": "Remove --privileged flag from container run commands. Use specific capabilities (--cap-add) instead."
+        },
+        {
+          "slug": "docker-no-root-containers",
+          "name": "Docker containers not running as root",
+          "finding": "Docker containers running as root",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "user=root"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-Docker-4.1"
+          ],
+          "category": "docker",
+          "explanation": "Containers are running as root. A container escape with root privileges gives full host access.",
+          "remediation": "Set USER in Dockerfile or use --user flag to run containers as non-root."
+        },
+        {
+          "slug": "docker-socket-perms",
+          "name": "Docker socket not world-accessible",
+          "finding": "Docker socket world-accessible",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "rwxrwxrwx|rw-rw-rw-"
+          },
+          "severity_public": "high",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-Docker-3.15"
+          ],
+          "category": "docker",
+          "explanation": "The Docker/Podman socket has world-accessible permissions. Any user on the system can control containers.",
+          "remediation": "Restrict Docker socket permissions: chmod 660 /var/run/docker.sock. Ensure only docker group has access."
+        }
+      ]
+    },
+    "auditd": {
+      "name": "Audit Daemon",
+      "command": "{ systemctl is-active auditd 2>/dev/null; systemctl is-enabled auditd 2>/dev/null; } 2>/dev/null | head -2; echo 'DONE'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "auditd-active",
+          "name": "Linux audit daemon (auditd) active",
+          "finding": "Linux audit daemon (auditd) not running",
+          "eval": {
+            "type": "regex_match",
+            "value": "^(active|enabled)$"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-4.1"
+          ],
+          "category": "audit",
+          "explanation": "The Linux audit daemon (auditd) is not running. Without auditd, security-relevant kernel events (privilege escalations, policy violations, sensitive file access) are not recorded, breaking compliance and incident response.",
+          "remediation": "Install and enable auditd: sudo dnf install audit (or apt install auditd) && sudo systemctl enable --now auditd. Consider deploying a ruleset such as Linux-Hardened-Auditd or neo23x0/auditd."
+        }
+      ]
+    },
+    "time_sync": {
+      "name": "Time Synchronization",
+      "command": "{ v=$(timedatectl show --property=NTPSynchronized --value 2>/dev/null); [ -n \"$v\" ] && echo \"NTPSync=$v\"; for svc in chronyd systemd-timesyncd ntpd ntp; do s=$(systemctl is-active $svc 2>/dev/null); [ \"$s\" = active ] && echo \"$svc=active\"; done; } 2>/dev/null; echo 'DONE'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "time-synchronized",
+          "name": "System clock synchronized via NTP",
+          "finding": "System clock not synchronized via NTP",
+          "eval": {
+            "type": "regex_match",
+            "value": "(NTPSync=yes|chronyd=active|systemd-timesyncd=active|ntpd=active|ntp=active)"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "PCI-DSS-10.6.1"
+          ],
+          "category": "time",
+          "explanation": "The system clock is not synchronized with an external time source. Clock drift breaks audit log correlation across hosts, certificate validation, and Kerberos authentication. PCI-DSS 10.6.1 requires synchronized clocks.",
+          "remediation": "Enable a time service: sudo systemctl enable --now chronyd (RHEL) or systemd-timesyncd (Debian/Ubuntu). Verify: timedatectl show."
+        }
+      ]
+    },
+    "shadow_permissions": {
+      "name": "Shadow File Permissions",
+      "command": "sm=$(stat -c '%a' /etc/shadow 2>/dev/null); gm=$(stat -c '%a' /etc/gshadow 2>/dev/null); pm=$(stat -c '%a' /etc/passwd 2>/dev/null); case \"$sm\" in ''|0|00|000|0000|400|0400|440|0440|600|0600|640|0640) echo \"shadow_mode=OK($sm)\" ;; *) echo \"shadow_mode=BAD($sm)\" ;; esac; case \"$gm\" in ''|0|00|000|0000|400|0400|440|0440|600|0600|640|0640) echo \"gshadow_mode=OK($gm)\" ;; *) echo \"gshadow_mode=BAD($gm)\" ;; esac; case \"$pm\" in 644|0644|444|0444) echo \"passwd_mode=OK($pm)\" ;; *) echo \"passwd_mode=UNEXPECTED($pm)\" ;; esac",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "shadow-perms-secure",
+          "name": "/etc/shadow and /etc/gshadow not world-readable",
+          "finding": "/etc/shadow or /etc/gshadow world-readable",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "(shadow_mode=BAD|gshadow_mode=BAD)"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [
+            "CIS-L1-6.1.5"
+          ],
+          "category": "permissions",
+          "explanation": "/etc/shadow or /etc/gshadow is world- or group-readable. Offline password-hash cracking against these files is trivial for anyone with local access.",
+          "remediation": "Restrict permissions: sudo chmod 0 /etc/shadow /etc/gshadow  (preferred) or sudo chmod 640 /etc/shadow /etc/gshadow && sudo chown root:shadow /etc/shadow /etc/gshadow."
+        }
+      ]
+    },
+    "password_hashing": {
+      "name": "Password Hashing",
+      "command": "{ grep -E '^ENCRYPT_METHOD|^SHA_CRYPT_MIN_ROUNDS' /etc/login.defs 2>/dev/null; awk -F: 'length($2)>1 && $2 !~ /^[!*]/ { h=substr($2,1,3); if(h==\"$6$\") print \"HASH=SHA512\"; else if(h==\"$y$\") print \"HASH=YESCRYPT\"; else if(h==\"$2\" || h==\"$2a\" || h==\"$2b\" || h==\"$2y\") print \"HASH=BCRYPT\"; else if(h==\"$5$\") print \"HASH=SHA256\"; else if(h==\"$1$\") print \"HASH=WEAK_MD5\"; else print \"HASH=WEAK_OR_UNKNOWN\" }' /etc/shadow 2>/dev/null | sort -u; } 2>/dev/null | head -10; echo 'DONE'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "strong-password-hashing",
+          "name": "No weak password hashes (MD5 or crypt-DES) in /etc/shadow",
+          "finding": "Weak password hashes (MD5 or crypt-DES) in /etc/shadow",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "HASH=(WEAK_MD5|WEAK_OR_UNKNOWN)"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [
+            "CIS-L1-5.4.4"
+          ],
+          "category": "users",
+          "explanation": "One or more password hashes in /etc/shadow use a weak algorithm (MD5 or older). Modern GPUs crack these in minutes; accounts should be rehashed with SHA-512, yescrypt, or bcrypt.",
+          "remediation": "Set 'ENCRYPT_METHOD SHA512' (or 'yescrypt' on Debian 12+) in /etc/login.defs. Force affected users to reset their passwords so the new algorithm applies."
+        }
+      ]
+    },
+    "installed_packages": {
+      "name": "Installed Packages",
+      "command": "OS_ID=$(awk -F= '/^ID=/{gsub(/\"/,\"\",$2);print tolower($2)}' /etc/os-release 2>/dev/null); VID=$(awk -F= '/^VERSION_ID=/{gsub(/\"/,\"\",$2);print $2}' /etc/os-release 2>/dev/null); MAJ=${VID%%.*}; D=Debian; R=\"Red Hat\"; A=Alpine; case \"$OS_ID\" in debian|raspbian) [ -n \"$MAJ\" ] && D=\"Debian:$MAJ\" ;; ubuntu) [ -n \"$VID\" ] && D=\"Ubuntu:$VID:LTS\" ;; linuxmint|pop|elementary|zorin|kali|parrot) UBC=$(awk -F= '/^UBUNTU_CODENAME=/{gsub(/\"/,\"\",$2);print $2}' /etc/os-release 2>/dev/null); case \"$UBC\" in bionic) D=\"Ubuntu:18.04:LTS\" ;; focal) D=\"Ubuntu:20.04:LTS\" ;; jammy) D=\"Ubuntu:22.04:LTS\" ;; noble) D=\"Ubuntu:24.04:LTS\" ;; esac ;; rhel|centos|fedora|ol|oracle|scientific|amzn|amazon) [ -n \"$MAJ\" ] && R=\"Red Hat:$MAJ\" ;; rocky) [ -n \"$MAJ\" ] && R=\"Rocky Linux:$MAJ\" ;; almalinux) [ -n \"$MAJ\" ] && R=\"AlmaLinux:$MAJ\" ;; sles|suse) [ -n \"$MAJ\" ] && R=\"SUSE:$MAJ\" ;; opensuse*) [ -n \"$MAJ\" ] && R=\"openSUSE:$MAJ\" ;; mageia) [ -n \"$MAJ\" ] && R=\"Mageia:$MAJ\" ;; alpine) [ -n \"$VID\" ] && A=\"Alpine:v$(echo $VID | awk -F. 'NF>=2{print $1\".\"$2; next} {print $1}')\" ;; chainguard) A=Chainguard ;; wolfi) A=Wolfi ;; esac; { dpkg-query -W -f='${Package}\\t${Version}\\n' 2>/dev/null | awk -v e=\"$D\" 'NF==2{print e\"\\t\"$0}'; rpm -qa --qf '%{NAME}\\t%{VERSION}-%{RELEASE}\\n' 2>/dev/null | awk -v e=\"$R\" 'NF==2{print e\"\\t\"$0}'; apk info -v 2>/dev/null | sed -n 's/^\\(.*\\)-\\([0-9][^-]*-r[0-9]*\\)$/\\1\\t\\2/p' | awk -v e=\"$A\" 'NF==2{print e\"\\t\"$0}'; pip3 list --format=freeze 2>/dev/null | awk -F== 'NF==2 && !/^#/{print \"PyPI\\t\"$1\"\\t\"$2}'; pip list --format=freeze 2>/dev/null | awk -F== 'NF==2 && !/^#/{print \"PyPI\\t\"$1\"\\t\"$2}'; } 2>/dev/null | sort -u",
+      "timeout": 30,
+      "max_output": 60000,
+      "rules": []
+    },
+    "password_policy": {
+      "name": "Password Policy",
+      "command": "{ if grep -qE '^passwd:.*\\b(sss|ldap|winbind|nis|nisplus)\\b' /etc/nsswitch.conf 2>/dev/null; then echo 'EXTERNAL_DIRECTORY'; fi; h=$(awk -F: 'length($2)>1 && $2 !~ /^[!*]/ {n++} END {print n+0}' /etc/shadow 2>/dev/null); [ \"${h:-0}\" = '0' ] && echo 'NO_LOCAL_PASSWORDS'; echo 'PWQUALITY:'; grep -hE '^[[:space:]]*(minlen|minclass|dcredit|ucredit|lcredit|ocredit)[[:space:]]*=' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null | head -10; echo 'LOGIN_DEFS:'; grep -hE '^[[:space:]]*PASS_MIN_LEN' /etc/login.defs 2>/dev/null; echo 'PAM_PWQUALITY:'; grep -hE '^[^#]*pam_pwquality\\.so' /etc/pam.d/system-auth /etc/pam.d/password-auth /etc/pam.d/common-password 2>/dev/null | head -3; echo 'PAM_LOCKOUT:'; grep -hE '^[^#]*pam_(faillock|tally2)\\.so' /etc/pam.d/system-auth /etc/pam.d/password-auth /etc/pam.d/common-auth 2>/dev/null | head -3; echo 'FAILLOCK_CONF:'; grep -hE '^[[:space:]]*(deny|unlock_time)' /etc/security/faillock.conf 2>/dev/null; } 2>/dev/null; echo 'DONE'",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "password-min-length",
+          "name": "Password minimum length",
+          "finding": "Password minimum length not enforced",
+          "eval": {
+            "type": "regex_match",
+            "value": "(EXTERNAL_DIRECTORY|NO_LOCAL_PASSWORDS|minlen\\s*[=:]?\\s*(?:1[4-9]|[2-9]\\d|\\d{3,})|PASS_MIN_LEN\\s+(?:1[4-9]|[2-9]\\d|\\d{3,}))"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "authentication",
+          "explanation": "Password policy does not enforce a minimum length of 14 characters. On hosts that don't use an external directory (LDAP/SSSD/AD/IPA) and have local password hashes, this means a local user could pick a short password that's trivial to brute-force.",
+          "remediation": "In /etc/security/pwquality.conf set 'minlen = 14' (or higher), or set 'PASS_MIN_LEN 14' in /etc/login.defs."
+        },
+        {
+          "slug": "password-complexity",
+          "name": "Password complexity policy",
+          "finding": "Password complexity policy not enforced",
+          "eval": {
+            "type": "regex_match",
+            "value": "(EXTERNAL_DIRECTORY|NO_LOCAL_PASSWORDS|minclass\\s*[=:]?\\s*[3-9]|[dulo]credit\\s*[=:]?\\s*-)"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "authentication",
+          "explanation": "Password complexity policy is not enforced (no required character classes). On hosts that don't use an external directory (LDAP/SSSD/AD/IPA) and have local password hashes, simple passwords are easier to brute-force.",
+          "remediation": "In /etc/security/pwquality.conf set 'minclass = 3' or require characters via 'dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1'."
+        },
+        {
+          "slug": "account-lockout",
+          "name": "Account lockout policy",
+          "finding": "No account lockout policy",
+          "eval": {
+            "type": "regex_match",
+            "value": "(EXTERNAL_DIRECTORY|NO_LOCAL_PASSWORDS|pam_(?:faillock|tally2)\\.so|deny\\s*=\\s*[1-9])"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "authentication",
+          "explanation": "No PAM lockout module (pam_faillock or pam_tally2) is configured. On hosts that don't use an external directory (LDAP/SSSD/AD/IPA) and have local password hashes, failed login attempts aren't throttled — leaving the host vulnerable to sustained brute-force.",
+          "remediation": "Enable pam_faillock in /etc/pam.d/system-auth (or common-auth) and configure 'deny = 5 unlock_time = 900' in /etc/security/faillock.conf."
+        }
+      ]
+    },
+    "samba_config": {
+      "name": "Samba Server Config",
+      "command": "if command -v testparm >/dev/null 2>&1 && [ -f /etc/samba/smb.conf ]; then echo 'SAMBA_INSTALLED'; testparm -s 2>/dev/null | grep -iE '^[[:space:]]*(server signing|min protocol|server min protocol)' | head -5; else echo 'SAMBA_NOT_INSTALLED'; fi",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "smb-signing-required",
+          "name": "Samba server signing required",
+          "finding": "Samba server signing not required",
+          "eval": {
+            "type": "regex_match",
+            "value": "(SAMBA_NOT_INSTALLED|server\\s+signing\\s*=\\s*(mandatory|required))"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "samba",
+          "explanation": "Samba is configured without mandatory packet signing. Unsigned SMB traffic can be modified or replayed in man-in-the-middle attacks.",
+          "remediation": "In /etc/samba/smb.conf [global] set 'server signing = mandatory' and restart smbd."
+        },
+        {
+          "slug": "smb1-disabled",
+          "name": "Samba SMBv1 disabled",
+          "finding": "Samba SMBv1 enabled",
+          "eval": {
+            "type": "regex_match",
+            "value": "(SAMBA_NOT_INSTALLED|min\\s+protocol\\s*=\\s*SMB[2-9])"
+          },
+          "severity_public": "critical",
+          "severity_private": "high",
+          "frameworks": [],
+          "category": "samba",
+          "explanation": "Samba is configured to allow SMBv1 — a deprecated protocol with known wormable vulnerabilities (EternalBlue, WannaCry, NotPetya).",
+          "remediation": "In /etc/samba/smb.conf [global] set 'min protocol = SMB2' (or SMB3) and 'server min protocol = SMB2', then restart smbd."
+        }
+      ]
+    },
+    "disk_encryption": {
+      "name": "Disk Encryption",
+      "command": "luks=$(lsblk -no NAME,FSTYPE 2>/dev/null | awk '$2==\"crypto_LUKS\"{print $1}' | head -5); [ -n \"$luks\" ] && echo 'LUKS_PRESENT' || echo 'NO_LUKS'; if command -v cryptsetup >/dev/null 2>&1; then for d in $(ls /dev/mapper/ 2>/dev/null | grep -v '^control$' | head -5); do cryptsetup status $d 2>/dev/null | grep -q 'type:.*LUKS' && echo 'CRYPT_MAPPER_LUKS' && break; done; fi",
+      "timeout": 10,
+      "rules": [
+        {
+          "slug": "disk-encryption-active",
+          "name": "Disk encryption (LUKS) active",
+          "finding": "No disk encryption (LUKS) active",
+          "eval": {
+            "type": "regex_match",
+            "value": "(LUKS_PRESENT|CRYPT_MAPPER_LUKS)"
+          },
+          "severity_public": "high",
+          "severity_private": "medium",
+          "frameworks": [],
+          "category": "encryption",
+          "explanation": "No LUKS-encrypted block device detected. Data on disk is not protected if the device is lost, stolen, or decommissioned without proper wiping.",
+          "remediation": "For new systems, enable LUKS during install. For existing systems, migrate data to a new LUKS-encrypted volume (cryptsetup luksFormat) — re-encryption in place is risky and not generally supported."
+        }
+      ]
+    },
+    "auditd_rules": {
+      "name": "Audit rules loaded",
+      "command": "if command -v auditctl >/dev/null 2>&1; then rules=$(auditctl -l 2>/dev/null); if [ -z \"$rules\" ] || [ \"$rules\" = 'No rules' ]; then echo 'NO_RULES'; else echo \"$rules\" | head -30; fi; else echo 'AUDITCTL_UNAVAILABLE'; fi",
+      "timeout": 5,
+      "rules": [
+        {
+          "slug": "auditd-rules-loaded",
+          "name": "Audit rules loaded",
+          "finding": "No audit rules loaded",
+          "eval": {
+            "type": "regex_not_match",
+            "value": "^(NO_RULES|AUDITCTL_UNAVAILABLE)$"
+          },
+          "severity_public": "medium",
+          "severity_private": "low",
+          "frameworks": [],
+          "category": "logging",
+          "explanation": "auditd is running but no audit rules are loaded — the daemon isn't recording any events. CIS recommends specific rules covering identity changes, sudoers, kernel modules, and privileged commands.",
+          "remediation": "Drop a CIS-style ruleset into /etc/audit/rules.d/ (e.g. 50-cis.rules) covering identity, time-change, sudoers, and execution events, then run 'augenrules --load' or 'systemctl restart auditd'."
+        }
+      ]
+    }
+  }
+}

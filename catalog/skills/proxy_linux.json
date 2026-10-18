@@ -1,0 +1,104 @@
+{
+  "slug": "proxy",
+  "name": "Proxy & Cache",
+  "node_type": "linux",
+  "description": "Manage proxy servers and caching — Squid, Varnish, HAProxy, Traefik, Envoy, Nginx proxy cache, and traffic filtering",
+  "version": "2",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show proxy/cache server status — connections, hit rates, backend health"
+      },
+      {
+        "name": "config",
+        "description": "View or edit proxy server configuration"
+      },
+      {
+        "name": "backends",
+        "description": "Manage backend servers — list, add, remove, enable/disable, health status"
+      },
+      {
+        "name": "cache",
+        "description": "Manage cache — stats, purge, invalidate, configure"
+      },
+      {
+        "name": "acl",
+        "description": "Manage access control lists — allow, deny, rate limit"
+      },
+      {
+        "name": "ha",
+        "description": "Manage high availability — Keepalived, VRRP, floating IPs, failover"
+      }
+    ],
+    "allowed_commands": [
+      "squid",
+      "squidclient",
+      "varnishd",
+      "varnishadm",
+      "varnishstat",
+      "varnishlog",
+      "varnishhist",
+      "varnishtop",
+      "varnishncsa",
+      "haproxy",
+      "keepalived",
+      "traefik",
+      "envoy",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a proxy and cache management agent. CRITICAL: First detect which proxy is installed: 'which squid' (Squid), 'which varnishadm' (Varnish), 'which haproxy' (HAProxy), 'which keepalived' (Keepalived).\n\nSQUID: Config in /etc/squid/squid.conf. Test: 'squid -k parse'. Reload: 'squid -k reconfigure' or 'systemctl reload squid'. Cache management: 'squidclient mgr:info' for stats. ACLs defined in squid.conf with 'acl' and 'http_access' directives.\n\nVARNISH: Config in /etc/varnish/. VCL file for cache logic. Admin: 'varnishadm' for runtime control. Stats: 'varnishstat' for hit rates, 'varnishtop' for top requests. Purge: 'varnishadm \"ban req.url ~ PATTERN\"'. Reload VCL: 'varnishadm vcl.load/vcl.use'.\n\nHAPROXY: Config in /etc/haproxy/haproxy.cfg. Test: 'haproxy -c -f /etc/haproxy/haproxy.cfg'. Reload: 'systemctl reload haproxy'. Stats: enable stats socket or stats page. Use 'echo COMMAND | socat stdio /var/run/haproxy.sock' for runtime API.\n\nKEEPALIVED: Config in /etc/keepalived/keepalived.conf. Check state: 'ip addr' to see VIP. Logs in syslog/journald.\n\nALWAYS: Test config before reloading. Back up configs. Be cautious with ACL changes — wrong rules can block legitimate traffic.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

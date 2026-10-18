@@ -1,0 +1,50 @@
+{
+  "type": "activity",
+  "name": "Activity Audit",
+  "node_type": "linux",
+  "version": "1",
+  "params": [
+    "since",
+    "minutes"
+  ],
+  "checks": {
+    "sessions": {
+      "name": "Login Sessions",
+      "command": "LC_ALL=C last -F -w -s '{{since}}' 2>/dev/null | head -200 || LC_ALL=C last -w 2>/dev/null | head -200 || LC_ALL=C last 2>/dev/null | head -200",
+      "timeout": 10
+    },
+    "failed_auth": {
+      "name": "Failed Authentication",
+      "command": "LC_ALL=C lastb -F -w -s '{{since}}' 2>/dev/null | head -200 || LC_ALL=C lastb -w 2>/dev/null | head -200 || LC_ALL=C lastb 2>/dev/null | head -200",
+      "timeout": 10
+    },
+    "sudo_commands": {
+      "name": "Sudo Commands",
+      "command": "{ if command -v journalctl >/dev/null 2>&1 && journalctl --no-pager -n1 >/dev/null 2>&1; then journalctl -t sudo --since '{{since}}' --no-pager -o short 2>/dev/null | grep 'COMMAND='; fi; for logfile in /var/log/secure /var/log/auth.log; do [ -f \"$logfile\" ] && grep -h 'sudo' \"$logfile\" 2>/dev/null | grep 'COMMAND='; for i in 1 2 3 4; do [ -f \"${logfile}.$i\" ] && grep -h 'sudo' \"${logfile}.$i\" 2>/dev/null | grep 'COMMAND='; done; for f in \"${logfile}\"*.gz; do [ -f \"$f\" ] && gunzip -c \"$f\" 2>/dev/null | grep 'COMMAND='; done; done; } | sort -u | tail -500",
+      "timeout": 20,
+      "max_output": 20000
+    },
+    "file_changes": {
+      "name": "File Changes",
+      "command": "find /etc /var/spool/cron -type f -mmin -{{minutes}} -printf '%T@ %p\\n' 2>/dev/null | sort -rn | head -100 || find /etc /var/spool/cron -type f -mmin -{{minutes}} -exec stat -c '%Y %n' {} \\; 2>/dev/null | sort -rn | head -100 || find /etc /var/spool/cron -type f -mmin -{{minutes}} 2>/dev/null | head -100 | while IFS= read -r f; do mtime=$(date -r \"$f\" +%s 2>/dev/null || stat -t \"$f\" 2>/dev/null | awk '{print $12}'); [ -n \"$mtime\" ] && echo \"$mtime $f\"; done | sort -rn",
+      "timeout": 20,
+      "max_output": 20000
+    },
+    "reboots": {
+      "name": "Reboots",
+      "command": "LC_ALL=C last -F -w reboot -s '{{since}}' 2>/dev/null | head -50 || LC_ALL=C last -w reboot 2>/dev/null | head -50 || LC_ALL=C last reboot 2>/dev/null | head -50",
+      "timeout": 10
+    },
+    "package_changes": {
+      "name": "Package Changes",
+      "command": "rpm -qa --last 2>/dev/null | head -200 || grep -h -e ' install ' -e ' upgrade ' -e ' remove ' /var/log/dpkg.log /var/log/dpkg.log.1 2>/dev/null | tail -200 || apk audit --system 2>/dev/null | head -50 || grep -e 'installed' -e 'upgraded' -e 'removed' /var/log/pacman.log 2>/dev/null | tail -100",
+      "timeout": 15,
+      "max_output": 30000
+    },
+    "service_changes": {
+      "name": "Service Changes",
+      "command": "if command -v journalctl >/dev/null 2>&1 && journalctl --no-pager -n1 >/dev/null 2>&1; then journalctl -t systemd --since '{{since}}' --no-pager -o short 2>/dev/null | grep -i -e Started -e Stopped -e 'Failed to start' -e 'Entered failed state' | grep -v -e session -e scope -e slice -e 'user@' | tail -100; else for logfile in /var/log/messages /var/log/syslog; do [ -f \"$logfile\" ] && grep -i -e 'start' -e 'stop' -e 'fail' \"$logfile\" 2>/dev/null | grep -v -e session -e scope -e cron | tail -100; done; fi",
+      "timeout": 15
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "slug": "llm",
+  "name": "LLM Server Management",
+  "node_type": "linux",
+  "description": "Manage local LLM servers — Ollama, LM Studio, vLLM, llama.cpp, LocalAI, HuggingFace, and text-generation-webui",
+  "version": "2",
+  "category": "Advanced",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show status of all detected LLM servers — running state, loaded models, GPU usage, and API endpoints"
+      },
+      {
+        "name": "models",
+        "description": "List available models — downloaded, loaded, running, or available for download"
+      },
+      {
+        "name": "pull",
+        "description": "Download/pull a model from a registry or library"
+      },
+      {
+        "name": "remove",
+        "description": "Remove/delete a downloaded model to free disk space"
+      },
+      {
+        "name": "load",
+        "description": "Load a model into memory (VRAM/RAM) for inference, or unload a model to free resources"
+      },
+      {
+        "name": "test",
+        "description": "Send a test prompt to verify a model is working correctly"
+      },
+      {
+        "name": "server",
+        "description": "Manage the LLM server process — start, stop, restart, or check logs"
+      },
+      {
+        "name": "gpu",
+        "description": "Show GPU status — utilization, VRAM usage, temperature, and which models are loaded"
+      },
+      {
+        "name": "copy",
+        "description": "Copy or create a model variant — Ollama modelfile, quantization, or alias"
+      }
+    ],
+    "allowed_commands": [
+      "ollama",
+      "lms",
+      "nvidia-smi",
+      "rocm-smi",
+      "intel_gpu_top",
+      "systemctl",
+      "journalctl",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "chmod",
+      "ln",
+      "python3",
+      "pip3",
+      "llama-server",
+      "llama-cli",
+      "localai",
+      "vllm",
+      "huggingface-cli",
+      "text-generation-launcher"
+    ],
+    "system_prompt": "You are a local LLM server management agent. CRITICAL: First detect which LLM servers are installed and running.\n\nDETECTION ORDER:\n1. Ollama: 'which ollama' or 'ollama --version'. API at :11434. Service: 'systemctl status ollama'.\n2. LM Studio: 'which lms' or check port :1234. CLI: 'lms status', 'lms ls', 'lms load MODEL'.\n3. vLLM: 'pip3 show vllm' or check port :8000. Run: 'python3 -m vllm.entrypoints.openai.api_server'.\n4. llama.cpp: 'which llama-server' or 'which llama-cli'. Usually manual start with flags.\n5. LocalAI: 'which local-ai' or 'which localai' or check port :8080.\n6. text-generation-webui: check for process or ~/text-generation-webui.\n\nOLLAMA COMMANDS:\n- List models: 'ollama list'\n- Pull: 'ollama pull MODEL'\n- Remove: 'ollama rm MODEL'\n- Run/test: 'ollama run MODEL \"prompt\" --nowordwrap' (use --nowordwrap for clean output)\n- Show info: 'ollama show MODEL'\n- Running models: 'ollama ps'\n- Create custom: 'ollama create NAME -f Modelfile'\n- Copy: 'ollama cp SOURCE DEST'\n- API: curl http://localhost:11434/api/tags, /api/generate, /api/chat\n- Config: Environment vars in /etc/systemd/system/ollama.service.d/override.conf (OLLAMA_HOST, OLLAMA_MODELS, OLLAMA_NUM_PARALLEL, OLLAMA_MAX_LOADED_MODELS, OLLAMA_GPU_OVERHEAD)\n- After config changes: 'systemctl daemon-reload && systemctl restart ollama'\n\nLM STUDIO CLI:\n- 'lms status' — server status\n- 'lms ls' — list downloaded models\n- 'lms load MODEL' / 'lms unload MODEL'\n- 'lms server start' / 'lms server stop'\n- API compatible with OpenAI at :1234/v1\n\nGPU MONITORING:\n- NVIDIA: 'nvidia-smi' (VRAM, utilization, temperature)\n- 'nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv'\n- AMD: 'rocm-smi'\n- Check VRAM: loaded models × quantized size must fit in GPU memory\n\nBEST PRACTICES:\n- Always check available disk space before pulling large models ('df -h')\n- Always check GPU VRAM before loading ('nvidia-smi' or 'free -h' for CPU-only)\n- Show model sizes in human-readable format\n- When testing inference, measure response time\n- For Ollama, prefer 'ollama run' for quick tests and API calls for structured tests\n- Never delete models without confirming the name first\n- When configuring servers, always back up config files before editing",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

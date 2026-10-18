@@ -1,0 +1,17 @@
+{
+  "id": "pci_dss",
+  "name": "PCI DSS",
+  "description": "Payment Card Industry Data Security Standard — technical controls",
+  "version": "4.0",
+  "url": "https://www.pcisecuritystandards.org/",
+  "controls": [
+    {"ref": "2.2.1", "name": "Change vendor-supplied defaults", "desc": "Default credentials and configurations are well-known attack vectors. All defaults must be changed before production use.", "rule_slugs": ["ssh-root-login", "ssh-password-auth", "guest-disabled", "auto-login-disabled", "pt-nmap-discovery", "pt-nmap-full", "pt-ffuf-common"]},
+    {"ref": "4.1", "name": "Strong cryptography for transmission", "desc": "Cardholder data must be encrypted in transit using strong protocols (TLSv1.2+) and valid certificates.", "rule_slugs": ["no-weak-tls-protocols", "no-weak-ciphers", "cert-not-expired", "smb-signing-required", "pt-testssl-quick", "pt-testssl-full", "pt-nuclei-headers"]},
+    {"ref": "6.3.3", "name": "Critical patches within one month", "desc": "Known vulnerabilities must be patched within 30 days of release to prevent exploitation.", "rule_slugs": ["security-updates-applied", "no-pending-reboot", "auto-updates-enabled", "no-kev-vulnerabilities", "no-critical-vulnerabilities", "no-high-vulnerabilities", "pt-nuclei-basic", "pt-nuclei-vuln", "pt-nuclei-web"]},
+    {"ref": "8.2.1", "name": "Unique IDs and strong authentication", "desc": "Every user must have a unique ID with strong authentication. Shared root access violates accountability.", "rule_slugs": ["ssh-pubkey-auth", "no-extra-uid0"]},
+    {"ref": "8.3.1", "name": "Strong authentication factors", "desc": "Authentication factors must be protected with strong cryptography. Password hashes must use a modern algorithm and the shadow file must be root-only.", "rule_slugs": ["strong-password-hashing", "shadow-perms-secure", "password-min-length", "password-complexity", "account-lockout"]},
+    {"ref": "10.2", "name": "Audit logging implemented", "desc": "Audit trails for security-relevant events must be active on every system component to support forensics and breach detection.", "rule_slugs": ["auditd-active", "audit-logon-events", "powershell-script-block-logging"]},
+    {"ref": "10.6.1", "name": "Review security event logs daily", "desc": "Failed login attempts and suspicious activity must be monitored to detect breaches early.", "rule_slugs": ["failed-logins-low", "auditd-active", "time-synchronized"]},
+    {"ref": "11.5", "name": "File integrity monitoring", "desc": "Critical system files must be monitored for unauthorized changes that could indicate compromise.", "rule_slugs": ["no-world-writable-files", "no-world-writable-dirs", "suid-binaries-reasonable"]}
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "slug": "rdp",
+  "name": "Remote Desktop Services",
+  "node_type": "windows",
+  "description": "Manage Remote Desktop settings, user sessions, NLA configuration, RDS deployment, session collections, published RemoteApps, certificates, and licensing",
+  "version": "3",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      { "name": "status",       "description": "RDP status and configuration" },
+      { "name": "sessions",     "description": "View and manage user sessions" },
+      { "name": "configure",    "description": "RDP settings and NLA" },
+      { "name": "users",        "description": "Manage RDP access" },
+      { "name": "collections",  "description": "RDS session collections and deployment" },
+      { "name": "remoteapps",   "description": "Publish and manage RemoteApp programs" },
+      { "name": "certificates", "description": "RDS role certificates" },
+      { "name": "licensing",    "description": "RDS licensing configuration" }
+    ],
+    "allowed_modules": [
+      "RemoteDesktop",
+      "RemoteDesktopServices"
+    ],
+    "allowed_commands": [
+      "Get-ItemProperty",
+      "Set-ItemProperty",
+      "quser",
+      "qwinsta",
+      "rwinsta",
+      "logoff",
+      "query",
+      "msg",
+      "tscon",
+      "tsdiscon",
+      "change",
+      "Get-LocalGroupMember",
+      "Add-LocalGroupMember",
+      "Remove-LocalGroupMember"
+    ],
+    "system_prompt": "You are a Remote Desktop Services management agent. Stand-alone RDP config is in registry: HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server — key values fDenyTSConnections (0=enabled) and WinStations\\RDP-Tcp\\UserAuthentication (1=NLA on). Use quser/qwinsta to list sessions, logoff <sessionId> to disconnect. For RDS deployments use the RemoteDesktop module (RD* cmdlets). Inspect deployment with Get-RDDeploymentConfiguration; manage collections with New-RDSessionCollection / Set-RDSessionCollectionConfiguration; publish RemoteApps with New-RDRemoteApp. Bind role certificates via Set-RDCertificate; configure licensing via Set-RDLicenseConfiguration. RD Gateway connection / resource policies (CAP, RAP) live under the RDS:\\ provider drive of the RemoteDesktopServices module."
+  }
+}

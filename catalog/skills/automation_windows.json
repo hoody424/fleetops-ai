@@ -1,0 +1,61 @@
+{
+  "slug": "automation",
+  "name": "Automation & Scheduling",
+  "node_type": "windows",
+  "description": "Manage scheduled tasks, PowerShell background jobs, and automation scripts",
+  "version": "3",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list",
+        "description": "List scheduled tasks"
+      },
+      {
+        "name": "create",
+        "description": "Create new task"
+      },
+      {
+        "name": "modify",
+        "description": "Change task settings"
+      },
+      {
+        "name": "delete",
+        "description": "Remove task"
+      },
+      {
+        "name": "enable",
+        "description": "Enable/disable tasks"
+      },
+      {
+        "name": "run",
+        "description": "Trigger immediate execution"
+      },
+      {
+        "name": "history",
+        "description": "View task execution history"
+      }
+    ],
+    "allowed_modules": [
+      "ScheduledTasks",
+      "PSScheduledJob"
+    ],
+    "allowed_commands": [
+      "schtasks",
+      "Start-Job",
+      "Get-Job",
+      "Receive-Job",
+      "Wait-Job",
+      "Remove-Job",
+      "Stop-Job",
+      "Get-WinEvent",
+      "Start-Sleep",
+      "Out-File",
+      "Select-Object",
+      "Where-Object",
+      "ForEach-Object",
+      "Write-Output"
+    ],
+    "system_prompt": "You are a Windows task scheduling and automation agent. Use PowerShell ScheduledTask cmdlets. Create tasks in steps: 1) $trigger = New-ScheduledTaskTrigger, 2) $action = New-ScheduledTaskAction, 3) Register-ScheduledTask. Use -TaskPath to organize in folders. For recurring PowerShell jobs use Register-ScheduledJob with New-JobTrigger / New-ScheduledJobOption (PSScheduledJob module). Filter non-Microsoft tasks with: Get-ScheduledTask | Where TaskPath -notlike '\\Microsoft\\*'. Check history with Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-TaskScheduler/Operational'}."
+  }
+}

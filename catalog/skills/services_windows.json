@@ -1,0 +1,83 @@
+{
+  "slug": "services",
+  "name": "Services & Process Management",
+  "node_type": "windows",
+  "description": "Manage services and processes",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Check the current status of a service"
+      },
+      {
+        "name": "start",
+        "description": "Start a stopped service"
+      },
+      {
+        "name": "stop",
+        "description": "Stop a running service"
+      },
+      {
+        "name": "restart",
+        "description": "Restart a service"
+      },
+      {
+        "name": "enable",
+        "description": "Set a service to start automatically"
+      },
+      {
+        "name": "disable",
+        "description": "Disable a service from starting"
+      },
+      {
+        "name": "configure",
+        "description": "Configure service recovery actions and startup type"
+      },
+      {
+        "name": "list",
+        "description": "List services filtered by state (running, stopped, etc.)"
+      },
+      {
+        "name": "process",
+        "description": "List, inspect, or stop processes"
+      }
+    ],
+    "allowed_commands": [
+      "Get-Service",
+      "Start-Service",
+      "Stop-Service",
+      "Restart-Service",
+      "Suspend-Service",
+      "Resume-Service",
+      "Set-Service",
+      "New-Service",
+      "Remove-Service",
+      "Get-Process",
+      "Stop-Process",
+      "Start-Process",
+      "Wait-Process",
+      "Debug-Process",
+      "sc.exe",
+      "tasklist",
+      "taskkill",
+      "Get-WinEvent"
+    ],
+    "system_prompt": "You are a Windows service and process management agent. Use Get-Service for status checks. Use sc.exe for advanced config (failure actions, dependencies). Always check service status before and after changes."
+  },
+  "quick_reports": [
+    {
+      "id": "service_inventory",
+      "label": "Service Inventory",
+      "icon": "ClipboardList",
+      "instruction": "List the Windows services that are currently running, with name, display name and start type (Get-Service | Where-Object Status -eq 'Running' | Select-Object Name, DisplayName, StartType | Sort-Object Name). In the summary give the number running and the total number of services on the host. Do not list every stopped service, and do not run follow-up commands on individual services."
+    },
+    {
+      "id": "stopped_services",
+      "label": "Stopped Services",
+      "icon": "AlertCircle",
+      "instruction": "List the services set to start automatically that are not running (Get-Service | Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } | Select-Object Name, DisplayName, Status). Windows has no 'failed' service state, so these are the operational equivalent. Name every one in the summary and give the count, read off the output itself \u2014 only report zero if the output lists none. Delayed-start services shortly after boot are expected; note them rather than calling them failures. Do not run follow-up commands on individual services."
+    }
+  ]
+}

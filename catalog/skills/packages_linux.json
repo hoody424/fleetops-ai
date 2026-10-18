@@ -1,0 +1,131 @@
+{
+  "slug": "packages",
+  "name": "Package Management",
+  "node_type": "linux",
+  "description": "Install, update, and remove software packages and system updates",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "install",
+        "description": "Install one or more packages"
+      },
+      {
+        "name": "remove",
+        "description": "Remove one or more packages"
+      },
+      {
+        "name": "update",
+        "description": "Update package lists and optionally upgrade all packages"
+      },
+      {
+        "name": "search",
+        "description": "Search for packages by name or description"
+      },
+      {
+        "name": "info",
+        "description": "Show detailed information about a package"
+      },
+      {
+        "name": "list_installed",
+        "description": "List installed packages, optionally filtered"
+      }
+    ],
+    "allowed_commands": [
+      "apt",
+      "apt-get",
+      "apt-cache",
+      "apt-key",
+      "apt-file",
+      "dpkg",
+      "dpkg-reconfigure",
+      "add-apt-repository",
+      "needrestart",
+      "unattended-upgrade",
+      "pkcon",
+      "dnf",
+      "yum",
+      "rpm",
+      "yum-config-manager",
+      "dnf5",
+      "pacman",
+      "zypper",
+      "apk",
+      "snap",
+      "flatpak",
+      "pip",
+      "pip3",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "chmod",
+      "gpg"
+    ],
+    "system_prompt": "You are a package management agent. CRITICAL: First detect the package manager from the SYSTEM INFO (distro, package_manager fields). Use apt/apt-get on Debian/Ubuntu, dnf on Fedora/RHEL 8+/AlmaLinux/Rocky, yum on CentOS/RHEL 7, pacman on Arch, zypper on SUSE, apk on Alpine. Always use -y (or equivalent) to avoid interactive prompts. Always update package lists before installing. For remove, check what depends on the package first. When adding repos, use the distro-appropriate method.",
+    "slow_commands": [
+      "apt",
+      "apt-get",
+      "dnf",
+      "yum",
+      "pacman",
+      "zypper",
+      "apk",
+      "pip",
+      "pip3",
+      "snap",
+      "flatpak"
+    ],
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "available_updates",
+      "label": "Available Updates",
+      "icon": "RefreshCw",
+      "instruction": "List the packages that have updates available, using this host's package manager. In the summary give the number of upgradable packages and name any kernel or security updates among them. If none are available, say so. Do not install anything and do not run follow-up commands on individual packages."
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "type": "inventory",
+  "name": "System Inventory",
+  "node_type": "linux",
+  "version": "1",
+  "checks": {
+    "system_info": {
+      "name": "System Info",
+      "command": "uname -a; echo '---'; cat /etc/os-release 2>/dev/null | head -8; echo '---'; uptime; echo '---'; nproc 2>/dev/null || grep -c ^processor /proc/cpuinfo; echo '---'; free -h 2>/dev/null | head -2 || cat /proc/meminfo 2>/dev/null | head -3; echo '---'; df -h --output=target,size,used,avail,pcent -x tmpfs -x devtmpfs 2>/dev/null | head -20 || df -h 2>/dev/null | grep -v tmpfs | head -20",
+      "timeout": 10
+    },
+    "services": {
+      "name": "Services",
+      "command": "if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'; then u=$(systemctl list-unit-files --type=service --no-legend 2>/dev/null | awk '$2!=\"masked\"{print $1}' | grep -v '@' | head -300); [ -n \"$u\" ] && systemctl show $u --property=Id,ActiveState,SubState,ExecStart --no-pager 2>/dev/null | sed 's/^ExecStart=.*path=\\([^ ;]*\\).*/ExecStart=\\1/'; systemctl list-units --type=service --state=active --no-pager --no-legend 2>/dev/null | head -200 | awk '{printf \"Id=%s\\nActiveState=active\\nSubState=%s\\n\\n\", $1, $4}'; elif command -v rc-service >/dev/null 2>&1; then rc-status -a 2>/dev/null | awk '/\\[/ {st=($0 ~ /started/)?\"active\":\"inactive\"; sub=($0 ~ /started/)?\"running\":\"dead\"; printf \"Id=%s.service\\nActiveState=%s\\nSubState=%s\\n\\n\", $1, st, sub}' | head -1200; else for f in /etc/init.d/*; do [ -x \"$f\" ] || continue; n=$(basename $f); if \"$f\" status >/dev/null 2>&1; then st=active; sub=running; else st=inactive; sub=dead; fi; printf 'Id=%s.service\\nActiveState=%s\\nSubState=%s\\n\\n' \"$n\" \"$st\" \"$sub\"; done | head -1200; fi",
+      "timeout": 20,
+      "max_output": 60000
+    },
+    "local_units": {
+      "name": "Locally-added Unit Files",
+      "command": "for f in /etc/systemd/system/*.service; do t=$(readlink -f \"$f\" 2>/dev/null); case \"$t\" in /usr/lib/systemd/*) ;; *) basename \"$f\";; esac; done 2>/dev/null | head -40",
+      "timeout": 10
+    },
+    "listening_ports": {
+      "name": "Listening Ports",
+      "command": "if command -v ss >/dev/null 2>&1; then ss -tln 2>/dev/null | awk 'NR>1 {print $4}' | head -120; elif command -v netstat >/dev/null 2>&1; then netstat -tln 2>/dev/null | awk 'NR>2 {print $4}' | head -120; fi",
+      "timeout": 10,
+      "max_output": 8000
+    },
+    "installed_packages": {
+      "name": "Installed Packages",
+      "command": "if command -v rpm >/dev/null 2>&1; then echo 'PKG_MANAGER: rpm'; rpm -qa --queryformat '%{NAME} %{VERSION}\\n' | sort | head -600; elif command -v dpkg >/dev/null 2>&1; then echo 'PKG_MANAGER: dpkg'; dpkg-query -W -f='${Package} ${Version}\\n' | sort | head -600; elif command -v apk >/dev/null 2>&1; then echo 'PKG_MANAGER: apk'; apk list --installed 2>/dev/null | sed 's/-[0-9].*//' | sort | head -600; elif command -v pacman >/dev/null 2>&1; then echo 'PKG_MANAGER: pacman'; pacman -Q 2>/dev/null | head -600; else echo 'UNKNOWN'; fi",
+      "timeout": 30,
+      "max_output": 40000
+    },
+    "containers": {
+      "name": "Docker/Podman Containers",
+      "command": "if command -v docker >/dev/null 2>&1; then echo 'RUNTIME: docker'; docker ps -a --format '{{.Names}}\\t{{.Image}}\\t{{.Status}}\\t{{.Ports}}' 2>/dev/null | head -30; elif command -v podman >/dev/null 2>&1; then echo 'RUNTIME: podman'; podman ps -a --format '{{.Names}}\\t{{.Image}}\\t{{.Status}}\\t{{.Ports}}' 2>/dev/null | head -30; else echo 'NOT_INSTALLED'; fi",
+      "timeout": 15
+    },
+    "cron_jobs": {
+      "name": "Cron Jobs",
+      "command": "echo 'SYSTEM:'; cat /etc/crontab 2>/dev/null | grep -v '^#' | grep -v '^$'; echo '---'; echo 'CRON.D:'; ls /etc/cron.d/ 2>/dev/null; echo '---'; echo 'USER CRONTABS:'; for user in $(awk -F: '{print $1}' /etc/passwd); do jobs=$(crontab -l -u $user 2>/dev/null | grep -v '^#' | grep -v '^$'); [ -n \"$jobs\" ] && echo \"[$user]\" && echo \"$jobs\"; done",
+      "timeout": 10
+    },
+    "network_interfaces": {
+      "name": "Network Interfaces",
+      "command": "if command -v ip >/dev/null 2>&1; then ip -o addr show | awk '{print $2, $3, $4}' | head -20; else ifconfig 2>/dev/null | head -30; fi",
+      "timeout": 5
+    },
+    "mounted_filesystems": {
+      "name": "Mounted Filesystems",
+      "command": "mount | grep -v -e tmpfs -e proc -e sysfs -e devpts -e cgroup -e debugfs -e securityfs -e pstore -e fusectl -e configfs -e binfmt | head -20",
+      "timeout": 5
+    },
+    "hardware_info": {
+      "name": "Hardware Info",
+      "command": "echo 'CPU:'; lscpu 2>/dev/null | grep -e 'Model name' -e 'Socket' -e 'Core' -e 'Thread' -e 'CPU MHz' | head -5 || head -5 /proc/cpuinfo 2>/dev/null; echo '---'; echo 'MEMORY:'; cat /proc/meminfo 2>/dev/null | head -3; echo '---'; echo 'DISKS:'; lsblk -d -o NAME,SIZE,TYPE,MODEL 2>/dev/null | head -10 || cat /proc/partitions 2>/dev/null | head -10",
+      "timeout": 10
+    },
+    "web_servers": {
+      "name": "Web Servers",
+      "command": "if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'; then _svc() { systemctl is-active \"$1\" >/dev/null 2>&1; }; elif command -v rc-service >/dev/null 2>&1; then _svc() { rc-service \"$1\" status >/dev/null 2>&1; }; else _svc() { [ -f /etc/init.d/\"$1\" ] && /etc/init.d/\"$1\" status >/dev/null 2>&1; }; fi; for svc in nginx apache2 httpd caddy haproxy lighttpd; do if _svc $svc; then echo \"$svc: RUNNING\"; $svc -v 2>&1 || $svc -V 2>&1 | head -1; fi; done; echo 'DONE'",
+      "timeout": 10
+    },
+    "databases": {
+      "name": "Databases",
+      "command": "if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'; then _svc() { systemctl is-active \"$1\" >/dev/null 2>&1; }; elif command -v rc-service >/dev/null 2>&1; then _svc() { rc-service \"$1\" status >/dev/null 2>&1; }; else _svc() { [ -f /etc/init.d/\"$1\" ] && /etc/init.d/\"$1\" status >/dev/null 2>&1; }; fi; for svc in postgresql mysql mariadb mongod redis-server redis valkey memcached elasticsearch; do if _svc $svc; then echo \"$svc: RUNNING\"; fi; done; echo '---'; psql --version 2>/dev/null; mysql --version 2>/dev/null; mongod --version 2>/dev/null | head -1; redis-server --version 2>/dev/null; valkey-server --version 2>/dev/null; echo 'DONE'",
+      "timeout": 10
+    },
+    "login_users": {
+      "name": "Login Users",
+      "command": "awk -F: '$3>=1000 && $7 != \"/sbin/nologin\" && $7 != \"/usr/sbin/nologin\" && $7 != \"/bin/false\" {printf \"%s uid=%s shell=%s home=%s\\n\",$1,$3,$7,$6}' /etc/passwd; echo '---'; echo 'GROUPS:'; for user in $(awk -F: '$3>=1000 && $7 != \"/sbin/nologin\" && $7 != \"/usr/sbin/nologin\" && $7 != \"/bin/false\" {print $1}' /etc/passwd); do echo \"$user: $(groups $user 2>/dev/null | cut -d: -f2)\"; done",
+      "timeout": 5
+    },
+    "package_versions": {
+      "name": "Package Versions",
+      "command": "for pkg in nginx httpd apache2 postfix dovecot redis redis-server valkey postgresql postgresql-server mysql mariadb mariadb-server mongodb-server docker-ce podman haproxy caddy fail2ban openssh-server rsyslog opendkim certbot python3 node java php perl openssl curl wget git; do ver=$(rpm -q $pkg --queryformat '%{VERSION}-%{RELEASE}' 2>/dev/null) && echo \"$pkg=$ver\" && continue; ver=$(dpkg-query -W -f='${Version}' $pkg 2>/dev/null) && echo \"$pkg=$ver\" && continue; ver=$(apk info -v $pkg 2>/dev/null | head -1) && [ -n \"$ver\" ] && echo \"$pkg=$ver\" && continue; ver=$(pacman -Q $pkg 2>/dev/null | awk '{print $2}') && [ -n \"$ver\" ] && echo \"$pkg=$ver\"; done 2>/dev/null; echo 'DONE'",
+      "timeout": 10
+    }
+  }
+}

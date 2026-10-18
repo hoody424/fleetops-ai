@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+data/
+ai-profiles/
+recordings/
+seed-local.json
+packages/*/dist/
+packages/*/node_modules/
+packages/agent-go/bin/

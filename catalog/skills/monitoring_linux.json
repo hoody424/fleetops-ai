@@ -1,0 +1,94 @@
+{
+  "slug": "monitoring",
+  "name": "Monitoring & Alerting",
+  "node_type": "linux",
+  "description": "Monitor system performance, resource usage, network traffic, and health metrics",
+  "version": "2",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "health",
+        "description": "Run a comprehensive health check \u2014 CPU, memory, disk, swap, load, top processes, and warnings"
+      },
+      {
+        "name": "resources",
+        "description": "Show real-time resource usage \u2014 CPU, memory, disk I/O, network I/O"
+      },
+      {
+        "name": "top_processes",
+        "description": "Show top processes by CPU or memory usage"
+      },
+      {
+        "name": "disk_io",
+        "description": "Monitor disk I/O performance"
+      },
+      {
+        "name": "network_io",
+        "description": "Monitor network traffic and bandwidth usage"
+      },
+      {
+        "name": "check_service",
+        "description": "Check if a service or URL is responding"
+      }
+    ],
+    "allowed_commands": [
+      "sar",
+      "mpstat",
+      "pidstat",
+      "iotop",
+      "iftop",
+      "nethogs",
+      "nload",
+      "dstat",
+      "atop",
+      "htop",
+      "glances",
+      "bmon",
+      "collectl",
+      "tcpdump",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a system monitoring agent. Use the always-available tools (top, ps, df, free, vmstat, iostat, ss, etc.) as your primary instruments. For CPU: 'top -bn1 | head -20' or 'mpstat 1 COUNT'. For memory: 'free -h' and check /proc/meminfo. For disk I/O: 'iostat -x 1 COUNT' or 'iotop -bn1'. For network: 'ss -s' for summary, check /proc/net/dev for interface stats. For load: 'uptime' and 'cat /proc/loadavg'. When reporting, highlight anything above normal thresholds: CPU > 80%, memory > 90%, disk > 85%, load > nproc. Always provide context with numbers \u2014 don't just list data, interpret it.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

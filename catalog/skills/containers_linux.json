@@ -1,0 +1,158 @@
+{
+  "slug": "containers",
+  "name": "Containers & Kubernetes",
+  "node_type": "linux",
+  "description": "Manage Docker/Podman containers, images, Compose, and Kubernetes clusters — pods, deployments, services, Helm",
+  "version": "1",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "containers",
+        "description": "List containers \u2014 running, stopped, or all"
+      },
+      {
+        "name": "start",
+        "description": "Start one or more stopped containers"
+      },
+      {
+        "name": "stop",
+        "description": "Stop one or more running containers"
+      },
+      {
+        "name": "restart",
+        "description": "Restart one or more containers"
+      },
+      {
+        "name": "logs",
+        "description": "View container logs"
+      },
+      {
+        "name": "exec",
+        "description": "Execute a command inside a running container"
+      },
+      {
+        "name": "inspect",
+        "description": "Inspect a container, image, volume, or network"
+      },
+      {
+        "name": "compose",
+        "description": "Run Compose or Pod operations \u2014 up, down, ps, logs, build, pull"
+      },
+      {
+        "name": "images",
+        "description": "List, pull, build, remove, or manage container images"
+      },
+      {
+        "name": "k8s_status",
+        "description": "Show Kubernetes cluster status — nodes, namespaces, pod health, resource usage"
+      },
+      {
+        "name": "k8s_pods",
+        "description": "List, inspect, or manage pods"
+      },
+      {
+        "name": "k8s_deployments",
+        "description": "Manage deployments — list, scale, rollout, rollback"
+      },
+      {
+        "name": "k8s_services",
+        "description": "Manage services and ingresses"
+      },
+      {
+        "name": "k8s_apply",
+        "description": "Apply or create Kubernetes resources from YAML/JSON"
+      },
+      {
+        "name": "k8s_helm",
+        "description": "Manage Helm charts — install, upgrade, list, rollback, uninstall"
+      }
+    ],
+    "allowed_commands": [
+      "docker",
+      "docker-compose",
+      "podman",
+      "podman-compose",
+      "buildah",
+      "skopeo",
+      "ctr",
+      "crictl",
+      "nerdctl",
+      "kubectl",
+      "kubeadm",
+      "helm",
+      "k3s",
+      "k3d",
+      "minikube",
+      "microk8s",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln"
+    ],
+    "system_prompt": "You are a container management agent. CRITICAL: First detect which container runtime is installed: 'which docker' (Docker), 'which podman' (Podman). Docker and Podman CLIs are largely compatible \u2014 most commands work the same.\n\nDOCKER: Use 'docker ps -a' for all containers. Compose: check 'docker compose' (plugin) or 'docker-compose' (standalone). Daemon managed by systemd (dockerd).\n\nPODMAN: Daemonless and rootless by default. Use 'podman ps -a' for containers. Compose: 'podman-compose' or 'podman compose'. Pods: 'podman pod create/list/start/stop'. Generate systemd units: 'podman generate systemd --new CONTAINER'. Rootless: runs under user namespace, no root needed.\n\nBUILDAH: OCI image building without daemon. 'buildah from', 'buildah run', 'buildah commit'. Alternative to Dockerfile builds.\n\nSKOPEO: Image operations without pulling. 'skopeo inspect docker://IMAGE', 'skopeo copy' between registries, 'skopeo list-tags'.\n\nALWAYS: Use 'docker/podman logs --tail N' (always limit). Use '--format' or pipe to grep for inspect output. Never remove running containers without stopping first. Never prune without showing what will be removed. Use --name when running new containers.\n\nKUBERNETES: Use 'kubectl' as the primary tool. Check context with 'kubectl config current-context'. Always specify -n NAMESPACE. Use -o wide for details, -o yaml for full definitions. List: 'kubectl get TYPE -n NS'. Logs: 'kubectl logs POD -n NS --tail=LINES'. Scale: 'kubectl scale deploy NAME --replicas=N'. Rollout: 'kubectl rollout status/undo deploy NAME'. HELM: 'helm list -A', 'helm install NAME CHART -n NS', 'helm upgrade NAME CHART -n NS'. Troubleshoot: 'kubectl get events --sort-by=.lastTimestamp', 'kubectl top nodes/pods'. Never delete namespaces without explicit confirmation.",
+    "slow_commands": [
+      "docker",
+      "docker-compose",
+      "podman",
+      "podman-compose",
+      "buildah",
+      "nerdctl"
+    ],
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "container_status",
+      "label": "Container Status",
+      "icon": "Boxes",
+      "instruction": "List every container with its name, image, status and published ports, using whichever runtime is installed (docker or podman). If no container runtime is installed, say exactly that and stop. Report the container names and states shown in the output, not a description of the command. Do not run follow-up commands on individual containers."
+    }
+  ]
+}

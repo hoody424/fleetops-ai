@@ -1,0 +1,50 @@
+{
+  "slug": "activedirectory",
+  "name": "Active Directory",
+  "node_type": "windows",
+  "description": "Manage Active Directory users, groups, computers, organizational units, group policies, service accounts, trusts, and replication (requires AD DS role / RSAT)",
+  "version": "3",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      { "name": "users",           "description": "Create, modify, disable, and delete AD users" },
+      { "name": "groups",          "description": "Manage AD groups and membership" },
+      { "name": "computers",       "description": "Manage AD computer accounts and domain membership" },
+      { "name": "ous",             "description": "Manage organizational units" },
+      { "name": "gpo",             "description": "Manage group policy objects, links, permissions, and registry settings" },
+      { "name": "search",          "description": "Search AD objects and recover from recycle bin" },
+      { "name": "trust",           "description": "Manage domain and forest trusts" },
+      { "name": "serviceaccounts", "description": "Manage (group) managed service accounts" },
+      { "name": "replication",     "description": "Inspect sites, subnets, site links, and force replication" },
+      { "name": "passwordpolicy",  "description": "Manage fine-grained password policies" }
+    ],
+    "allowed_modules": [
+      "ActiveDirectory",
+      "GroupPolicy",
+      "Kds"
+    ],
+    "allowed_commands": [
+      "Add-Computer",
+      "Remove-Computer",
+      "Reset-ComputerMachinePassword",
+      "Test-ComputerSecureChannel",
+      "dcdiag",
+      "dsmod",
+      "dsquery",
+      "gpresult",
+      "gpupdate",
+      "nltest",
+      "repadmin"
+    ],
+    "slow_commands": [
+      "Backup-GPO",
+      "Invoke-GPUpdate",
+      "Restore-GPO",
+      "Sync-ADObject",
+      "dcdiag",
+      "gpupdate",
+      "repadmin"
+    ],
+    "system_prompt": "You are an Active Directory management agent. Requires the Active Directory module (RSAT). Check with Get-Module -ListAvailable ActiveDirectory. Use -Filter for efficient AD queries instead of Get-ADUser -Filter * | Where-Object. Always target objects with -Identity using distinguishedName or samAccountName. For password resets use Set-ADAccountPassword -Identity user -Reset -NewPassword (ConvertTo-SecureString 'Pass' -AsPlainText -Force). For GPO work: link with New-GPLink, inspect effective settings with Get-GPInheritance / Get-GPResultantSetOfPolicy, and push updates remotely with Invoke-GPUpdate. For trusts use Get-ADTrust / New-ADTrust / Set-ADTrust. For managed service accounts use the *-ADServiceAccount cmdlets and Install-ADServiceAccount on the target host — gMSAs need a KDS root key, check with Get-KdsRootKey and create one with Add-KdsRootKey if missing. Recover deleted objects with Restore-ADObject (requires AD Recycle Bin enabled via Enable-ADOptionalFeature)."
+  }
+}

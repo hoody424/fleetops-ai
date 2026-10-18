@@ -1,0 +1,76 @@
+{
+  "slug": "network",
+  "name": "Network Management",
+  "node_type": "windows",
+  "description": "Manage network adapters, IP addresses, DNS client configuration, routing, and IPsec",
+  "version": "3",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      { "name": "adapters", "description": "List / enable / disable / configure network adapters" },
+      { "name": "ip",       "description": "Manage IPv4 + IPv6 addresses and interfaces" },
+      { "name": "dns",      "description": "Configure adapter DNS servers and flush/inspect client cache" },
+      { "name": "routes",   "description": "Routing table, neighbor discovery" },
+      { "name": "ipsec",    "description": "IPsec rules, main / quick mode, phase 1 / 2 auth" },
+      { "name": "tcp_udp",  "description": "TCP / UDP tuning, connection inspection" },
+      { "name": "diagnose", "description": "Test connectivity and name resolution" }
+    ],
+    "allowed_modules": [
+      "NetAdapter",
+      "NetTCPIP",
+      "DnsClient",
+      "NetConnection",
+      "NetLbfo",
+      "NetSwitchTeam",
+      "NetNat",
+      "NetworkTransition"
+    ],
+    "allowed_commands": [
+      "Disable-NetIPsecMainModeRule",
+      "Disable-NetIPsecRule",
+      "Enable-NetIPsecMainModeRule",
+      "Enable-NetIPsecRule",
+      "Get-NetIPsecMainModeCryptoSet",
+      "Get-NetIPsecMainModeRule",
+      "Get-NetIPsecMainModeSA",
+      "Get-NetIPsecPhase1AuthSet",
+      "Get-NetIPsecPhase2AuthSet",
+      "Get-NetIPsecQuickModeCryptoSet",
+      "Get-NetIPsecQuickModeSA",
+      "Get-NetIPsecRule",
+      "New-NetIPsecAuthProposal",
+      "New-NetIPsecMainModeCryptoProposal",
+      "New-NetIPsecMainModeCryptoSet",
+      "New-NetIPsecMainModeRule",
+      "New-NetIPsecPhase1AuthSet",
+      "New-NetIPsecPhase2AuthSet",
+      "New-NetIPsecQuickModeCryptoProposal",
+      "New-NetIPsecQuickModeCryptoSet",
+      "New-NetIPsecRule",
+      "Remove-NetIPsecMainModeCryptoSet",
+      "Remove-NetIPsecMainModeRule",
+      "Remove-NetIPsecMainModeSA",
+      "Remove-NetIPsecPhase1AuthSet",
+      "Remove-NetIPsecPhase2AuthSet",
+      "Remove-NetIPsecQuickModeCryptoSet",
+      "Remove-NetIPsecQuickModeSA",
+      "Remove-NetIPsecRule",
+      "Set-NetIPsecMainModeCryptoSet",
+      "Set-NetIPsecMainModeRule",
+      "Set-NetIPsecPhase1AuthSet",
+      "Set-NetIPsecPhase2AuthSet",
+      "Set-NetIPsecQuickModeCryptoSet",
+      "Set-NetIPsecRule",
+      "Show-NetIPsecRule"
+    ],
+    "system_prompt": "You are a Windows network configuration agent. Use the PowerShell Net* and NetIPsec* cmdlets. Always inspect current state with Get-NetIPConfiguration / Get-NetAdapter before making changes. Target adapters with -InterfaceIndex or -InterfaceAlias. For adapter DNS server assignment use Set-DnsClientServerAddress -InterfaceIndex N -ServerAddresses ('8.8.8.8','8.8.4.4'); to test name resolution use Resolve-DnsName. For adapter offload / feature tuning use the generic Get-NetAdapterAdvancedProperty / Set-NetAdapterAdvancedProperty rather than per-feature cmdlets. The allowed modules cover: adapter basics, NIC teaming (LBFO and switch-embedded), IP addressing + routing, NAT, IPv6 transition (6to4 / ISATAP / Teredo / IP-HTTPS), neighbor discovery, DNS client (server address, suffix, registration, cache, name resolution), IPsec (rules, main/quick mode, phase 1/2 auth), TCP/UDP tuning, and diagnostics. Firewall rules/profiles live in the dedicated firewall skill; DNS server zones/records and advanced DNS client features (NRPT policy, DoH) live in the dns skill; GPO editing lives in the Active Directory skill."
+  },
+  "quick_reports": [
+    {
+      "id": "listening_ports",
+      "label": "Listening Ports",
+      "icon": "Radio",
+      "instruction": "List every listening TCP port and every UDP endpoint with its local address and owning process (Get-NetTCPConnection -State Listen and Get-NetUDPEndpoint, resolving OwningProcess to a process name). In the summary give the number of listening sockets and name the ports reachable from outside (bound to 0.0.0.0 or ::). Do not run follow-up commands on individual ports."
+    }
+  ]
+}

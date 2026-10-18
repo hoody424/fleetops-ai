@@ -1,0 +1,98 @@
+{
+  "slug": "firewall",
+  "name": "Firewall Management",
+  "node_type": "linux",
+  "description": "Manage firewall rules, profiles, IP sets, connection tracking, and network access policies",
+  "version": "2",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show firewall status and all current rules"
+      },
+      {
+        "name": "allow",
+        "description": "Allow traffic on a port or for a service"
+      },
+      {
+        "name": "deny",
+        "description": "Deny/block traffic on a port or from a source"
+      },
+      {
+        "name": "remove_rule",
+        "description": "Remove a firewall rule"
+      },
+      {
+        "name": "enable",
+        "description": "Enable the firewall"
+      },
+      {
+        "name": "disable",
+        "description": "Disable the firewall"
+      }
+    ],
+    "allowed_commands": [
+      "ufw",
+      "firewall-cmd",
+      "iptables",
+      "iptables-save",
+      "iptables-restore",
+      "ip6tables",
+      "ip6tables-save",
+      "ip6tables-restore",
+      "nft",
+      "ipset",
+      "conntrack",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "chmod",
+      "mkdir",
+      "systemctl"
+    ],
+    "system_prompt": "You are a firewall management agent. CRITICAL: First detect which firewall is installed \u2014 check 'which ufw' (Debian/Ubuntu), 'which firewall-cmd' (RHEL/CentOS/Fedora with firewalld), then fall back to iptables/nft. For UFW: 'ufw status numbered' to list, 'ufw allow PORT/PROTO', 'ufw --force enable'. For firewalld: 'firewall-cmd --list-all', 'firewall-cmd --add-port=PORT/PROTO --permanent', 'firewall-cmd --reload'. For iptables: 'iptables -L -n -v --line-numbers'. Always show rules before AND after changes. When enabling a firewall, ensure SSH (port 22) is allowed first to avoid lockout.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

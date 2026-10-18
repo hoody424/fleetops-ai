@@ -1,0 +1,25 @@
+{
+  "slug": "openvpn",
+  "name": "OpenVPN",
+  "icon": "Lock",
+  "category": "Remote Access",
+  "check_type": "tcp",
+  "inventory_match": ["openvpn"],
+  "defaults": {
+    "port": 1194,
+    "timeout": 5
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

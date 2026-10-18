@@ -1,0 +1,14 @@
+{
+  "type": "cert",
+  "name": "Certificate Discovery",
+  "node_type": "windows",
+  "version": "2",
+  "checks": {
+    "cert_store": {
+      "name": "Certificate Store",
+      "command": "foreach ($s in @('My','WebHosting','Remote Desktop')) { $p = Join-Path 'Cert:\\LocalMachine' $s; if (Test-Path $p) { Get-ChildItem $p -ErrorAction SilentlyContinue | Where-Object { $_.RawData } | ForEach-Object { \"LocalMachine\\$s;$($_.HasPrivateKey);$([Convert]::ToBase64String($_.RawData))\" } } }",
+      "timeout": 60,
+      "max_output": 2000000
+    }
+  }
+}

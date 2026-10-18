@@ -1,0 +1,30 @@
+{
+  "id": "cis_l1",
+  "name": "CIS Linux Benchmark (Distribution Independent) — Level 1",
+  "description": "Center for Internet Security Distribution Independent Linux Benchmark — Level 1 (essential security hygiene). This is distinct from CIS Controls v8 (organisation-level controls) which uses a different numbering.",
+  "version": "3.0.0",
+  "url": "https://www.cisecurity.org/benchmark/distribution_independent_linux",
+  "controls": [
+    {"ref": "1.5.3", "name": "Address space layout randomization", "desc": "ASLR randomises memory layout per-process, mitigating memory-corruption exploits.", "rule_slugs": ["aslr-enabled"]},
+    {"ref": "1.5.4", "name": "Restrict core dumps from SUID programs", "desc": "Core dumps from SUID binaries can leak privileged process memory. `fs.suid_dumpable=0` prevents this.", "rule_slugs": ["suid-dumpable-disabled"]},
+    {"ref": "1.6.1", "name": "SELinux or AppArmor active", "desc": "Mandatory access control limits damage from compromised services by restricting what processes can access.", "rule_slugs": ["selinux-apparmor-active"]},
+    {"ref": "1.9", "name": "Security patches applied", "desc": "Unpatched systems are vulnerable to known exploits. Security updates should be applied promptly.", "rule_slugs": ["security-updates-applied", "no-pending-reboot", "auto-updates-enabled", "no-kev-vulnerabilities", "no-critical-vulnerabilities", "no-high-vulnerabilities", "pt-nuclei-basic", "pt-nuclei-vuln"]},
+    {"ref": "2.2.1", "name": "Strong TLS configuration", "desc": "Weak protocols (SSLv3, TLSv1) and ciphers (RC4, DES) are cryptographically broken and allow eavesdropping.", "rule_slugs": ["no-weak-tls-protocols", "no-weak-ciphers", "pt-testssl-quick", "pt-testssl-full"]},
+    {"ref": "3.2.1", "name": "IP forwarding disabled", "desc": "Prevents the server from routing packets between networks, reducing its attack surface as a pivot point.", "rule_slugs": ["kernel-ip-forward"]},
+    {"ref": "3.2.2", "name": "ICMP redirects rejected", "desc": "ICMP redirects can be used to alter routing tables in man-in-the-middle attacks.", "rule_slugs": ["kernel-accept-redirects", "kernel-send-redirects"]},
+    {"ref": "3.2.7", "name": "Reverse path filtering", "desc": "Drops packets with spoofed source addresses, preventing IP spoofing attacks.", "rule_slugs": ["kernel-rp-filter"]},
+    {"ref": "3.5.1", "name": "Firewall active", "desc": "Host-level packet filtering is the first line of defense against unauthorized network access.", "rule_slugs": ["firewall-active", "pt-nmap-discovery", "pt-nmap-full"]},
+    {"ref": "4.1", "name": "Audit daemon active", "desc": "auditd records security-relevant kernel events for forensic investigation and breach detection.", "rule_slugs": ["auditd-active"]},
+    {"ref": "4.4", "name": "Time synchronization configured", "desc": "Synchronised clocks are required for correlating logs across hosts and for valid TLS / Kerberos behaviour.", "rule_slugs": ["time-synchronized"]},
+    {"ref": "5.2.3", "name": "SSH password auth disabled", "desc": "Password-based SSH is vulnerable to brute-force. Key-based authentication is cryptographically stronger.", "rule_slugs": ["ssh-password-auth"]},
+    {"ref": "5.2.4", "name": "SSH public key auth enabled", "desc": "Public key authentication provides strong, phishing-resistant login without transmitting secrets.", "rule_slugs": ["ssh-pubkey-auth"]},
+    {"ref": "5.2.6", "name": "SSH X11 forwarding disabled", "desc": "X11 forwarding exposes the graphical display over SSH, enabling screen capture and keystroke injection.", "rule_slugs": ["ssh-x11-forwarding"]},
+    {"ref": "5.2.7", "name": "SSH MaxAuthTries limited", "desc": "Limiting authentication attempts per connection slows brute-force attacks.", "rule_slugs": ["ssh-max-auth-tries"]},
+    {"ref": "5.2.10", "name": "SSH root login disabled", "desc": "Direct root login bypasses audit trails and increases brute-force risk. Use sudo for privilege escalation.", "rule_slugs": ["ssh-root-login"]},
+    {"ref": "6.1.10", "name": "No world-writable files", "desc": "World-writable files in system directories can be modified by any user, enabling configuration tampering.", "rule_slugs": ["no-world-writable-files", "no-world-writable-dirs"]},
+    {"ref": "6.1.13", "name": "SUID executables audited", "desc": "SUID binaries run with elevated privileges. Each one is a potential privilege escalation vector.", "rule_slugs": ["suid-binaries-reasonable"]},
+    {"ref": "6.2.2", "name": "No extra UID 0 accounts", "desc": "Non-root accounts with UID 0 have full root privileges, bypassing all access controls.", "rule_slugs": ["no-extra-uid0"]},
+    {"ref": "6.2.3", "name": "Strong password hashing", "desc": "/etc/shadow must use a modern hash (yescrypt, sha512, argon2). MD5 / SHA-1 hashes are crackable in hours.", "rule_slugs": ["strong-password-hashing"]},
+    {"ref": "6.2.4", "name": "Shadow file permissions", "desc": "/etc/shadow contains password hashes and must be readable only by root.", "rule_slugs": ["shadow-perms-secure"]}
+  ]
+}

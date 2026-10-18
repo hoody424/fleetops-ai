@@ -1,0 +1,105 @@
+{
+  "slug": "dns",
+  "name": "DNS Management",
+  "node_type": "linux",
+  "description": "Manage DNS server zones, records, forwarders, DNSSEC, and dynamic updates (BIND, Unbound, Knot, PowerDNS, dnsmasq)",
+  "version": "2",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show DNS server status and configuration overview"
+      },
+      {
+        "name": "zones",
+        "description": "List, create, or manage DNS zones"
+      },
+      {
+        "name": "records",
+        "description": "Manage DNS records in a zone"
+      },
+      {
+        "name": "resolver",
+        "description": "Configure local DNS resolver settings (/etc/resolv.conf, systemd-resolved)"
+      },
+      {
+        "name": "hosts",
+        "description": "Manage /etc/hosts entries"
+      }
+    ],
+    "allowed_commands": [
+      "named",
+      "named-checkconf",
+      "named-checkzone",
+      "rndc",
+      "unbound",
+      "unbound-control",
+      "unbound-checkconf",
+      "unbound-anchor",
+      "knotc",
+      "knotd",
+      "kdig",
+      "pdns_control",
+      "pdns_server",
+      "pdnsutil",
+      "delv",
+      "nsupdate",
+      "dnsmasq",
+      "resolvectl",
+      "systemd-resolve",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl"
+    ],
+    "system_prompt": "You are a DNS server management agent. First detect which DNS server is installed: check for named (BIND), unbound, dnsmasq, or systemd-resolved. For BIND: configs in /etc/bind/ (Debian) or /etc/named/ (RHEL). Always validate with 'named-checkconf' and 'named-checkzone' before reloading. For Unbound: config in /etc/unbound/unbound.conf or /etc/unbound/unbound.conf.d/. Validate with 'unbound-checkconf', control with 'unbound-control'. For dnsmasq: config in /etc/dnsmasq.conf or /etc/dnsmasq.d/. For resolv.conf: check if it's managed by systemd-resolved, NetworkManager, or manually. After DNS changes, verify with 'dig @localhost DOMAIN'. Always increment the serial number when editing BIND zone files.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

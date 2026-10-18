@@ -1,0 +1,132 @@
+{
+  "slug": "webserver",
+  "name": "Web Server Management",
+  "node_type": "linux",
+  "description": "Manage web server sites, virtual hosts, HTTPS configuration, modules, and HTTP basic-auth",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show web server status \u2014 detect which server is running, active sites, and config health"
+      },
+      {
+        "name": "list_sites",
+        "description": "List all sites, virtual hosts, or applications"
+      },
+      {
+        "name": "show_config",
+        "description": "Show the configuration of a site or the main server config"
+      },
+      {
+        "name": "create_site",
+        "description": "Create a new site, virtual host, or application configuration"
+      },
+      {
+        "name": "edit_config",
+        "description": "Edit an existing site or server configuration"
+      },
+      {
+        "name": "enable_site",
+        "description": "Enable a site or virtual host"
+      },
+      {
+        "name": "disable_site",
+        "description": "Disable a site or virtual host"
+      },
+      {
+        "name": "ssl",
+        "description": "Manage SSL/TLS certificates \u2014 obtain, renew, configure, or inspect"
+      },
+      {
+        "name": "modules",
+        "description": "Manage server modules or plugins \u2014 list, enable, or disable"
+      },
+      {
+        "name": "reload",
+        "description": "Test configuration and reload the web server"
+      }
+    ],
+    "allowed_commands": [
+      "nginx",
+      "apache2ctl",
+      "apachectl",
+      "httpd",
+      "a2ensite",
+      "a2dissite",
+      "a2enmod",
+      "a2dismod",
+      "a2enconf",
+      "a2disconf",
+      "catalina.sh",
+      "startup.sh",
+      "shutdown.sh",
+      "caddy",
+      "haproxy",
+      "lighttpd",
+      "lighty-enable-mod",
+      "lighty-disable-mod",
+      "certbot",
+      "openssl",
+      "htpasswd",
+      "htdbm",
+      "ln",
+      "rm",
+      "tee",
+      "cp",
+      "mv",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "systemctl",
+      "journalctl",
+      "jar",
+      "keytool"
+    ],
+    "system_prompt": "You are a web server management agent. CRITICAL: First detect which web server(s) are installed by checking: 'which nginx' (Nginx), 'which apache2ctl' or 'which apachectl' or 'which httpd' (Apache), 'which catalina.sh' or check for CATALINA_HOME or /opt/tomcat /usr/share/tomcat (Tomcat), 'which caddy' (Caddy), 'which haproxy' (HAProxy), 'which lighttpd' (Lighttpd). Multiple servers may coexist.\n\nNGINX: Config in /etc/nginx/. Sites: /etc/nginx/sites-available/ (Debian) or /etc/nginx/conf.d/ (RHEL). Enable via symlink to sites-enabled/. Test: 'nginx -t'. Reload: 'systemctl reload nginx'. Proxy headers: Host, X-Real-IP, X-Forwarded-For, X-Forwarded-Proto.\n\nAPACHE: Config in /etc/apache2/ (Debian) or /etc/httpd/ (RHEL). Debian uses a2ensite/a2dissite/a2enmod/a2dismod. RHEL has no a2en* tools. Test: 'apache2ctl configtest' or 'httpd -t'. Reload: 'systemctl reload apache2' or 'systemctl reload httpd'.\n\nTOMCAT: Config in $CATALINA_HOME/conf/ (server.xml, web.xml, context.xml). Deploy WARs to $CATALINA_HOME/webapps/. Logs in $CATALINA_HOME/logs/. Manage with catalina.sh or systemctl. JVM opts in setenv.sh.\n\nCADDY: Config via Caddyfile (/etc/caddy/Caddyfile) or JSON API. Automatic HTTPS by default. Reload: 'caddy reload' or 'systemctl reload caddy'. Validate: 'caddy validate'.\n\nHAPROXY: Config in /etc/haproxy/haproxy.cfg. Test: 'haproxy -c -f /etc/haproxy/haproxy.cfg'. Reload: 'systemctl reload haproxy'. Define frontends, backends, and ACLs.\n\nLIGHTTPD: Config in /etc/lighttpd/. Modules via lighty-enable-mod/lighty-disable-mod. Test: 'lighttpd -t -f /etc/lighttpd/lighttpd.conf'.\n\nALWAYS: 1) Read config before editing. 2) Back up before changes (cp file file.bak). 3) Test config after editing. 4) Only reload if test passes. For SSL, check if certbot is available.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/srv"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

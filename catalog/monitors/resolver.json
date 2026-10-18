@@ -1,0 +1,18 @@
+{
+  "slug": "resolver",
+  "name": "DNS Resolver",
+  "icon": "Compass",
+  "category": "Network",
+  "check_type": "resolver",
+  "inventory_match": [],
+  "defaults": {
+    "timeout": 5
+  },
+  "fields": [
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

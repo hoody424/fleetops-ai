@@ -1,0 +1,36 @@
+{
+  "slug": "filesystem",
+  "name": "Filesystem Usage",
+  "icon": "HardDrive",
+  "category": "System",
+  "check_type": "filesystem",
+  "unit": "%",
+  "metric_label": "Disk Usage",
+  "inventory_match": [],
+  "defaults": {
+    "path": "/",
+    "warn_percent": 80,
+    "crit_percent": 90
+  },
+  "fields": [
+    {
+      "name": "path",
+      "label": "Path",
+      "type": "text",
+      "required": true,
+      "placeholder": "/ or C:\\"
+    },
+    {
+      "name": "warn_percent",
+      "label": "Warning Threshold (%)",
+      "type": "number",
+      "placeholder": "80"
+    },
+    {
+      "name": "crit_percent",
+      "label": "Critical Threshold (%)",
+      "type": "number",
+      "placeholder": "90"
+    }
+  ]
+}

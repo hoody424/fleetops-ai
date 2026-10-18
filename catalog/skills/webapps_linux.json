@@ -1,0 +1,138 @@
+{
+  "slug": "webapps",
+  "name": "Web Application Management",
+  "node_type": "linux",
+  "description": "Manage web applications — Node.js, Python, PHP, Ruby, Java apps, process managers (PM2, Gunicorn, Supervisor, Passenger, Foreman), task queues (Celery), and app deployment",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show status of managed applications (PM2, Supervisor, Gunicorn, etc.)"
+      },
+      {
+        "name": "start",
+        "description": "Start an application"
+      },
+      {
+        "name": "stop",
+        "description": "Stop an application"
+      },
+      {
+        "name": "restart",
+        "description": "Restart an application"
+      },
+      {
+        "name": "logs",
+        "description": "View application logs"
+      },
+      {
+        "name": "env",
+        "description": "Manage application environment variables"
+      },
+      {
+        "name": "deploy",
+        "description": "Deploy or update a web application"
+      }
+    ],
+    "allowed_commands": [
+      "pm2",
+      "node",
+      "npm",
+      "npx",
+      "yarn",
+      "pnpm",
+      "bun",
+      "python3",
+      "pip3",
+      "gunicorn",
+      "uvicorn",
+      "uwsgi",
+      "php",
+      "php-fpm",
+      "composer",
+      "ruby",
+      "bundle",
+      "puma",
+      "unicorn",
+      "java",
+      "mvn",
+      "gradle",
+      "supervisorctl",
+      "supervisord",
+      "passenger",
+      "foreman",
+      "celery",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl",
+      "git"
+    ],
+    "system_prompt": "You are a web application management agent. First detect what process managers and runtimes are available (check 'which pm2', 'which supervisorctl', 'which gunicorn', etc.). For PM2: 'pm2 list', 'pm2 start app.js --name myapp', 'pm2 logs myapp'. For Supervisor: 'supervisorctl status', configs in /etc/supervisor/conf.d/. For systemd services: check with 'systemctl list-units'. When deploying, always: 1) check current state, 2) back up if needed, 3) pull code, 4) install dependencies, 5) build if needed, 6) restart, 7) verify the app is responding. Never leave an app in a broken state — roll back if the new version fails.",
+    "slow_commands": [
+      "npm",
+      "yarn",
+      "pnpm",
+      "bun",
+      "pip3",
+      "composer",
+      "bundle",
+      "mvn",
+      "gradle",
+      "git"
+    ],
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

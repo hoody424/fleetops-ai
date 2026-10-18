@@ -1,0 +1,97 @@
+{
+  "slug": "automation",
+  "name": "Automation & Scheduling",
+  "node_type": "linux",
+  "description": "Infrastructure-as-code and automation — Ansible, Terraform/OpenTofu, Packer, cloud-init, and shell scripts (scheduled tasks / cron live in the services skill)",
+  "version": "2",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "ansible",
+        "description": "Run Ansible playbooks, ad-hoc commands, or manage inventory"
+      },
+      {
+        "name": "terraform",
+        "description": "Run Terraform operations \u2014 init, plan, apply, state, output"
+      },
+      {
+        "name": "scripts",
+        "description": "Create, edit, manage, or run shell scripts"
+      },
+      {
+        "name": "cloud_init",
+        "description": "View or manage cloud-init configuration and status"
+      }
+    ],
+    "allowed_commands": [
+      "ansible",
+      "ansible-playbook",
+      "ansible-galaxy",
+      "ansible-vault",
+      "ansible-inventory",
+      "ansible-config",
+      "ansible-doc",
+      "terraform",
+      "tofu",
+      "packer",
+      "cloud-init",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are an automation and infrastructure-as-code management agent. Detect available tools: 'which ansible' (Ansible), 'which terraform' or 'which tofu' (Terraform/OpenTofu), 'which packer' (Packer), 'which cloud-init' (cloud-init).\n\nANSIBLE: Config in /etc/ansible/ or local ansible.cfg. Inventory: /etc/ansible/hosts or -i flag. Ad-hoc: 'ansible HOST -m MODULE -a ARGS'. Playbook: 'ansible-playbook PLAYBOOK.yml'. Check mode: add '--check'. Vault: 'ansible-vault encrypt/decrypt/edit'. Always use --diff to show changes.\n\nTERRAFORM: Run in project directory. Workflow: init -> plan -> apply. Use '-auto-approve' only when explicitly requested. State: 'terraform state list/show'. Outputs: 'terraform output'. NEVER run apply without showing the plan first. OpenTofu is a drop-in replacement (same commands).\n\nCLOUD-INIT: Status: 'cloud-init status'. Logs: /var/log/cloud-init.log and /var/log/cloud-init-output.log. User-data: /var/lib/cloud/instance/user-data.txt. Clean: 'cloud-init clean' (resets state for re-run).\n\nSCRIPTS: Always add '#!/bin/bash' shebang, 'set -euo pipefail' for safety. Make executable with chmod +x. Test before deploying.\n\nALWAYS: Preview changes before applying. Use --check/--dry-run when available. Back up state files.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "id": "hipaa",
+  "name": "HIPAA Security Rule",
+  "description": "HIPAA Technical Safeguards (45 CFR §164.312) — required security controls for protected health information",
+  "version": "2013",
+  "url": "https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html",
+  "controls": [
+    {
+      "ref": "§164.312(a)(1)",
+      "name": "System access controls",
+      "desc": "SSH root login disabled, key auth enforced, no extra UID 0, no world-writable system files, password hashes and shadow file protected.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "no-extra-uid0",
+        "no-world-writable-files",
+        "no-world-writable-dirs",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "rdp-nla-enabled",
+        "guest-disabled",
+        "uac-enabled"
+      ]
+    },
+    {
+      "ref": "§164.312(a)(2)(i)",
+      "name": "Unique user identification",
+      "desc": "No duplicate UID 0 accounts, root login disabled — each user must authenticate individually.",
+      "rule_slugs": [
+        "no-extra-uid0",
+        "ssh-root-login"
+      ]
+    },
+    {
+      "ref": "§164.312(a)(2)(iii)",
+      "name": "Session security",
+      "desc": "X11 forwarding disabled to prevent session hijacking over forwarded display connections; auto-login disabled on Windows.",
+      "rule_slugs": [
+        "ssh-x11-forwarding",
+        "auto-login-disabled"
+      ]
+    },
+    {
+      "ref": "§164.312(b)",
+      "name": "Audit controls",
+      "desc": "Audit daemon active, logon events recorded, time synchronized so events correlate across systems, failed logins surfaced for review.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "time-synchronized",
+        "failed-logins-low",
+        "powershell-script-block-logging"
+      ]
+    },
+    {
+      "ref": "§164.312(c)(1)",
+      "name": "Data integrity controls",
+      "desc": "Mandatory access control active, ASLR on, SUID binaries audited, no world-writable files, anti-malware protection enabled.",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-binaries-reasonable",
+        "no-world-writable-files",
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh"
+      ]
+    },
+    {
+      "ref": "§164.312(d)",
+      "name": "Authentication mechanisms",
+      "desc": "Public key authentication enabled, brute-force limited via MaxAuthTries / account lockout, password policies enforced.",
+      "rule_slugs": [
+        "ssh-pubkey-auth",
+        "ssh-password-auth",
+        "ssh-max-auth-tries",
+        "account-lockout",
+        "password-min-length",
+        "password-complexity"
+      ]
+    },
+    {
+      "ref": "§164.312(e)(1)",
+      "name": "Transmission security",
+      "desc": "Strong TLS enforced, weak protocols and ciphers disabled, certificates valid, SMB signing required, BitLocker active for data at rest.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "smb1-disabled",
+        "disk-encryption-active",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    },
+    {
+      "ref": "§164.312(e)(2)(ii)",
+      "name": "Encryption standards",
+      "desc": "No weak TLS versions (SSLv3, TLSv1), no broken ciphers (RC4, DES, 3DES), legacy WDigest credential storage disabled.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "wdigest-off",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    }
+  ]
+}

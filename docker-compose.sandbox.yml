@@ -1,0 +1,14 @@
+services:
+  sandbox-node-01:
+    build:
+      context: .
+      dockerfile: deploy/sandbox/Dockerfile.ssh-target
+    hostname: sandbox-node-01
+    restart: unless-stopped
+
+  sandbox-node-02:
+    build:
+      context: .
+      dockerfile: deploy/sandbox/Dockerfile.ssh-target
+    hostname: sandbox-node-02
+    restart: unless-stopped

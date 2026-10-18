@@ -1,0 +1,223 @@
+{
+  "id": "nist_800_53",
+  "name": "NIST SP 800-53 Rev. 5 — Moderate Baseline",
+  "description": "Selected technical controls from NIST Special Publication 800-53 Rev. 5 — the catalogue used by FedRAMP, FISMA and CMMC. This file maps host-hardening rules to the AC, AU, CM, IA, SC and SI control families.",
+  "version": "Rev. 5",
+  "url": "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final",
+  "controls": [
+    {
+      "ref": "AC-2",
+      "name": "Account management",
+      "desc": "Manage system accounts: no extra UID 0, default Guest disabled, lockout policy on failed attempts, audit logon events.",
+      "rule_slugs": [
+        "no-extra-uid0",
+        "guest-disabled",
+        "account-lockout",
+        "audit-logon-events"
+      ]
+    },
+    {
+      "ref": "AC-6",
+      "name": "Least privilege",
+      "desc": "Limit accounts and processes to the minimum privileges required. UAC, mandatory access control, no privileged containers, restricted SUID set.",
+      "rule_slugs": [
+        "no-extra-uid0",
+        "ssh-root-login",
+        "suid-binaries-reasonable",
+        "selinux-apparmor-active",
+        "uac-enabled",
+        "docker-no-privileged",
+        "docker-no-root-containers"
+      ]
+    },
+    {
+      "ref": "AC-7",
+      "name": "Unsuccessful logon attempts",
+      "desc": "Limit consecutive invalid logon attempts via SSH MaxAuthTries, account lockout policy and continuous monitoring of failed logins.",
+      "rule_slugs": [
+        "ssh-max-auth-tries",
+        "account-lockout",
+        "failed-logins-low"
+      ]
+    },
+    {
+      "ref": "AC-17",
+      "name": "Remote access",
+      "desc": "Remote access mechanisms must be authenticated and encrypted. Key-based SSH only, root SSH disabled, RDP requires Network Level Authentication, X11 forwarding disabled.",
+      "rule_slugs": [
+        "ssh-pubkey-auth",
+        "ssh-password-auth",
+        "ssh-root-login",
+        "ssh-x11-forwarding",
+        "rdp-nla-enabled"
+      ]
+    },
+    {
+      "ref": "AU-2",
+      "name": "Event logging",
+      "desc": "Audit subsystem must be active and configured to capture security-relevant events including authentication, privileged commands and PowerShell script blocks.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "powershell-script-block-logging"
+      ]
+    },
+    {
+      "ref": "AU-8",
+      "name": "Time stamps",
+      "desc": "System clocks must be synchronized to a reliable source so audit records can be correlated across hosts.",
+      "rule_slugs": [
+        "time-synchronized"
+      ]
+    },
+    {
+      "ref": "AU-12",
+      "name": "Audit record generation",
+      "desc": "Audit records must be generated for the events identified in AU-2. Failed logons must be visible to monitoring.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "failed-logins-low"
+      ]
+    },
+    {
+      "ref": "CM-6",
+      "name": "Configuration settings",
+      "desc": "Establish and enforce a hardened baseline: MAC, kernel hardening (IP-forward, redirects, RP-filter, ASLR, SUID dumpable), Windows hardening (UAC, SMBv1 off, LLMNR off, auto-login off).",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter",
+        "uac-enabled",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "auto-login-disabled"
+      ]
+    },
+    {
+      "ref": "CM-7",
+      "name": "Least functionality",
+      "desc": "Disable unused, insecure services and protocols. SMBv1, LLMNR, and WDigest credential storage are removed; only required ports respond.",
+      "rule_slugs": [
+        "smb1-disabled",
+        "llmnr-disabled",
+        "wdigest-off",
+        "pt-nmap-discovery",
+        "pt-nmap-full"
+      ]
+    },
+    {
+      "ref": "IA-2",
+      "name": "Identification and authentication (organisational users)",
+      "desc": "Each user authenticates with a unique credential. Public-key SSH, password complexity, minimum length and account lockout applied.",
+      "rule_slugs": [
+        "ssh-pubkey-auth",
+        "password-min-length",
+        "password-complexity",
+        "account-lockout",
+        "no-extra-uid0"
+      ]
+    },
+    {
+      "ref": "IA-5",
+      "name": "Authenticator management",
+      "desc": "Authenticator content protected: modern password hashing (yescrypt / sha512), shadow file readable only by root, WDigest plaintext store off, complexity policies enforced.",
+      "rule_slugs": [
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "wdigest-off",
+        "password-min-length",
+        "password-complexity"
+      ]
+    },
+    {
+      "ref": "SC-7",
+      "name": "Boundary protection",
+      "desc": "Host firewall active on all profiles; IP forwarding off; reverse path filter on; ICMP redirects ignored.",
+      "rule_slugs": [
+        "firewall-active",
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter"
+      ]
+    },
+    {
+      "ref": "SC-8",
+      "name": "Transmission confidentiality and integrity",
+      "desc": "Strong TLS protocols and ciphers, valid certificates, mandatory SMB signing — all transit traffic protected.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "pt-testssl-quick",
+        "pt-testssl-full",
+        "pt-nuclei-headers"
+      ]
+    },
+    {
+      "ref": "SC-13",
+      "name": "Cryptographic protection",
+      "desc": "Approved cryptographic algorithms only; weak protocols and legacy credential stores disabled.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "wdigest-off"
+      ]
+    },
+    {
+      "ref": "SC-28",
+      "name": "Protection of information at rest",
+      "desc": "BitLocker (Windows) or equivalent disk encryption to protect data should the device be lost, stolen, or repurposed.",
+      "rule_slugs": [
+        "disk-encryption-active"
+      ]
+    },
+    {
+      "ref": "SI-2",
+      "name": "Flaw remediation",
+      "desc": "Security patches applied, no reboot pending, automatic updates available where supported, no Known-Exploited / critical / high CVEs outstanding.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    },
+    {
+      "ref": "SI-3",
+      "name": "Malicious code protection",
+      "desc": "Anti-malware enabled with real-time scanning and current signatures (Microsoft Defender on Windows; equivalent enforcement on Linux via MAC and file-permission hygiene).",
+      "rule_slugs": [
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh",
+        "selinux-apparmor-active",
+        "no-world-writable-files",
+        "no-world-writable-dirs"
+      ]
+    },
+    {
+      "ref": "SI-4",
+      "name": "System monitoring",
+      "desc": "Audit subsystem, failed-login monitoring, anti-malware real-time protection and Windows audit logon events provide continuous visibility.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "failed-logins-low",
+        "defender-realtime",
+        "time-synchronized"
+      ]
+    }
+  ]
+}

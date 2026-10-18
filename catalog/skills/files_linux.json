@@ -1,0 +1,139 @@
+{
+  "slug": "files",
+  "name": "File Management",
+  "node_type": "linux",
+  "description": "Create, copy, move, delete files and folders, manage permissions, extended attributes, filesystem attributes, and compression",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "read",
+        "description": "Read the contents of a file"
+      },
+      {
+        "name": "write",
+        "description": "Write content to a file (creates or overwrites)"
+      },
+      {
+        "name": "edit",
+        "description": "Edit a file \u2014 replace text, append, insert, or delete lines"
+      },
+      {
+        "name": "list",
+        "description": "List directory contents with details"
+      },
+      {
+        "name": "permissions",
+        "description": "Change file or directory permissions and ownership"
+      },
+      {
+        "name": "compress",
+        "description": "Compress files or directories into an archive"
+      },
+      {
+        "name": "extract",
+        "description": "Extract an archive"
+      },
+      {
+        "name": "find",
+        "description": "Search for files by name, size, date, type, or content"
+      },
+      {
+        "name": "disk_usage",
+        "description": "Analyze disk usage for a path"
+      },
+      {
+        "name": "upload",
+        "description": "Upload a file to the server (binary-safe, base64-encoded). Use this when the user wants to transfer a file to the server \u2014 e.g. deploy a website zip, upload a config file, etc."
+      },
+      {
+        "name": "download",
+        "description": "Download a file from the server (binary-safe, base64-encoded). Use this when the user wants to retrieve a file \u2014 e.g. download a config, get a log file, etc."
+      }
+    ],
+    "allowed_commands": [
+      "tee",
+      "chmod",
+      "chown",
+      "chgrp",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "ln",
+      "rsync",
+      "tar",
+      "gzip",
+      "gunzip",
+      "bzip2",
+      "bunzip2",
+      "xz",
+      "unxz",
+      "zip",
+      "unzip",
+      "install",
+      "mktemp",
+      "truncate",
+      "shred",
+      "getfacl",
+      "setfacl",
+      "attr",
+      "getfattr",
+      "setfattr",
+      "chattr",
+      "lsattr",
+      "split",
+      "csplit",
+      "7z",
+      "rename"
+    ],
+    "system_prompt": "You are a file management agent. Always verify paths exist before operating on them. Use <write> to create files and <edit> to modify them \u2014 these are safer than shell commands for file content. When deleting, list what will be deleted first. For compression, verify source exists and check available disk space. When changing permissions recursively, distinguish between files and directories (755 for dirs, 644 for files is common). Use 'du -sh' to check disk usage before large operations.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv",
+        "/root"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

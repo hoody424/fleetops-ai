@@ -1,0 +1,47 @@
+{
+  "slug": "imap",
+  "name": "IMAP / IMAPS",
+  "icon": "Inbox",
+  "category": "Email",
+  "check_type": "tcp",
+  "inventory_match": ["dovecot", "cyrus", "imap"],
+  "defaults": {
+    "port": 993,
+    "timeout": 5,
+    "ssl": true,
+    "warn_days": 0,
+    "response_pattern": "* OK",
+    "starttls": "imap"
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "ssl",
+      "label": "SSL / TLS",
+      "type": "boolean"
+    },
+    {
+      "name": "warn_days",
+      "label": "Certificate Warning (days)",
+      "type": "select",
+      "options": [
+        "0",
+        "7",
+        "14",
+        "30",
+        "60",
+        "90"
+      ]
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

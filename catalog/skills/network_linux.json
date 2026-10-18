@@ -1,0 +1,115 @@
+{
+  "slug": "network",
+  "name": "Network Management",
+  "node_type": "linux",
+  "description": "Manage network adapters, IP addresses, routing, bridges, and traffic shaping (firewall lives in the firewall skill; DNS server management in the dns skill)",
+  "version": "2",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show network status: interfaces, IPs, routes, DNS, and listening ports"
+      },
+      {
+        "name": "connectivity",
+        "description": "Test connectivity to a host \u2014 ping, DNS lookup, traceroute, or port check"
+      },
+      {
+        "name": "ports",
+        "description": "List open/listening ports and the processes using them"
+      },
+      {
+        "name": "connections",
+        "description": "List active network connections"
+      },
+      {
+        "name": "configure",
+        "description": "Configure network settings \u2014 IP addresses, routes, DNS, hostname resolution"
+      }
+    ],
+    "allowed_commands": [
+      "ip",
+      "ifconfig",
+      "route",
+      "arp",
+      "arping",
+      "ipcalc",
+      "nmcli",
+      "nmtui",
+      "networkctl",
+      "resolvectl",
+      "systemd-resolve",
+      "hostnamectl",
+      "dhclient",
+      "dhcpcd",
+      "wpa_supplicant",
+      "wpa_cli",
+      "ethtool",
+      "mii-tool",
+      "iwconfig",
+      "iw",
+      "brctl",
+      "bridge",
+      "tc",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "chmod",
+      "systemctl",
+      "ln"
+    ],
+    "system_prompt": "You are a network management agent. For diagnostics, use: 'ip addr' for interfaces, 'ip route' for routes, 'ss -tulnp' for listening ports, 'ss -tnp' for connections, 'dig' or 'nslookup' for DNS (available via base skill), 'ping -c 4' (always limit count). For configuration, detect the network manager first (NetworkManager with nmcli, systemd-networkd with networkctl, or raw ip commands). When modifying network config, always show the current state first and verify after changes. Be cautious \u2014 network misconfigurations can make the server unreachable. Firewall rules (iptables / nft / ufw / firewalld) live in the dedicated firewall skill.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "listening_ports",
+      "label": "Listening Ports",
+      "icon": "Radio",
+      "instruction": "List every listening TCP and UDP socket with its port, bind address and owning process (ss -tulnp). In the summary give the number of listening sockets and name the ports reachable from outside (bound to 0.0.0.0 or ::). Do not run follow-up commands on individual ports."
+    }
+  ]
+}

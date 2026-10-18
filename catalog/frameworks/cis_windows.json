@@ -1,0 +1,27 @@
+{
+  "id": "cis_windows",
+  "name": "CIS Microsoft Windows Server — Level 1",
+  "description": "Center for Internet Security Microsoft Windows Server Benchmark — Level 1 (essential security hygiene for domain-joined and stand-alone Windows servers).",
+  "version": "2.0.0",
+  "url": "https://www.cisecurity.org/benchmark/microsoft_windows_server",
+  "controls": [
+    {"ref": "1.1.4", "name": "Minimum password length", "desc": "Enforce a minimum password length policy. Short passwords are trivially brute-forced.", "rule_slugs": ["password-min-length"]},
+    {"ref": "1.1.5", "name": "Password complexity required", "desc": "Require complex passwords (mix of upper/lower case, digits, symbols) to resist dictionary attacks.", "rule_slugs": ["password-complexity"]},
+    {"ref": "1.2.1", "name": "Account lockout after failed attempts", "desc": "Lock accounts after repeated failed login attempts to slow brute-force attacks.", "rule_slugs": ["account-lockout"]},
+    {"ref": "2.3.1.2", "name": "Guest account disabled", "desc": "The built-in Guest account allows anonymous access and must be disabled.", "rule_slugs": ["guest-disabled"]},
+    {"ref": "2.3.8.1", "name": "SMB signing required", "desc": "SMB packet signing prevents man-in-the-middle attacks on file-sharing traffic.", "rule_slugs": ["smb-signing-required"]},
+    {"ref": "2.3.17.1", "name": "User Account Control enabled", "desc": "UAC prompts before privileged operations, mitigating privilege-escalation malware.", "rule_slugs": ["uac-enabled"]},
+    {"ref": "9.x", "name": "Windows Defender Firewall active", "desc": "Host-level packet filtering must be enabled on Domain, Private, and Public profiles.", "rule_slugs": ["firewall-active"]},
+    {"ref": "17.5.1", "name": "Audit Logon and Account Logon events", "desc": "Successful and failed logons must be logged for forensics and breach detection.", "rule_slugs": ["audit-logon-events", "failed-logins-low"]},
+    {"ref": "18.4.2", "name": "SMBv1 client and server disabled", "desc": "SMBv1 has known wormable vulnerabilities (EternalBlue, WannaCry, NotPetya). Must be disabled.", "rule_slugs": ["smb1-disabled"]},
+    {"ref": "18.5.10", "name": "WDigest authentication disabled", "desc": "WDigest stores plaintext credentials in LSASS memory and must be disabled to prevent credential theft via Mimikatz-style tools.", "rule_slugs": ["wdigest-off"]},
+    {"ref": "18.5.13", "name": "Disable automatic interactive sign-in", "desc": "Auto-login bypasses authentication and must be disabled on multi-user systems and servers.", "rule_slugs": ["auto-login-disabled"]},
+    {"ref": "18.6.4.2", "name": "LLMNR disabled", "desc": "Link-Local Multicast Name Resolution is exploited by Responder-style poisoning attacks to capture credential hashes.", "rule_slugs": ["llmnr-disabled"]},
+    {"ref": "18.9.x", "name": "BitLocker drive encryption enabled", "desc": "Full-disk encryption protects data at rest if the device is stolen, lost, or decommissioned without proper wiping.", "rule_slugs": ["bitlocker-protection-on"]},
+    {"ref": "18.10.41", "name": "RDP Network Level Authentication", "desc": "NLA requires authentication before establishing a Remote Desktop session, blocking pre-auth exploits and resource exhaustion attacks.", "rule_slugs": ["rdp-nla-enabled"]},
+    {"ref": "18.10.42", "name": "Microsoft Defender real-time protection", "desc": "Real-time anti-malware scanning is essential against active threats; signatures must be kept current.", "rule_slugs": ["defender-realtime", "defender-antivirus-enabled", "defender-signatures-fresh"]},
+    {"ref": "18.10.91.2", "name": "PowerShell script-block logging", "desc": "Logs full content of PowerShell scripts for forensic analysis of attacks using PowerShell as living-off-the-land tooling.", "rule_slugs": ["powershell-script-block-logging"]},
+    {"ref": "18.10.x", "name": "Security updates applied", "desc": "Windows Update must keep the system current with security patches; no patches pending reboot for extended periods.", "rule_slugs": ["security-updates-applied", "no-kev-vulnerabilities", "no-critical-vulnerabilities", "no-high-vulnerabilities"]},
+    {"ref": "18.x", "name": "Strong cryptographic protocols (SChannel)", "desc": "Disable weak TLS/SSL protocols and ciphers at the SChannel level so all Windows components benefit.", "rule_slugs": ["no-weak-tls-protocols", "no-weak-ciphers", "pt-testssl-quick", "pt-testssl-full"]}
+  ]
+}

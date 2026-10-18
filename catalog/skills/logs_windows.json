@@ -1,0 +1,51 @@
+{
+  "slug": "logs",
+  "name": "Log Analysis",
+  "node_type": "windows",
+  "description": "View, search, filter, and manage system logs and performance counter logs",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "view",
+        "description": "Read recent events from a log channel"
+      },
+      {
+        "name": "search",
+        "description": "Filter events by ID, source, level, or time range"
+      },
+      {
+        "name": "export",
+        "description": "Export event logs to a file"
+      },
+      {
+        "name": "clear",
+        "description": "Clear events from a log channel"
+      },
+      {
+        "name": "list",
+        "description": "List available event log sources and channels"
+      }
+    ],
+    "allowed_commands": [
+      "Get-WinEvent",
+      "Get-EventLog",
+      "wevtutil",
+      "Clear-EventLog",
+      "Limit-EventLog",
+      "New-EventLog",
+      "Write-EventLog",
+      "logman"
+    ],
+    "system_prompt": "You are a Windows Event Log management agent. Use Get-WinEvent with -FilterHashtable for efficient queries. Common log names: Application, System, Security, Setup. Use -MaxEvents to limit output. Format timestamps for readability."
+  },
+  "quick_reports": [
+    {
+      "id": "recent_errors",
+      "label": "Recent Errors",
+      "icon": "AlertTriangle",
+      "instruction": "Show Critical, Error and Warning entries from the System and Application event logs for the last 30 minutes (Get-WinEvent -FilterHashtable @{LogName='System','Application'; Level=1,2,3; StartTime=(Get-Date).AddMinutes(-30)} -MaxEvents 50). Get-WinEvent writes 'No events were found that match the specified selection criteria' to stderr when the window is clean \u2014 treat that as zero events, not as a failure. In the summary give the entry count and the providers responsible, quoting the most severe messages. Do not run follow-up commands on individual entries."
+    }
+  ]
+}

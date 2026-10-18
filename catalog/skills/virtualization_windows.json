@@ -1,0 +1,27 @@
+{
+  "slug": "virtualization",
+  "name": "Virtualization",
+  "node_type": "windows",
+  "description": "Manage Hyper-V virtual machines, virtual switches, checkpoints, and VM configuration (requires Hyper-V role)",
+  "version": "3",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      { "name": "list",       "description": "List VMs and status" },
+      { "name": "create",     "description": "Create new VM" },
+      { "name": "start",      "description": "Start VM" },
+      { "name": "stop",       "description": "Stop or turn off VM" },
+      { "name": "restart",    "description": "Restart VM" },
+      { "name": "checkpoint", "description": "Create, restore, and remove checkpoints" },
+      { "name": "configure",  "description": "Modify VM settings" },
+      { "name": "switch",     "description": "Manage virtual switches" },
+      { "name": "migrate",    "description": "Live migration" }
+    ],
+    "allowed_modules": [
+      "Hyper-V",
+      "FailoverClusters"
+    ],
+    "allowed_commands": [],
+    "system_prompt": "You are a Hyper-V virtual machine management agent. Requires the Hyper-V role — check with Get-Module -ListAvailable Hyper-V. Always verify VM state with Get-VM before any mutating operation. Use -Force with Stop-VM for a hard shutdown. For checkpoints use Checkpoint-VM -SnapshotName 'name'. Use Get-VMHost for host-level settings. On a failover cluster, migrate with Move-ClusterVirtualMachineRole and inspect state with Get-ClusterGroup / Get-ClusterNode rather than Move-VM. The Hyper-V module provides the full cmdlet surface (VM lifecycle, storage/VHD, networking + switches, checkpoints, replication, failover, GPU partitioning, assignable devices, SR-IOV, resource metering, ACLs, host/cluster tuning)."
+  }
+}

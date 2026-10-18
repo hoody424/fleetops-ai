@@ -1,0 +1,38 @@
+{
+  "slug": "http",
+  "name": "HTTP / HTTPS",
+  "icon": "Globe",
+  "category": "Web",
+  "check_type": "http",
+  "inventory_match": ["nginx", "apache", "httpd", "caddy", "lighttpd", "iis", "w3svc", "tomcat"],
+  "defaults": {
+    "port": 80,
+    "ssl": false,
+    "timeout": 10,
+    "warn_days": 0
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "ssl",
+      "label": "SSL / TLS",
+      "type": "boolean"
+    },
+    {
+      "name": "warn_days",
+      "label": "Certificate Warning (days)",
+      "type": "select",
+      "options": ["0", "7", "14", "30", "60", "90"]
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

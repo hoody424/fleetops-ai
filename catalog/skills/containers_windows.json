@@ -1,0 +1,91 @@
+{
+  "slug": "containers",
+  "name": "Containers & Kubernetes",
+  "node_type": "windows",
+  "description": "Manage Docker containers, images, Compose, and Kubernetes clusters — pods, deployments, services, Helm",
+  "version": "1",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list",
+        "description": "List containers/images"
+      },
+      {
+        "name": "run",
+        "description": "Create and start containers"
+      },
+      {
+        "name": "stop",
+        "description": "Stop containers"
+      },
+      {
+        "name": "remove",
+        "description": "Remove containers/images"
+      },
+      {
+        "name": "logs",
+        "description": "View container logs"
+      },
+      {
+        "name": "compose",
+        "description": "Docker Compose operations"
+      },
+      {
+        "name": "build",
+        "description": "Build images"
+      },
+      {
+        "name": "network",
+        "description": "Manage Docker networks"
+      },
+      {
+        "name": "k8s_status",
+        "description": "Show Kubernetes cluster status — nodes, namespaces, pod health, resource usage"
+      },
+      {
+        "name": "k8s_pods",
+        "description": "List, inspect, or manage pods"
+      },
+      {
+        "name": "k8s_deployments",
+        "description": "Manage deployments — list, scale, rollout, rollback"
+      },
+      {
+        "name": "k8s_services",
+        "description": "Manage services and ingresses"
+      },
+      {
+        "name": "k8s_apply",
+        "description": "Apply or create Kubernetes resources from YAML/JSON"
+      },
+      {
+        "name": "k8s_helm",
+        "description": "Manage Helm charts — install, upgrade, list, rollback, uninstall"
+      }
+    ],
+    "allowed_commands": [
+      "docker",
+      "docker-compose",
+      "docker.exe",
+      "kubectl",
+      "kubectl.exe",
+      "helm",
+      "helm.exe",
+      "minikube",
+      "k3d"
+    ],
+    "slow_commands": [
+      "docker"
+    ],
+    "system_prompt": "You are a Windows container and Kubernetes management agent. Docker CLI is the same on Windows and Linux. Check Docker is running: docker version. For Windows containers use --isolation=process or --isolation=hyperv. Docker Compose: docker-compose up -d. Always check docker ps before and after operations.\n\nKUBERNETES: Use 'kubectl' as the primary tool. Check context with 'kubectl config current-context'. Always specify -n NAMESPACE. Use -o wide for details, -o yaml for full definitions. List: 'kubectl get TYPE -n NS'. Logs: 'kubectl logs POD -n NS --tail=LINES'. Scale: 'kubectl scale deploy NAME --replicas=N'. Rollout: 'kubectl rollout status/undo deploy NAME'. HELM: 'helm list -A', 'helm install NAME CHART -n NS', 'helm upgrade NAME CHART -n NS'. Never delete namespaces without explicit confirmation."
+  },
+  "quick_reports": [
+    {
+      "id": "container_status",
+      "label": "Container Status",
+      "icon": "Boxes",
+      "instruction": "List every container with its name, image, status and published ports (docker ps -a). If Docker is not installed or its service is not running, say exactly that and stop \u2014 do not report a command-not-found as an empty container list. Report the container names and states shown in the output, not a description of the command. Do not run follow-up commands on individual containers."
+    }
+  ]
+}

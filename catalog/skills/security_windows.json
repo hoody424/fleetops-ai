@@ -1,0 +1,59 @@
+{
+  "slug": "security",
+  "name": "Security & Hardening",
+  "node_type": "windows",
+  "description": "Manage security settings, antivirus, audit policies, BitLocker, AppLocker, TPM, Kerberos tickets, and compliance baselines",
+  "version": "3",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      { "name": "defender",  "description": "Configure Windows Defender" },
+      { "name": "audit",     "description": "Audit policy management" },
+      { "name": "password",  "description": "Password policy" },
+      { "name": "bitlocker", "description": "BitLocker encryption and key protectors" },
+      { "name": "applocker", "description": "AppLocker application control policies" },
+      { "name": "tpm",       "description": "TPM status and initialization" },
+      { "name": "kerberos",  "description": "Inspect Kerberos tickets" },
+      { "name": "acl",       "description": "File and registry ACL inspection" },
+      { "name": "baseline",  "description": "Security settings review" }
+    ],
+    "allowed_modules": [
+      "Defender",
+      "BitLocker",
+      "AppLocker",
+      "TrustedPlatformModule",
+      "ConfigDefender",
+      "SecureBoot",
+      "ProcessMitigations",
+      "ConfigCI"
+    ],
+    "allowed_commands": [
+      "auditpol",
+      "secedit",
+      "net",
+      "manage-bde",
+      "klist",
+      "Get-DeviceGuardStatus",
+      "Get-Acl",
+      "Set-Acl",
+      "Get-LocalUser",
+      "Get-LocalGroupMember",
+      "gpresult",
+      "gpupdate"
+    ],
+    "slow_commands": [
+      "Start-MpScan",
+      "Update-MpSignature",
+      "gpupdate"
+    ],
+    "system_prompt": "You are a Windows security and compliance agent. Use Get-MpComputerStatus to check Defender state before changes. For audit policy use auditpol /get /category:* to review, auditpol /set to configure. For password policy use net accounts. For BitLocker: inspect with Get-BitLockerVolume, suspend before firmware/OS changes with Suspend-BitLocker, always back up recovery keys with BackUp-BitLockerKeyProtector. For AppLocker: Get-AppLockerPolicy -Effective; test rules with Test-AppLockerPolicy before applying. For TPM: Get-Tpm shows ownership / readiness. Use klist for Kerberos ticket troubleshooting. Check Secure Boot with Confirm-SecureBootUEFI, Exploit Protection with Get-ProcessMitigation, and WDAC / Code Integrity policies with the ConfigCI cmdlets (Get-CIPolicy / New-CIPolicy). Always verify changes after applying."
+  },
+  "quick_reports": [
+    {
+      "id": "security_overview",
+      "label": "Security Overview",
+      "icon": "Shield",
+      "instruction": "Report three things in one pass: Microsoft Defender status (Get-MpComputerStatus \u2014 real-time protection, signature age, last scan), BitLocker protection status for every volume (Get-BitLockerVolume), and the local password policy (net accounts). State plainly if a component is not present on this host rather than reporting it as clean. In the summary flag anything weak \u2014 real-time protection off, stale signatures, an unencrypted fixed volume, or no password complexity or expiry. Do not run follow-up commands on individual items."
+    }
+  ]
+}

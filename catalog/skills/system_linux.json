@@ -1,0 +1,120 @@
+{
+  "slug": "system",
+  "name": "System Administration",
+  "node_type": "linux",
+  "description": "Manage hostname, time zone, locale, kernel modules, sysctls, bootloader, initramfs, udev, and restart",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "info",
+        "description": "Get system overview: OS, kernel, uptime, hostname, hardware summary, resource usage"
+      },
+      {
+        "name": "performance",
+        "description": "Analyze system performance: CPU, memory, swap, load average, top processes, I/O wait"
+      },
+      {
+        "name": "set_hostname",
+        "description": "Set the system hostname"
+      },
+      {
+        "name": "set_timezone",
+        "description": "Set the system timezone"
+      },
+      {
+        "name": "reboot",
+        "description": "Reboot or shut down the server"
+      },
+      {
+        "name": "sysctl",
+        "description": "View or set kernel parameters via sysctl"
+      }
+    ],
+    "allowed_commands": [
+      "hostnamectl",
+      "localectl",
+      "timedatectl",
+      "sysctl",
+      "modprobe",
+      "insmod",
+      "lsmod",
+      "rmmod",
+      "udevadm",
+      "systemd-analyze",
+      "journalctl",
+      "reboot",
+      "shutdown",
+      "systemctl",
+      "hwclock",
+      "ntpdate",
+      "ulimit",
+      "swapon",
+      "swapoff",
+      "update-grub",
+      "grub-mkconfig",
+      "grub2-mkconfig",
+      "dracut",
+      "mkinitramfs",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "chmod",
+      "chown",
+      "ln"
+    ],
+    "system_prompt": "You are a Linux system administration agent. Gather information before making changes. When reporting system info, include OS, kernel version, uptime, hostname, CPU, memory, and disk summary. For performance analysis, check load averages, top CPU/memory consumers, swap usage, and I/O wait. Always verify changes took effect after applying them. Be cautious with reboot/shutdown \u2014 confirm the parameters before executing. For sysctl changes, check if the parameter exists first and apply persistently when appropriate.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "system_summary",
+      "label": "System Summary",
+      "icon": "Gauge",
+      "instruction": "Report hostname, OS and kernel version, uptime, load average, memory usage and root filesystem usage. In the summary give the actual values, not a description of what was collected. Do not run follow-up commands on individual items."
+    },
+    {
+      "id": "top_processes",
+      "label": "Top Processes",
+      "icon": "Activity",
+      "instruction": "List the 10 processes using the most CPU and the 10 using the most memory (ps aux --sort=-%cpu and ps aux --sort=-%mem, 10 rows each). In the summary name the top consumers with their percentages. Do not run follow-up commands on individual processes."
+    }
+  ]
+}

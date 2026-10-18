@@ -1,0 +1,113 @@
+{
+  "id": "soc2",
+  "name": "SOC 2",
+  "description": "SOC 2 Trust Services Criteria — technical controls (Security principle)",
+  "version": "2017",
+  "url": "https://www.aicpa.org/soc2",
+  "controls": [
+    {
+      "ref": "CC6.1",
+      "name": "Logical and physical access controls",
+      "desc": "Access to systems must be restricted to authorized users through strong authentication, network controls, and password policies.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "no-extra-uid0",
+        "firewall-active",
+        "rdp-nla-enabled",
+        "guest-disabled",
+        "uac-enabled",
+        "password-min-length",
+        "password-complexity",
+        "account-lockout",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "pt-nmap-discovery",
+        "pt-nmap-full"
+      ]
+    },
+    {
+      "ref": "CC6.6",
+      "name": "Security of external transmissions",
+      "desc": "Data transmitted externally must be protected with strong encryption. Weak TLS, expired certificates, and unsigned SMB are violations. Data at rest must also be protected.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "disk-encryption-active",
+        "wdigest-off",
+        "pt-testssl-quick",
+        "pt-testssl-full",
+        "pt-nuclei-headers"
+      ]
+    },
+    {
+      "ref": "CC6.7",
+      "name": "Restriction of data movement",
+      "desc": "Unauthorized data flows must be prevented. IP forwarding, privileged containers, and legacy SMBv1 enable unrestricted data movement.",
+      "rule_slugs": [
+        "kernel-ip-forward",
+        "docker-no-privileged",
+        "smb1-disabled",
+        "llmnr-disabled"
+      ]
+    },
+    {
+      "ref": "CC6.8",
+      "name": "Prevention of malicious software",
+      "desc": "Controls must prevent execution of unauthorized code. MAC, anti-malware, and restricted Docker access reduce attack surface.",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "docker-socket-perms",
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh"
+      ]
+    },
+    {
+      "ref": "CC7.1",
+      "name": "Detection of unauthorized changes",
+      "desc": "Unauthorized modifications to system files must be detectable. World-writable files, excessive SUID, and core dumps from SUID processes are indicators.",
+      "rule_slugs": [
+        "no-world-writable-files",
+        "no-world-writable-dirs",
+        "suid-binaries-reasonable",
+        "suid-dumpable-disabled",
+        "pt-ffuf-common"
+      ]
+    },
+    {
+      "ref": "CC7.2",
+      "name": "Monitoring for security events",
+      "desc": "Security events including failed authentication and privileged command execution must be monitored to detect and respond to incidents.",
+      "rule_slugs": [
+        "failed-logins-low",
+        "auditd-active",
+        "audit-logon-events",
+        "time-synchronized",
+        "powershell-script-block-logging"
+      ]
+    },
+    {
+      "ref": "CC8.1",
+      "name": "Change management",
+      "desc": "Changes to systems must be controlled. Applying security patches, keeping anti-malware signatures fresh, and verifying no reboot is pending are baseline change-management requirements.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled",
+        "defender-signatures-fresh",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1527 @@
+[
+  {
+    "slug": "mcp-server-kubernetes",
+    "name": "Kubernetes Cluster Control MCP",
+    "category": "kubernetes",
+    "package_name": "mcp-server-kubernetes",
+    "repo_url": "https://github.com/Flux159/mcp-server-kubernetes",
+    "version": "2.4.0",
+    "author": "Flux159 / FleetOps Verified",
+    "installed_by_default": true,
+    "badge": "Official Core",
+    "description": "Full-featured Kubernetes MCP server providing native tools for pods, deployments, statefulsets, services, ingresses, nodes, events, and Helm releases with Read-Only safety guardrails.",
+    "capabilities": [
+      "k8s_list_nodes",
+      "k8s_list_pods",
+      "k8s_describe_resource",
+      "k8s_pod_logs",
+      "k8s_cluster_events",
+      "k8s_rollout_restart",
+      "k8s_scale_deployment"
+    ],
+    "install_command": "npx -y mcp-server-kubernetes",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-kubernetes"],
+      "env": {
+        "KUBECONFIG": "/etc/rancher/k3s/k3s.yaml",
+        "ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS": "true"
+      }
+    },
+    "ai_prompt_templates": [
+      "Check all namespaces for CrashLoopBackOff, ImagePullBackOff, or OOMKilled pods and summarize root causes.",
+      "Compare CPU and Memory requests vs actual usage across all Kubernetes nodes and suggest right-sizing.",
+      "List all Ingress routes and TLS certificates across the cluster and check for expiring secrets."
+    ]
+  },
+  {
+    "slug": "k8sgpt-diagnostics-mcp",
+    "name": "K8sGPT AI Diagnostics & Root-Cause Analyzer",
+    "category": "kubernetes",
+    "package_name": "@k8sgpt/mcp-server",
+    "repo_url": "https://github.com/k8sgpt-ai/k8sgpt",
+    "version": "0.4.1",
+    "author": "CNCF K8sGPT Project",
+    "installed_by_default": true,
+    "badge": "CNCF Sandbox",
+    "description": "Automated SRE diagnostics engine that scans Kubernetes workloads, PVCs, Services, NetworkPolicies, and CronJobs for misconfigurations and explains fixes in plain language.",
+    "capabilities": [
+      "k8s_analyze_cluster",
+      "k8s_explain_failure",
+      "k8s_audit_pvc_mounts",
+      "k8s_detect_dangling_services"
+    ],
+    "install_command": "k8sgpt serve --mcp",
+    "mcp_config": {
+      "command": "k8sgpt",
+      "args": ["serve", "--mcp"],
+      "env": {
+        "KUBECONFIG": "/etc/rancher/k3s/k3s.yaml"
+      }
+    },
+    "ai_prompt_templates": [
+      "Run a full K8sGPT diagnostic scan across all namespaces and prioritize critical issues.",
+      "Why are pods failing to schedule or mount PersistentVolumeClaims in this cluster?"
+    ]
+  },
+  {
+    "slug": "helm-gitops-mcp",
+    "name": "Helm & GitOps Drift Manager MCP",
+    "category": "kubernetes",
+    "package_name": "@fleetops-ai/mcp-helm-gitops",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "GitOps Ready",
+    "description": "Manage Helm releases, inspect chart values, preview manifest diffs before upgrade, detect live cluster drift against Git repositories, and perform 1-click Helm rollbacks.",
+    "capabilities": [
+      "helm_list_releases",
+      "helm_get_values",
+      "helm_diff_upgrade",
+      "helm_rollback_release",
+      "kustomize_validate"
+    ],
+    "install_command": "fleetops-mcp --plugin helm-gitops",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-helm-gitops"],
+      "env": {
+        "HELM_DRIVER": "secret"
+      }
+    },
+    "ai_prompt_templates": [
+      "List all Helm releases across all namespaces and highlight any failed or pending-upgrade charts.",
+      "Show the custom values overrides for our ingress controller and monitoring stack."
+    ]
+  },
+  {
+    "slug": "promql-k8s-metrics-mcp",
+    "name": "Prometheus & Alertmanager K8s Telemetry MCP",
+    "category": "kubernetes",
+    "package_name": "prometheus-mcp-server",
+    "repo_url": "https://github.com/pab1it0/prometheus-mcp-server",
+    "version": "1.5.2",
+    "author": "Community / FleetOps Verified",
+    "installed_by_default": false,
+    "badge": "Observability",
+    "description": "Execute PromQL queries directly from AI prompts, correlate pod memory spikes with OOMKills, forecast PersistentVolume disk exhaustion, and inspect firing Alertmanager alerts.",
+    "capabilities": [
+      "promql_instant_query",
+      "promql_range_query",
+      "alertmanager_list_alerts",
+      "k8s_oomkill_history"
+    ],
+    "install_command": "uvx prometheus-mcp-server",
+    "mcp_config": {
+      "command": "uvx",
+      "args": ["prometheus-mcp-server"],
+      "env": {
+        "PROMETHEUS_URL": "http://prometheus-operated.monitoring:9090"
+      }
+    },
+    "ai_prompt_templates": [
+      "Query Prometheus for the top 10 memory-consuming pods over the last 24 hours and check for OOMKills.",
+      "Are there any firing or pending alerts in Alertmanager right now?"
+    ]
+  },
+  {
+    "slug": "trivy-k8s-security-mcp",
+    "name": "Trivy Kubernetes & RBAC Security Scanner MCP",
+    "category": "kubernetes",
+    "package_name": "@aquasec/trivy-mcp",
+    "repo_url": "https://github.com/aquasecurity/trivy",
+    "version": "0.58.0",
+    "author": "Aqua Security",
+    "installed_by_default": false,
+    "badge": "SecOps & CIS",
+    "description": "Audit Kubernetes cluster workloads for CVEs, overly permissive ClusterRoleBindings, privileged pods, hostNetwork/hostPID exposures, and CIS Kubernetes Benchmark compliance.",
+    "capabilities": [
+      "trivy_scan_k8s_cluster",
+      "k8s_audit_rbac_clusteradmins",
+      "k8s_find_privileged_pods",
+      "k8s_cis_benchmark"
+    ],
+    "install_command": "trivy mcp --transport stdio",
+    "mcp_config": {
+      "command": "trivy",
+      "args": ["mcp", "--transport", "stdio"]
+    },
+    "ai_prompt_templates": [
+      "Audit the cluster for pods running as root, privileged containers, or excessive ClusterRoleBindings.",
+      "Scan all running container images in production namespaces for critical CVEs."
+    ]
+  },
+  {
+    "slug": "cilium-netpol-mcp",
+    "name": "Kubernetes NetworkPolicy & DNS Inspector MCP",
+    "category": "kubernetes",
+    "package_name": "@fleetops-ai/mcp-k8s-network",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Networking",
+    "description": "Visualize pod-to-pod traffic policies, diagnose CoreDNS resolution latency, verify Ingress/Gateway API backends, and generate least-privilege NetworkPolicy YAML manifests.",
+    "capabilities": [
+      "k8s_list_network_policies",
+      "k8s_test_coredns",
+      "k8s_inspect_ingress_routes",
+      "k8s_generate_network_policy"
+    ],
+    "install_command": "fleetops-mcp --plugin k8s-network",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-k8s-network"]
+    },
+    "ai_prompt_templates": [
+      "Inspect all namespaces and identify workloads that lack ingress/egress NetworkPolicies.",
+      "Verify CoreDNS health and check why a service endpoint is unreachable."
+    ]
+  },
+  {
+    "slug": "etcd-velero-backup-mcp",
+    "name": "K3s / etcd Snapshot & PVC Backup Manager MCP",
+    "category": "kubernetes",
+    "package_name": "@fleetops-ai/mcp-k8s-backup",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.0.4",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Disaster Recovery",
+    "description": "Automate K3s etcd snapshots, verify Velero backup schedules, inspect Longhorn/local-path volume health, and validate disaster recovery restore points.",
+    "capabilities": [
+      "k3s_etcd_snapshot_list",
+      "k3s_etcd_snapshot_create",
+      "k8s_pvc_usage_report",
+      "velero_backup_status"
+    ],
+    "install_command": "fleetops-mcp --plugin k8s-backup",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-k8s-backup"]
+    },
+    "ai_prompt_templates": [
+      "Trigger a pre-upgrade K3s etcd snapshot and verify existing snapshot retention.",
+      "List all PersistentVolumes and check their underlying disk utilization."
+    ]
+  },
+  {
+    "slug": "mcp-server-docker",
+    "name": "Docker Engine & Container Lifecycle MCP",
+    "category": "docker",
+    "package_name": "mcp-server-docker",
+    "repo_url": "https://github.com/ckreiling/mcp-server-docker",
+    "version": "1.6.0",
+    "author": "ckreiling / FleetOps Verified",
+    "installed_by_default": true,
+    "badge": "Official Core",
+    "description": "Complete Docker Engine MCP server for inspecting, starting, stopping, restarting, viewing logs, and monitoring containers, images, volumes, and bridge networks across remote Docker hosts.",
+    "capabilities": [
+      "docker_list_containers",
+      "docker_inspect_container",
+      "docker_container_logs",
+      "docker_container_stats",
+      "docker_restart_container",
+      "docker_list_networks",
+      "docker_list_volumes"
+    ],
+    "install_command": "uvx mcp-server-docker",
+    "mcp_config": {
+      "command": "uvx",
+      "args": ["mcp-server-docker"],
+      "env": {
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      }
+    },
+    "ai_prompt_templates": [
+      "List all running and exited Docker containers across my Docker hosts and check for restart loops.",
+      "Inspect resource usage (CPU, memory, block I/O) of all containers on this host."
+    ]
+  },
+  {
+    "slug": "docker-compose-gitops-mcp",
+    "name": "Docker Compose Stack & Rollback Orchestrator MCP",
+    "category": "docker",
+    "package_name": "@fleetops-ai/mcp-compose-stacks",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Stack Manager",
+    "description": "Discover all running Docker Compose projects on remote hosts, validate compose files, snapshot compose configs before edits, pull updated images, and perform 1-click stack rollbacks.",
+    "capabilities": [
+      "compose_list_projects",
+      "compose_view_config",
+      "compose_up_stack",
+      "compose_pull_images",
+      "compose_rollback_snapshot"
+    ],
+    "install_command": "fleetops-mcp --plugin compose-stacks",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-compose-stacks"]
+    },
+    "ai_prompt_templates": [
+      "Discover all active Docker Compose stacks on this host and check if any services in those stacks are unhealthy.",
+      "Safely snapshot docker-compose.yml before updating image tags and restarting the stack."
+    ]
+  },
+  {
+    "slug": "docker-security-cis-mcp",
+    "name": "Docker Daemon Hardening & CIS Benchmark MCP",
+    "category": "docker",
+    "package_name": "@fleetops-ai/mcp-docker-security",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.1",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "CIS Docker v1.6",
+    "description": "Audit Docker hosts against the CIS Docker Benchmark: detect privileged containers, mounted docker.sock exposures, unlimited memory/PIDs containers, and insecure daemon.json settings.",
+    "capabilities": [
+      "docker_cis_audit",
+      "docker_find_privileged_containers",
+      "docker_find_socket_mounts",
+      "docker_inspect_daemon_config"
+    ],
+    "install_command": "fleetops-mcp --plugin docker-security",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-docker-security"]
+    },
+    "ai_prompt_templates": [
+      "Audit all containers on this Docker host for privileged mode, docker.sock mounts, or missing memory limits.",
+      "Review /etc/docker/daemon.json and recommend hardening changes with automatic backup."
+    ]
+  },
+  {
+    "slug": "docker-disk-prune-mcp",
+    "name": "Docker Storage, Volume & Layer Analyzer MCP",
+    "category": "docker",
+    "package_name": "@fleetops-ai/mcp-docker-storage",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Storage Ops",
+    "description": "Analyze Docker disk consumption (`docker system df -v`), identify dangling images, oversized container JSON logs, and orphaned volumes, and safely reclaim disk space.",
+    "capabilities": [
+      "docker_system_df",
+      "docker_find_large_logs",
+      "docker_list_dangling_volumes",
+      "docker_safe_image_prune"
+    ],
+    "install_command": "fleetops-mcp --plugin docker-storage",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-docker-storage"]
+    },
+    "ai_prompt_templates": [
+      "Break down Docker disk usage by images, volumes, build cache, and container logs on this host.",
+      "Safely prune unused dangling Docker images older than 7 days to reclaim disk space."
+    ]
+  },
+  {
+    "slug": "docker-registry-watch-mcp",
+    "name": "Container Registry & Image Update Watcher MCP",
+    "category": "docker",
+    "package_name": "@fleetops-ai/mcp-registry-watcher",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.0.8",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "CI/CD & Registry",
+    "description": "Compare running container image SHA256 digests against Docker Hub, GHCR, and private GitLab/Harbor registries to identify outdated containers and automate rolling updates.",
+    "capabilities": [
+      "docker_check_image_updates",
+      "docker_compare_digests",
+      "docker_rolling_recreate"
+    ],
+    "install_command": "fleetops-mcp --plugin registry-watcher",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-registry-watcher"]
+    },
+    "ai_prompt_templates": [
+      "Check which running containers on this host have newer image digests available in the registry.",
+      "Show the exact image SHA256 digests and creation dates for all running containers."
+    ]
+  },
+  {
+    "slug": "docker-reverse-proxy-mcp",
+    "name": "Traefik / Nginx / Zoraxy Container Route Inspector MCP",
+    "category": "docker",
+    "package_name": "@fleetops-ai/mcp-proxy-routes",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.2",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Ingress & TLS",
+    "description": "Map published host ports (`0.0.0.0:port` vs `127.0.0.1:port`), inspect reverse proxy container labels, validate upstream reachability, and verify TLS certificate expiration.",
+    "capabilities": [
+      "docker_port_exposure_map",
+      "docker_inspect_proxy_labels",
+      "docker_verify_upstream_health"
+    ],
+    "install_command": "fleetops-mcp --plugin proxy-routes",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-proxy-routes"]
+    },
+    "ai_prompt_templates": [
+      "Audit all published container ports on this host and flag any services bound to 0.0.0.0 that should be internal.",
+      "Map all reverse proxy routes and check upstream container health."
+    ]
+  },
+  {
+    "slug": "linux-systemd-journal-mcp",
+    "name": "Linux Systemd & Journald Deep Triage MCP",
+    "category": "linux",
+    "package_name": "@fleetops-ai/mcp-linux-systemd",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Official Core",
+    "description": "Manage systemd units, timers, and sockets across Debian, Ubuntu, RHEL, and Alpine hosts. Correlate failed units with structured journalctl logs and kernel dmesg events.",
+    "capabilities": [
+      "systemd_list_units",
+      "systemd_failed_units",
+      "systemd_unit_control",
+      "journalctl_query_unit",
+      "dmesg_oom_events"
+    ],
+    "install_command": "fleetops-mcp --plugin linux-systemd",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-linux-systemd"]
+    },
+    "ai_prompt_templates": [
+      "Check all Linux hosts for failed systemd services or timers and fetch the last 50 journalctl lines for any failures.",
+      "Inspect kernel dmesg logs for OOM killer invocations, disk I/O errors, or hardware warnings."
+    ]
+  },
+  {
+    "slug": "linux-apt-dnf-patch-mcp",
+    "name": "Linux Package & Unattended Security Patching MCP",
+    "category": "linux",
+    "package_name": "@fleetops-ai/mcp-linux-patching",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.2",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Patch Management",
+    "description": "Inventory pending APT/DNF/APK package updates across the Linux fleet, filter critical CVE security updates, check `/var/run/reboot-required`, and orchestrate staged rollouts.",
+    "capabilities": [
+      "linux_list_upgradable_packages",
+      "linux_security_updates_only",
+      "linux_check_reboot_required",
+      "linux_apply_security_patches"
+    ],
+    "install_command": "fleetops-mcp --plugin linux-patching",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-linux-patching"]
+    },
+    "ai_prompt_templates": [
+      "Scan all Linux servers for pending security package updates and check which hosts require a kernel reboot.",
+      "Compare installed OpenSSH, OpenSSL, and sudo versions across the entire Linux fleet."
+    ]
+  },
+  {
+    "slug": "linux-pam-ssh-hardening-mcp",
+    "name": "Linux SSH, Sudoers, PAM & Sysctl Hardener MCP",
+    "category": "linux",
+    "package_name": "@fleetops-ai/mcp-linux-hardening",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.5",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "CIS Linux L1/L2",
+    "description": "Audit and harden `/etc/ssh/sshd_config`, `/etc/sudoers`, `/etc/sysctl.conf`, fail2ban jails, and UFW/nftables firewall rules with automatic pre-change snapshot backups.",
+    "capabilities": [
+      "linux_audit_sshd_config",
+      "linux_audit_sudoers",
+      "linux_sysctl_security_check",
+      "linux_firewall_rules_inspect",
+      "linux_fail2ban_status"
+    ],
+    "install_command": "fleetops-mcp --plugin linux-hardening",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-linux-hardening"]
+    },
+    "ai_prompt_templates": [
+      "Audit sshd_config, sudoers, and listening ports across all Linux hosts against CIS Level 1 guidelines.",
+      "Show all active UFW / iptables / nftables firewall rules and listening TCP/UDP sockets."
+    ]
+  },
+  {
+    "slug": "linux-storage-lvm-zfs-mcp",
+    "name": "Linux Storage, LVM, ZFS, NFS & SMART Disk Health MCP",
+    "category": "linux",
+    "package_name": "@fleetops-ai/mcp-linux-storage",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Storage & LVM",
+    "description": "Inspect block devices (`lsblk`), LVM volume groups, ZFS pools, NFS/SMB mounts, inode usage, top disk consumers (`du`), and NVMe/SATA `smartctl` disk health telemetry.",
+    "capabilities": [
+      "linux_block_devices_lsblk",
+      "linux_lvm_vgs_lvs",
+      "linux_find_top_disk_dirs",
+      "linux_smartctl_health",
+      "linux_fstab_mounts_audit"
+    ],
+    "install_command": "fleetops-mcp --plugin linux-storage",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-linux-storage"]
+    },
+    "ai_prompt_templates": [
+      "Find the top 15 largest directories and log files consuming disk space on this Linux server.",
+      "Inspect LVM volume groups, filesystem mounts, and inode utilization across all Linux hosts."
+    ]
+  },
+  {
+    "slug": "linux-ebpf-network-mcp",
+    "name": "Linux Network Diagnostics, WireGuard & TCP Socket MCP",
+    "category": "linux",
+    "package_name": "@fleetops-ai/mcp-linux-netdiag",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.4",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "NetOps & VPN",
+    "description": "Deep Linux networking tools: `ss -tulnp` socket ownership, routing tables, WireGuard tunnel handshakes, DNS resolver checks, MTR latency traces, and conntrack table pressure.",
+    "capabilities": [
+      "linux_listening_sockets",
+      "linux_ip_routes_links",
+      "linux_wireguard_status",
+      "linux_dns_mtr_probe",
+      "linux_conntrack_stats"
+    ],
+    "install_command": "fleetops-mcp --plugin linux-netdiag",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-linux-netdiag"]
+    },
+    "ai_prompt_templates": [
+      "Map all listening TCP/UDP ports and their owning PIDs/processes on this Linux host.",
+      "Check routing tables, DNS resolution, and network interface errors across the fleet."
+    ]
+  },
+  {
+    "slug": "linux-ansible-playbook-mcp",
+    "name": "Ansible Ad-Hoc & Playbook Execution Bridge MCP",
+    "category": "linux",
+    "package_name": "ansible-mcp-server",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.0.9",
+    "author": "Community / FleetOps Verified",
+    "installed_by_default": false,
+    "badge": "Automation",
+    "description": "Generate and execute idempotent Ansible playbooks in `--check --diff` dry-run mode or live mode against FleetOps AI host groups using dynamic inventory.",
+    "capabilities": [
+      "ansible_inventory_export",
+      "ansible_playbook_dryrun",
+      "ansible_playbook_apply",
+      "ansible_facts_gather"
+    ],
+    "install_command": "fleetops-mcp --plugin ansible-bridge",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-ansible-bridge"]
+    },
+    "ai_prompt_templates": [
+      "Run an Ansible dry-run (`--check --diff`) across the Linux fleet to standardize chrony NTP configuration.",
+      "Gather hardware and OS facts across all Linux servers."
+    ]
+  },
+  {
+    "slug": "windows-powershell-winrm-mcp",
+    "name": "Windows Server PowerShell & Service Control MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-server",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.0.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Official Core",
+    "description": "Manage Windows Server 2019/2022/2025 hosts via OpenSSH, Outbound Go Agent, or WinRM. Inspect and control Windows Services, Processes, Scheduled Tasks, Registry keys, and WMI/CIM telemetry.",
+    "capabilities": [
+      "win_list_services",
+      "win_control_service",
+      "win_top_processes",
+      "win_scheduled_tasks",
+      "win_system_info_cim"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-server",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-server"]
+    },
+    "ai_prompt_templates": [
+      "Check all Automatic Windows Services on this Windows Server that are currently Stopped and explain why.",
+      "Show top CPU and memory-consuming processes and scheduled tasks on our Windows servers."
+    ]
+  },
+  {
+    "slug": "windows-eventlog-siem-mcp",
+    "name": "Windows Event Viewer & Security Audit Log Analyzer MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-eventlog",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Event Viewer & SecOps",
+    "description": "Query Windows System, Application, and Security Event Logs (`Get-WinEvent`): detect failed RDP logons (Event ID 4625), privilege escalations (4672), service crashes (7031/7034), and BSOD bugchecks.",
+    "capabilities": [
+      "win_query_eventlog",
+      "win_failed_rdp_logons",
+      "win_service_crash_events",
+      "win_account_lockout_events"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-eventlog",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-eventlog"]
+    },
+    "ai_prompt_templates": [
+      "Scan the Windows System and Application Event Logs for Critical and Error events in the last 24 hours.",
+      "Check the Windows Security Event Log for failed logon attempts (Event ID 4625) or account lockouts."
+    ]
+  },
+  {
+    "slug": "windows-active-directory-gpo-mcp",
+    "name": "Active Directory, DNS, DHCP & Group Policy (GPO) MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-ad",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Active Directory",
+    "description": "Inspect Active Directory Domain Controllers (`dcdiag`, `repadmin`), audit privileged Domain Admins, locked-out AD user accounts, GPO replication status, and Windows DNS/DHCP scopes.",
+    "capabilities": [
+      "ad_domain_health_dcdiag",
+      "ad_list_privileged_groups",
+      "ad_find_locked_users",
+      "ad_gpo_replication_status",
+      "win_dns_dhcp_audit"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-ad",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-ad"]
+    },
+    "ai_prompt_templates": [
+      "Audit Active Directory privileged groups (Domain Admins, Enterprise Admins) and locked-out user accounts.",
+      "Verify Domain Controller replication health and DNS service status."
+    ]
+  },
+  {
+    "slug": "windows-wsus-patch-mcp",
+    "name": "Windows Update, Hotfix (KB) & Pending Reboot Manager MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-updates",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.2",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Patch & KB Ops",
+    "description": "Inventory installed Windows KB hotfixes (`Get-HotFix`), scan for missing cumulative/security updates via Windows Update Agent, detect pending component-based servicing reboots, and schedule maintenance.",
+    "capabilities": [
+      "win_list_installed_hotfixes",
+      "win_scan_missing_updates",
+      "win_check_pending_reboot",
+      "win_install_security_kbs"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-updates",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-updates"]
+    },
+    "ai_prompt_templates": [
+      "List recently installed KB hotfixes on our Windows Server hosts and check if a reboot is pending.",
+      "Check for missing critical Windows Security Updates across all Windows hosts."
+    ]
+  },
+  {
+    "slug": "windows-defender-cis-mcp",
+    "name": "Microsoft Defender, Firewall & CIS Windows Server Benchmark MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-security",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.8",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "CIS Windows v3.0",
+    "description": "Audit Windows Defender status (`Get-MpComputerStatus`), Windows Defender Firewall profiles, SMBv1/NTLM hardening, RDP Network Level Authentication (NLA), and CIS Windows Server Benchmark.",
+    "capabilities": [
+      "win_defender_status",
+      "win_firewall_profiles_audit",
+      "win_rdp_smb_hardening_check",
+      "win_cis_benchmark_eval"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-security",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-security"]
+    },
+    "ai_prompt_templates": [
+      "Audit Windows Defender real-time protection, signature age, and firewall profiles on this Windows Server.",
+      "Check RDP NLA enforcement, SMB signing, and TLS cipher suites against CIS Windows Server Benchmark."
+    ]
+  },
+  {
+    "slug": "windows-iis-sqlserver-mcp",
+    "name": "IIS Web Server, AppPools, Certificates & SQL Server Health MCP",
+    "category": "windows",
+    "package_name": "@fleetops-ai/mcp-windows-workloads",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.0.7",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "IIS & SQL Ops",
+    "description": "Inspect IIS websites, Application Pool worker processes (`w3wp.exe`), Windows Certificate Store (`Cert:\\LocalMachine\\My`) expiring TLS certificates, and SQL Server service/disk latency.",
+    "capabilities": [
+      "win_iis_sites_apppools",
+      "win_certstore_expiring_tls",
+      "win_sqlserver_health",
+      "win_ntfs_volume_latency"
+    ],
+    "install_command": "fleetops-mcp --plugin windows-workloads",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-windows-workloads"]
+    },
+    "ai_prompt_templates": [
+      "Inspect all certificates in Cert:\\LocalMachine\\My and flag any expiring within 30 days.",
+      "Check IIS Application Pools, NTFS volume free space, and listening ports on this Windows Server."
+    ]
+  },
+  {
+    "slug": "netmiko-napalm-switch-mcp",
+    "name": "Enterprise Switch & Router CLI / NETCONF MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-network-switches",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Switches & Routers",
+    "description": "Manage Cisco IOS-XE/NX-OS, Aruba/HP ProCurve, Ubiquiti EdgeSwitch/UniFi, MikroTik RouterOS, and Juniper switches via SSH/NETCONF: backup running-config, inspect VLAN trunks, PoE status, and STP/BGP neighbors.",
+    "capabilities": [
+      "switch_backup_running_config",
+      "switch_show_vlan_matrix",
+      "switch_show_interfaces_status",
+      "switch_poe_port_status",
+      "switch_lldp_cdp_neighbors"
+    ],
+    "install_command": "fleetops-mcp --plugin network-switches",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-network-switches"]
+    },
+    "ai_prompt_templates": [
+      "Backup the running-config of all network switches, compare against the previous snapshot, and highlight any VLAN or trunk changes.",
+      "List all switch ports with CRC/input errors, flapping link states, or high PoE power draw."
+    ]
+  },
+  {
+    "slug": "firewall-policy-vpn-mcp",
+    "name": "Next-Gen Firewall & VPN Gateway Manager MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-firewall-secops",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.5.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Firewalls & VPN",
+    "description": "Audit and manage OPNsense, pfSense, FortiGate FortiOS, Palo Alto PAN-OS, Sophos XGS, and Linux nftables firewalls: inspect WAN/VLAN rules, NAT port-forwards, IPsec/WireGuard VPN tunnels, and IDS/IPS blocks.",
+    "capabilities": [
+      "fw_audit_security_rules",
+      "fw_inspect_nat_port_forwards",
+      "fw_vpn_tunnel_status",
+      "fw_backup_xml_config",
+      "fw_active_states_top_talkers"
+    ],
+    "install_command": "fleetops-mcp --plugin firewall-secops",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-firewall-secops"]
+    },
+    "ai_prompt_templates": [
+      "Audit all firewall rules and NAT port-forwards for overly permissive WAN-to-LAN any/any policies.",
+      "Check the status of all site-to-site IPsec and WireGuard VPN tunnels and report any dropped phase2 selectors."
+    ]
+  },
+  {
+    "slug": "ipp-snmp-printer-fleet-mcp",
+    "name": "Network Printer, MFP & CUPS Print Fleet MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-printer-fleet",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Printers & MFPs",
+    "description": "Monitor and manage network printers & MFPs (HP JetDirect, Brother, Kyocera, Canon, Ricoh, Lexmark) via SNMPv2c/v3 Printer-MIB (OID 1.3.6.1.2.1.43), IPP, and CUPS: toner/drum levels, page counters, tray jams, and security port hardening.",
+    "capabilities": [
+      "printer_snmp_supply_levels",
+      "printer_page_counter_report",
+      "printer_tray_and_alert_status",
+      "printer_cups_queue_control",
+      "printer_security_port_audit"
+    ],
+    "install_command": "fleetops-mcp --plugin printer-fleet",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-printer-fleet"]
+    },
+    "ai_prompt_templates": [
+      "Poll all network printers via SNMP/IPP for toner, drum, and fuser supply levels and flag any printer below 15%.",
+      "Audit network printers for insecure open legacy ports (Telnet 23, FTP 21, unauthenticated LPD 515) and stuck print queues."
+    ]
+  },
+  {
+    "slug": "snmp-lldp-topology-mcp",
+    "name": "SNMPv2c/v3 & LLDP Network Topology Discovery MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-snmp-topology",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.4",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "SNMP & LLDP",
+    "description": "Agentless SNMPv2c/v3 polling and LLDP/CDP neighbor graph builder across switches, firewalls, UPS units, and network appliances: IF-MIB interface traffic, ARP/MAC tables, and optical SFP transceiver dBm levels.",
+    "capabilities": [
+      "snmp_poll_system_mib",
+      "snmp_interface_counters",
+      "snmp_arp_mac_table_lookup",
+      "snmp_sfp_optical_levels"
+    ],
+    "install_command": "fleetops-mcp --plugin snmp-topology",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-snmp-topology"],
+      "env": {
+        "SNMP_COMMUNITY": "public"
+      }
+    },
+    "ai_prompt_templates": [
+      "Trace which switch and physical port MAC/IP addresses are connected to using ARP and LLDP tables.",
+      "Poll SNMP IF-MIB counters across all core switches and report any ports with packet drops or SFP optical warnings."
+    ]
+  },
+  {
+    "slug": "unifi-omada-sdn-mcp",
+    "name": "UniFi / Omada / Meraki Wireless & SDN Controller MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-wireless-sdn",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.5",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Wi-Fi & SDN",
+    "description": "Manage Ubiquiti UniFi, TP-Link Omada, and Cisco Meraki controllers: inspect Access Point RF channel utilization, client signal strength (RSSI), Guest VLAN isolation, and PoE switch budgets.",
+    "capabilities": [
+      "sdn_list_access_points",
+      "sdn_wifi_channel_utilization",
+      "sdn_active_wireless_clients",
+      "sdn_restart_ap_or_port"
+    ],
+    "install_command": "fleetops-mcp --plugin wireless-sdn",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-wireless-sdn"]
+    },
+    "ai_prompt_templates": [
+      "Check all Wireless Access Points for offline state, high 5GHz/2.4GHz channel interference, or poor client SNR.",
+      "Verify SSID-to-VLAN mappings and guest network isolation policies."
+    ]
+  },
+  {
+    "slug": "oxidized-netbox-sot-mcp",
+    "name": "NetBox IPAM & Oxidized Network Config GitOps MCP",
+    "category": "network",
+    "package_name": "@fleetops-ai/mcp-netbox-oxidized",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "IPAM & Config Backup",
+    "description": "Synchronize network switches, firewalls, VLANs, and IPv4/IPv6 prefixes with NetBox Source-of-Truth and track historical device configuration diffs via Oxidized.",
+    "capabilities": [
+      "netbox_query_ipam_prefixes",
+      "netbox_sync_device_inventory",
+      "oxidized_fetch_config_diff",
+      "network_subnet_ping_sweep"
+    ],
+    "install_command": "fleetops-mcp --plugin netbox-oxidized",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-netbox-oxidized"]
+    },
+    "ai_prompt_templates": [
+      "Check IPAM subnet utilization across all VLANs and identify any undocumented static IP devices.",
+      "Show the latest configuration diffs across our switches and firewalls from the last 7 days."
+    ]
+  },
+  {
+    "slug": "proxmox-ve-pbs-mcp",
+    "name": "Proxmox VE & Proxmox Backup Server (PBS) MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-proxmox-ve",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Proxmox & PBS",
+    "description": "Manage Proxmox VE hypervisor clusters and Proxmox Backup Server: inspect QEMU VMs (`qm list`), LXC containers (`pct list`), cluster quorum (`pvecm status`), ZFS/Ceph storage pools, live migrations, and PBS deduplicated backup verification.",
+    "capabilities": [
+      "pve_list_vms_and_lxc",
+      "pve_cluster_quorum_status",
+      "pve_snapshot_vm_or_lxc",
+      "pbs_verify_backup_jobs",
+      "pve_storage_pool_usage"
+    ],
+    "install_command": "fleetops-mcp --plugin proxmox-ve",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-proxmox-ve"]
+    },
+    "ai_prompt_templates": [
+      "List all QEMU VMs and LXC containers across our Proxmox VE nodes, their CPU/RAM allocation, and backup status.",
+      "Verify Proxmox Backup Server (PBS) datastore usage, garbage collection status, and any failed nightly VM backups."
+    ]
+  },
+  {
+    "slug": "truenas-zfs-storage-mcp",
+    "name": "TrueNAS SCALE/CORE & OpenZFS Storage Appliance MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-truenas-zfs",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.6.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "TrueNAS & ZFS",
+    "description": "Manage TrueNAS SCALE/CORE appliances and OpenZFS storage servers: monitor `zpool status` scrub health, ARC hit ratio, ZFS dataset snapshots & replication tasks, NFS/SMB/iSCSI shares, and NVMe/SAS `smartctl` disk wear.",
+    "capabilities": [
+      "zfs_zpool_health_scrub",
+      "zfs_dataset_snapshots",
+      "truenas_replication_tasks",
+      "storage_nfs_smb_iscsi_audit",
+      "smartctl_disk_predictive_fail"
+    ],
+    "install_command": "fleetops-mcp --plugin truenas-zfs",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-truenas-zfs"]
+    },
+    "ai_prompt_templates": [
+      "Check all ZFS storage pools (`zpool status`) for degraded vdevs, checksum errors, scrub age, and capacity over 80%.",
+      "Audit ZFS snapshots, replication tasks, and SMART disk health across our storage servers."
+    ]
+  },
+  {
+    "slug": "vmware-vsphere-esxi-mcp",
+    "name": "VMware vSphere, vCenter & ESXi Hypervisor MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-vmware-vsphere",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.2",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "VMware vSphere",
+    "description": "Inspect VMware vCenter & ESXi hosts via `govc` / vSphere API: audit VM snapshots older than 7 days, VMFS/vSAN datastore free space, vMotion DRS balance, and ESXi host hardware sensors.",
+    "capabilities": [
+      "vsphere_list_vms_datastores",
+      "vsphere_find_stale_snapshots",
+      "vsphere_esxi_host_health",
+      "vsphere_vm_power_snapshot_ops"
+    ],
+    "install_command": "fleetops-mcp --plugin vmware-vsphere",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-vmware-vsphere"]
+    },
+    "ai_prompt_templates": [
+      "Find all VMware VM snapshots older than 7 days or larger than 20 GB consuming datastore space.",
+      "Check ESXi host memory ballooning, CPU ready time, and datastore free capacity."
+    ]
+  },
+  {
+    "slug": "libvirt-kvm-qemu-mcp",
+    "name": "Linux KVM, QEMU, Libvirt & XCP-ng Hypervisor MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-libvirt-kvm",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.1",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "KVM & Libvirt",
+    "description": "Direct management of `libvirtd` / QEMU / KVM and XCP-ng hypervisors via `virsh` and `xe`: inspect guest domains, virtual bridges (`virbr0`/OVS), qcow2 storage pools, and IOMMU/PCIe passthrough.",
+    "capabilities": [
+      "virsh_list_domains",
+      "virsh_domstats_telemetry",
+      "virsh_pool_and_vol_list",
+      "virsh_snapshot_create_revert"
+    ],
+    "install_command": "fleetops-mcp --plugin libvirt-kvm",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-libvirt-kvm"]
+    },
+    "ai_prompt_templates": [
+      "Inspect all KVM/libvirt virtual machines (`virsh list --all`), storage pools, and network bridge bindings.",
+      "Create a clean pre-maintenance snapshot of the target KVM virtual machine."
+    ]
+  },
+  {
+    "slug": "ceph-minio-object-mcp",
+    "name": "Ceph Distributed Storage & MinIO S3 Object Store MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-ceph-minio",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.5",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Ceph & MinIO S3",
+    "description": "Monitor Ceph clusters (`ceph -s`, OSD status, placement groups, RBD images) and MinIO/Garage S3 object storage buckets, lifecycle policies, and replication health.",
+    "capabilities": [
+      "ceph_cluster_health_status",
+      "ceph_osd_df_and_pg_stat",
+      "minio_bucket_usage_and_quota",
+      "s3_replication_and_ilm_audit"
+    ],
+    "install_command": "fleetops-mcp --plugin ceph-minio",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-ceph-minio"]
+    },
+    "ai_prompt_templates": [
+      "Check Ceph cluster health (`ceph -s`), OSD utilization balance, and any misplaced or degraded placement groups.",
+      "Audit MinIO S3 bucket sizes, versioning status, and replication targets."
+    ]
+  },
+  {
+    "slug": "synology-qnap-nas-mcp",
+    "name": "Synology DSM, QNAP & Veeam Backup Repository MCP",
+    "category": "virtualization",
+    "package_name": "@fleetops-ai/mcp-nas-backup",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.8",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "NAS & Veeam",
+    "description": "Monitor Synology DSM / QNAP NAS mdadm/Btrfs RAID arrays, HyperBackup / Active Backup status, immutable S3/NFS backup repositories, and UPS nut-server battery runtime.",
+    "capabilities": [
+      "nas_raid_mdadm_btrfs_status",
+      "nas_immutable_backup_audit",
+      "ups_nut_battery_telemetry",
+      "nas_share_permissions_check"
+    ],
+    "install_command": "fleetops-mcp --plugin nas-backup",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-nas-backup"]
+    },
+    "ai_prompt_templates": [
+      "Check RAID array health (`cat /proc/mdstat` / Btrfs), disk temperatures, and UPS battery status on our NAS hosts.",
+      "Verify that nightly backup repositories have completed cleanly within the last 24 hours."
+    ]
+  },
+  {
+    "slug": "postgres-dba-tuning-mcp",
+    "name": "PostgreSQL DBA, Query Tuning & Replication MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-postgres-dba",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.2.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "PostgreSQL Core",
+    "description": "Deep PostgreSQL 14–17 operations (similar to Percona PMM & pgAdmin): inspect `pg_stat_activity`, blocking locks, slow queries (`pg_stat_statements`), table bloat & autovacuum lag, streaming replication slots, and PgBouncer pools.",
+    "capabilities": [
+      "pg_active_queries_and_locks",
+      "pg_slow_query_statements",
+      "pg_table_bloat_autovacuum",
+      "pg_replication_lag_slots",
+      "pg_explain_analyze_safe"
+    ],
+    "install_command": "fleetops-mcp --plugin postgres-dba",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-postgres-dba"]
+    },
+    "ai_prompt_templates": [
+      "Inspect PostgreSQL `pg_stat_activity` for long-running queries, idle-in-transaction sessions, or blocking locks.",
+      "Analyze PostgreSQL database sizes, index hit ratios, table bloat, and streaming replication lag."
+    ]
+  },
+  {
+    "slug": "mysql-mariadb-galera-mcp",
+    "name": "MySQL, MariaDB & Galera Cluster Operations MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-mysql-mariadb",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.5.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "MySQL & MariaDB",
+    "description": "Manage MySQL 8 and MariaDB servers & Galera clusters: inspect `SHOW PROCESSLIST`, InnoDB buffer pool efficiency, binary log disk usage, replica `Seconds_Behind_Master`, and deadlocks.",
+    "capabilities": [
+      "mysql_processlist_and_locks",
+      "mysql_innodb_status_metrics",
+      "mysql_replica_galera_health",
+      "mysql_schema_size_breakdown"
+    ],
+    "install_command": "fleetops-mcp --plugin mysql-mariadb",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-mysql-mariadb"]
+    },
+    "ai_prompt_templates": [
+      "Check MySQL/MariaDB active connections, InnoDB buffer pool hit rate, and replication status.",
+      "Find the largest tables and binary log files consuming disk space on our MySQL/MariaDB servers."
+    ]
+  },
+  {
+    "slug": "redis-valkey-cluster-mcp",
+    "name": "Redis, Valkey & RabbitMQ Cache / Broker MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-redis-valkey",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Redis & Queues",
+    "description": "Inspect Redis / Valkey instances, Sentinel clusters, and RabbitMQ / NATS brokers: memory fragmentation, evicted keys, `SLOWLOG GET`, RDB/AOF persistence health, and consumer queue depth.",
+    "capabilities": [
+      "redis_info_memory_keyspace",
+      "redis_slowlog_and_bigkeys",
+      "redis_sentinel_replication",
+      "mq_queue_depth_consumers"
+    ],
+    "install_command": "fleetops-mcp --plugin redis-valkey",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-redis-valkey"]
+    },
+    "ai_prompt_templates": [
+      "Check Redis/Valkey memory usage, key eviction rate, hit ratio, and RDB/AOF persistence status.",
+      "Inspect Redis slowlog entries and check message broker queues for backed-up unacknowledged messages."
+    ]
+  },
+  {
+    "slug": "mongodb-replica-mcp",
+    "name": "MongoDB ReplicaSet & Document Store MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-mongodb-ops",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "MongoDB Ops",
+    "description": "Monitor MongoDB ReplicaSets (`rs.status()`), WiredTiger cache pressure, oplog window hours, current operations (`db.currentOp()`), and missing collection indexes.",
+    "capabilities": [
+      "mongo_replicaset_status",
+      "mongo_current_ops_locks",
+      "mongo_collection_index_stats",
+      "mongo_oplog_window_check"
+    ],
+    "install_command": "fleetops-mcp --plugin mongodb-ops",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-mongodb-ops"]
+    },
+    "ai_prompt_templates": [
+      "Check MongoDB ReplicaSet member health, oplog window duration, and WiredTiger cache utilization.",
+      "Identify slow MongoDB queries and collections performing full COLLSCAN operations."
+    ]
+  },
+  {
+    "slug": "elasticsearch-opensearch-mcp",
+    "name": "Elasticsearch, OpenSearch & ClickHouse Analytics MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-search-analytics",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.5",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Search & OLAP",
+    "description": "Manage Elasticsearch, OpenSearch, and ClickHouse clusters: `_cluster/health` red/yellow indices, unassigned shards, JVM heap pressure, ILM retention policies, and ClickHouse merge parts.",
+    "capabilities": [
+      "es_cluster_health_shards",
+      "es_cat_indices_lifecycle",
+      "es_allocation_explain",
+      "clickhouse_parts_and_queries"
+    ],
+    "install_command": "fleetops-mcp --plugin search-analytics",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-search-analytics"]
+    },
+    "ai_prompt_templates": [
+      "Diagnose why Elasticsearch/OpenSearch cluster health is Yellow or Red using `_cluster/allocation/explain`.",
+      "List the largest indices and check Index Lifecycle Management (ILM) retention policies."
+    ]
+  },
+  {
+    "slug": "pgbackrest-walg-backup-mcp",
+    "name": "Database Backup, PITR & Restore Verification MCP",
+    "category": "databases",
+    "package_name": "@fleetops-ai/mcp-db-backups",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.4",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Backup & PITR",
+    "description": "Orchestrate and verify `pg_dump`, `pgBackRest`, `wal-g`, `mysqldump`, and `mariabackup` jobs: verify backup age, S3 archive integrity, WAL continuity, and non-destructive test restores.",
+    "capabilities": [
+      "db_backup_inventory_status",
+      "db_trigger_logical_dump",
+      "db_verify_pitr_wal_archive",
+      "db_backup_retention_prune"
+    ],
+    "install_command": "fleetops-mcp --plugin db-backups",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-db-backups"]
+    },
+    "ai_prompt_templates": [
+      "Audit all PostgreSQL and MySQL servers to ensure a valid backup was created within the last 24 hours.",
+      "Trigger a compressed logical backup (`pg_dump -Fc`) before applying schema migrations."
+    ]
+  },
+  {
+    "slug": "reverse-proxy-waf-mcp",
+    "name": "Zoraxy, Traefik, Nginx Proxy Manager, Caddy & HAProxy MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-reverse-proxy",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Reverse Proxy & WAF",
+    "description": "Unified Reverse Proxy & Edge Gateway manager: inspect virtual hosts, upstream target health, HTTP 502/504 gateway errors, memory/conntrack tuning, and reload configs safely (`nginx -t`, Zoraxy, Traefik, Caddy, HAProxy).",
+    "capabilities": [
+      "proxy_list_upstreams_vhosts",
+      "proxy_check_5xx_error_logs",
+      "proxy_config_syntax_test",
+      "proxy_graceful_reload"
+    ],
+    "install_command": "fleetops-mcp --plugin reverse-proxy",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-reverse-proxy"]
+    },
+    "ai_prompt_templates": [
+      "Inspect our Reverse Proxy (Zoraxy / Traefik / Nginx / HAProxy) upstreams for any unreachable backends or HTTP 502/504 errors.",
+      "Validate reverse proxy configuration syntax and check memory/connection limits."
+    ]
+  },
+  {
+    "slug": "authentik-keycloak-iam-mcp",
+    "name": "Authentik, Keycloak, FreeIPA & OIDC/LDAP SSO MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-iam-sso",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.5.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "SSO & Identity",
+    "description": "Manage Authentik, Keycloak, Authelia, Pocket-ID, and FreeIPA/LDAP identity providers: audit OIDC/SAML applications, outpost health, MFA enrollment coverage, and suspicious failed SSO logins.",
+    "capabilities": [
+      "iam_provider_outpost_health",
+      "iam_audit_oidc_applications",
+      "iam_check_mfa_coverage",
+      "iam_failed_login_events"
+    ],
+    "install_command": "fleetops-mcp --plugin iam-sso",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-iam-sso"]
+    },
+    "ai_prompt_templates": [
+      "Check Authentik / Keycloak SSO server health, worker queues, outpost connectivity, and recent failed login events.",
+      "Audit all OIDC/SAML applications and verify MFA enforcement for administrative groups."
+    ]
+  },
+  {
+    "slug": "acme-stepca-pki-mcp",
+    "name": "Let's Encrypt ACME, Certbot & Internal PKI Certificate MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-tls-pki",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.6.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "SSL/TLS & PKI",
+    "description": "Scan live HTTPS endpoints (`:443`, `:8443`, `:6443`) and `/etc/letsencrypt` / `cert-manager` / `step-ca` stores across the fleet: track certificate expiration days, SAN mismatches, TLS 1.2/1.3 cipher grades, and trigger ACME renewals.",
+    "capabilities": [
+      "tls_scan_endpoint_expiry",
+      "tls_certbot_certificates_list",
+      "tls_renew_acme_certificate",
+      "tls_cipher_protocol_audit"
+    ],
+    "install_command": "fleetops-mcp --plugin tls-pki",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-tls-pki"]
+    },
+    "ai_prompt_templates": [
+      "Scan all hosts and HTTPS endpoints for SSL/TLS certificates expiring within 30 days or using weak ciphers.",
+      "Check Certbot / ACME renewal timers and dry-run certificate renewal on our ingress hosts."
+    ]
+  },
+  {
+    "slug": "crowdsec-fail2ban-waf-mcp",
+    "name": "CrowdSec Threat Engine, Fail2ban & GeoIP Block MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-crowdsec-fail2ban",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.2",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "CrowdSec & WAF",
+    "description": "Manage CrowdSec Security Engine (`cscli decisions list`, bouncers, scenarios) and Fail2ban jails (`fail2ban-client status`): view active banned attacker IPs, unban false positives, and block malicious ASNs.",
+    "capabilities": [
+      "crowdsec_list_decisions_alerts",
+      "crowdsec_bouncer_metrics",
+      "fail2ban_jail_status",
+      "sec_ban_or_unban_ip"
+    ],
+    "install_command": "fleetops-mcp --plugin crowdsec-fail2ban",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-crowdsec-fail2ban"]
+    },
+    "ai_prompt_templates": [
+      "List all active CrowdSec decisions and Fail2ban banned IPs across our perimeter and SSH servers.",
+      "Unban a specific internal IP address across all Fail2ban jails and CrowdSec bouncers."
+    ]
+  },
+  {
+    "slug": "cloudflare-dns-tunnel-mcp",
+    "name": "Cloudflare Zero-Trust, Bind9, CoreDNS & Pi-hole/AdGuard DNS MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-dns-edge",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.4",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "DNS & Zero-Trust",
+    "description": "Audit internal and external DNS infrastructure (Bind9, Unbound, CoreDNS, Technitium, AdGuard Home, Pi-hole, Cloudflare): verify A/AAAA/CNAME/TXT/SPF/DMARC records, split-horizon resolution, and `cloudflared` tunnel health.",
+    "capabilities": [
+      "dns_resolve_and_trace",
+      "dns_spf_dkim_dmarc_audit",
+      "dns_zone_serial_sync_check",
+      "cloudflared_tunnel_status"
+    ],
+    "install_command": "fleetops-mcp --plugin dns-edge",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-dns-edge"]
+    },
+    "ai_prompt_templates": [
+      "Verify internal and external DNS resolution, zone serial synchronization, and SPF/DMARC security records.",
+      "Check the status of all Zero-Trust tunnels (`cloudflared` / Tailscale / NetBird) across the fleet."
+    ]
+  },
+  {
+    "slug": "hashicorp-vault-secrets-mcp",
+    "name": "HashiCorp Vault, OpenBao & Infisical KMS Bridge MCP",
+    "category": "identity_proxy",
+    "package_name": "@fleetops-ai/mcp-vault-kms",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.1.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Vault & KMS",
+    "description": "Monitor HashiCorp Vault / OpenBao seal status, token leases, PKI intermediate CAs, and synchronize dynamic infrastructure credentials with the FleetOps AI AES-256-GCM Vault.",
+    "capabilities": [
+      "vault_seal_and_ha_status",
+      "vault_audit_token_leases",
+      "vault_pki_issue_leaf_cert",
+      "vault_rotate_host_ssh_keys"
+    ],
+    "install_command": "fleetops-mcp --plugin vault-kms",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-vault-kms"]
+    },
+    "ai_prompt_templates": [
+      "Check Vault seal status, HA Raft peer health, and expiring token/certificate leases.",
+      "Rotate SSH keys across target hosts and store the updated keys in the encrypted Vault."
+    ]
+  },
+  {
+    "slug": "prometheus-alertmanager-mcp",
+    "name": "Prometheus, VictoriaMetrics & Alertmanager Incident MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-prometheus-alerts",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "2.0.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Metrics & Alerts",
+    "description": "Query Prometheus & VictoriaMetrics TSDBs, inspect firing/pending Alertmanager alerts, correlate scrape target failures (`up == 0`), and create maintenance window silences.",
+    "capabilities": [
+      "prom_list_firing_alerts",
+      "prom_scrape_targets_health",
+      "prom_instant_range_query",
+      "alertmanager_create_silence"
+    ],
+    "install_command": "fleetops-mcp --plugin prometheus-alerts",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-prometheus-alerts"]
+    },
+    "ai_prompt_templates": [
+      "List all currently firing Prometheus / Alertmanager alerts, group them by root cause, and propose remediation steps.",
+      "Check all Prometheus scrape targets (`up == 0`) and identify any exporters that are down."
+    ]
+  },
+  {
+    "slug": "loki-victorialogs-mcp",
+    "name": "Grafana Loki, VictoriaLogs & Centralized Syslog Analyzer MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-loki-logs",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.5.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Log Aggregation",
+    "description": "Run LogQL and centralized syslog queries across Grafana Loki, VictoriaLogs, Graylog, and rsyslog to correlate multi-host error spikes, stack traces, and authentication anomalies.",
+    "capabilities": [
+      "loki_logql_error_query",
+      "loki_volume_spike_detect",
+      "syslog_multi_host_correlate",
+      "promtail_alloy_agent_status"
+    ],
+    "install_command": "fleetops-mcp --plugin loki-logs",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-loki-logs"]
+    },
+    "ai_prompt_templates": [
+      "Search centralized logs across all hosts for HTTP 500 errors, database connection timeouts, or panic stack traces in the last hour.",
+      "Check Promtail / Grafana Alloy / Vector log shipper health across all nodes."
+    ]
+  },
+  {
+    "slug": "wazuh-siem-edr-mcp",
+    "name": "Wazuh SIEM, Auditd & File Integrity Monitoring (FIM) MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-wazuh-siem",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.4.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "SIEM & Threat Hunting",
+    "description": "Integrate with Wazuh SIEM, Linux `auditd`, and Falco runtime security: investigate high-severity MITRE ATT&CK alerts, unauthorized `/etc` or `/usr/bin` file integrity changes, and rootkit detections.",
+    "capabilities": [
+      "wazuh_high_severity_alerts",
+      "fim_syscheck_recent_changes",
+      "auditd_privileged_commands",
+      "wazuh_agent_connectivity"
+    ],
+    "install_command": "fleetops-mcp --plugin wazuh-siem",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-wazuh-siem"]
+    },
+    "ai_prompt_templates": [
+      "Summarize all high-severity SIEM / Auditd security alerts and File Integrity Monitoring (FIM) changes in the last 24 hours.",
+      "Audit privileged sudo command executions across the entire fleet for NIS2 / ISO 27001 evidence."
+    ]
+  },
+  {
+    "slug": "uptime-kuma-blackbox-mcp",
+    "name": "Uptime Kuma, Blackbox Exporter & Synthetic SLA Monitor MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-uptime-sla",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.1",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Uptime & SLA",
+    "description": "Monitor HTTP(S), TCP, ICMP ping, DNS, and TLS expiration checks across Uptime Kuma, Prometheus Blackbox Exporter, and Gatus status pages.",
+    "capabilities": [
+      "uptime_probe_http_tcp_icmp",
+      "uptime_sla_availability_report",
+      "uptime_ssl_expiry_matrix",
+      "uptime_pause_for_maintenance"
+    ],
+    "install_command": "fleetops-mcp --plugin uptime-sla",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-uptime-sla"]
+    },
+    "ai_prompt_templates": [
+      "Run live HTTP, TCP, and ICMP latency probes against all critical internal and external endpoints.",
+      "Generate a 30-day uptime availability and response-time SLA summary across all monitored services."
+    ]
+  },
+  {
+    "slug": "rundeck-cron-scheduler-mcp",
+    "name": "Scheduled AI Runbooks, Cron Jobs & Drift Automation MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-runbook-scheduler",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.3.0",
+    "author": "FleetOps AI",
+    "installed_by_default": true,
+    "badge": "Runbooks & Cron",
+    "description": "Rundeck & AWX-style runbook automation: schedule recurring AI infrastructure inspections, `/etc` & switch config GitOps backups, compliance drift checks, and inspect host `/etc/crontab` & systemd timers.",
+    "capabilities": [
+      "runbook_list_schedules",
+      "runbook_trigger_now",
+      "host_cron_and_timers_audit",
+      "gitops_config_drift_check"
+    ],
+    "install_command": "fleetops-mcp --plugin runbook-scheduler",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-runbook-scheduler"]
+    },
+    "ai_prompt_templates": [
+      "Audit all `/etc/crontab`, `/etc/cron.d/*`, user crontabs, and systemd timers across the fleet for failed or suspicious jobs.",
+      "Run the nightly Infrastructure Drift & Security Compliance Runbook across all hosts now."
+    ]
+  },
+  {
+    "slug": "chatops-incident-notify-mcp",
+    "name": "ChatOps & Multi-Channel Incident Notification Router MCP",
+    "category": "observability",
+    "package_name": "@fleetops-ai/mcp-chatops-notify",
+    "repo_url": "https://github.com/hoody424/fleetops-ai",
+    "version": "1.2.0",
+    "author": "FleetOps AI",
+    "installed_by_default": false,
+    "badge": "Slack / Teams / Ntfy",
+    "description": "Dispatch structured AI incident summaries, approval requests, and compliance reports to Slack, Microsoft Teams, Discord, Telegram, PagerDuty, Gotify, Ntfy, and SMTP Email.",
+    "capabilities": [
+      "notify_send_incident_card",
+      "notify_request_human_approval",
+      "notify_dispatch_weekly_digest",
+      "notify_test_webhook_channels"
+    ],
+    "install_command": "fleetops-mcp --plugin chatops-notify",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "@fleetops-ai/mcp-chatops-notify"]
+    },
+    "ai_prompt_templates": [
+      "Send a concise executive infrastructure health & security digest to our configured Ops notification channel.",
+      "Test all configured webhook notification channels (Slack, Teams, Telegram, Ntfy)."
+    ]
+  }
+]
+
+

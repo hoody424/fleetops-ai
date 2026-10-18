@@ -1,0 +1,46 @@
+{
+  "slug": "ldap",
+  "name": "LDAP / LDAPS",
+  "icon": "Users",
+  "category": "Infrastructure",
+  "check_type": "tcp",
+  "inventory_match": ["slapd", "openldap", "ldap"],
+  "defaults": {
+    "port": 389,
+    "timeout": 5,
+    "ssl": false,
+    "warn_days": 0,
+    "starttls": "ldap"
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "ssl",
+      "label": "SSL / TLS",
+      "type": "boolean"
+    },
+    {
+      "name": "warn_days",
+      "label": "Certificate Warning (days)",
+      "type": "select",
+      "options": [
+        "0",
+        "7",
+        "14",
+        "30",
+        "60",
+        "90"
+      ]
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

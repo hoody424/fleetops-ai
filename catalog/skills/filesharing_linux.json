@@ -1,0 +1,111 @@
+{
+  "slug": "filesharing",
+  "name": "File Sharing & FTP",
+  "node_type": "linux",
+  "description": "Manage file sharing services — NFS, Samba/SMB, CIFS mounts, SSHFS, FTP/SFTP (vsftpd, ProFTPD), and WebDAV",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show file sharing services status — active shares, connected clients, protocols in use"
+      },
+      {
+        "name": "shares",
+        "description": "List, create, edit, or remove shares/exports"
+      },
+      {
+        "name": "users",
+        "description": "Manage share users and access control"
+      },
+      {
+        "name": "config",
+        "description": "View or edit file sharing server configuration"
+      },
+      {
+        "name": "connections",
+        "description": "Show active client connections and sessions"
+      }
+    ],
+    "allowed_commands": [
+      "exportfs",
+      "showmount",
+      "nfsstat",
+      "rpcinfo",
+      "smbcontrol",
+      "smbstatus",
+      "smbpasswd",
+      "pdbedit",
+      "testparm",
+      "net",
+      "vsftpd",
+      "pure-ftpd",
+      "pure-pw",
+      "proftpd",
+      "ftpasswd",
+      "sshfs",
+      "mount.cifs",
+      "mount.nfs",
+      "mount.nfs4",
+      "mount",
+      "umount",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a file sharing management agent. CRITICAL: First detect which services are installed: 'which exportfs' or check /etc/exports (NFS), 'which smbstatus' or 'which testparm' (Samba), 'which vsftpd' (vsftpd), 'which proftpd' (ProFTPD), 'which pure-ftpd' (pure-ftpd), check sshd config for SFTP.\n\nNFS: Exports in /etc/exports. Apply: 'exportfs -ra'. List: 'exportfs -v'. Show clients: 'showmount -a'. Format: '/path HOST(options)' e.g. '/data 10.0.0.0/24(rw,sync,no_subtree_check)'.\n\nSAMBA: Config in /etc/samba/smb.conf. Test config: 'testparm'. Users: 'smbpasswd -a USER' to add. Status: 'smbstatus' for connections. Reload: 'smbcontrol all reload-config'.\n\nFTP: vsftpd config in /etc/vsftpd.conf or /etc/vsftpd/. ProFTPD in /etc/proftpd/. pure-ftpd uses command flags or /etc/pure-ftpd/. For SFTP: configure in /etc/ssh/sshd_config with 'Match User' blocks and ChrootDirectory.\n\nALWAYS: Back up config before editing. Test config before reloading. Be careful with permissions — wrong settings can expose sensitive data.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

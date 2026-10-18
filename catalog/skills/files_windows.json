@@ -1,0 +1,73 @@
+{
+  "slug": "files",
+  "name": "File Management",
+  "node_type": "windows",
+  "description": "Create, copy, move, delete files and folders, manage permissions and compression",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "browse",
+        "description": "List and search files and directories"
+      },
+      {
+        "name": "create",
+        "description": "Create new files or directories"
+      },
+      {
+        "name": "copy",
+        "description": "Copy or move files and directories"
+      },
+      {
+        "name": "delete",
+        "description": "Remove files or directories"
+      },
+      {
+        "name": "permissions",
+        "description": "View or modify file and folder ACLs"
+      },
+      {
+        "name": "compress",
+        "description": "Create or extract zip archives"
+      },
+      {
+        "name": "upload",
+        "description": "Upload a file to the server"
+      },
+      {
+        "name": "download",
+        "description": "Download a file from the server"
+      }
+    ],
+    "allowed_commands": [
+      "Get-ChildItem",
+      "New-Item",
+      "Copy-Item",
+      "Move-Item",
+      "Remove-Item",
+      "Rename-Item",
+      "Set-Content",
+      "Add-Content",
+      "Clear-Content",
+      "Get-Content",
+      "Set-ItemProperty",
+      "Get-Acl",
+      "Set-Acl",
+      "icacls",
+      "Compress-Archive",
+      "Expand-Archive",
+      "Get-FileHash",
+      "Test-Path",
+      "attrib",
+      "robocopy",
+      "xcopy",
+      "forfiles",
+      "Start-BitsTransfer",
+      "Unblock-File",
+      "Out-File",
+      "Write-Output"
+    ],
+    "system_prompt": "You are a Windows file management agent. Use PowerShell cmdlets for file operations. Prefer Compress-Archive/Expand-Archive for zip. Use robocopy for large copy jobs. Always verify paths with Test-Path before destructive operations."
+  }
+}

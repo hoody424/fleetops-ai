@@ -1,0 +1,91 @@
+{
+  "slug": "packages",
+  "name": "Package Management",
+  "node_type": "windows",
+  "description": "Install, update, and remove software packages and Appx packages, manage Windows Updates, hotfixes, and WSUS settings",
+  "version": "3",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "install",
+        "description": "Install a software package"
+      },
+      {
+        "name": "remove",
+        "description": "Uninstall a software package"
+      },
+      {
+        "name": "update",
+        "description": "Update installed packages"
+      },
+      {
+        "name": "list",
+        "description": "List installed software and packages"
+      },
+      {
+        "name": "search",
+        "description": "Search for available packages"
+      },
+      {
+        "name": "hotfix",
+        "description": "List, install, or uninstall Windows updates and hotfixes"
+      },
+      {
+        "name": "wu_check",
+        "description": "Check for available Windows Updates"
+      },
+      {
+        "name": "wu_install",
+        "description": "Install Windows Updates"
+      },
+      {
+        "name": "wu_history",
+        "description": "View Windows Update history"
+      },
+      {
+        "name": "wu_settings",
+        "description": "Windows Update and WSUS client configuration"
+      }
+    ],
+    "allowed_modules": [
+      "PackageManagement",
+      "Appx",
+      "PSWindowsUpdate",
+      "PowerShellGet",
+      "WindowsUpdateProvider"
+    ],
+    "allowed_commands": [
+      "winget",
+      "choco",
+      "msiexec",
+      "Get-HotFix",
+      "wusa",
+      "Get-ItemProperty",
+      "Set-ItemProperty",
+      "usoclient",
+      "Install-WindowsUpdate",
+      "Uninstall-WindowsUpdate",
+      "Hide-WindowsUpdate",
+      "Get-ComputerInfo",
+      "systeminfo"
+    ],
+    "slow_commands": [
+      "winget",
+      "choco",
+      "msiexec",
+      "wusa",
+      "usoclient",
+      "Install-WindowsUpdate"
+    ],
+    "system_prompt": "You are a Windows package and update management agent. PACKAGES: Detect which package manager is available (winget, choco). Prefer winget if available. For PowerShell modules and scripts use Find-Module / Install-Module (PowerShellGet). For MSI: msiexec /i for install, /x for uninstall, always use /qn for silent. WINDOWS UPDATES: If PSWindowsUpdate module is available (Install-Module PSWindowsUpdate), use Get-WindowsUpdate to check and Install-WindowsUpdate to install. Fallback: use the inbox WindowsUpdateProvider module (Start-WUScan, Install-WUUpdates) or UsoClient StartScan to trigger a check, Get-HotFix for installed updates. For WSUS config check HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate. Always warn user that updates may require reboot."
+  },
+  "quick_reports": [
+    {
+      "id": "available_updates",
+      "label": "Available Updates",
+      "icon": "RefreshCw",
+      "instruction": "List the packages that have updates available, using whichever manager is installed: try winget upgrade, then choco outdated. If neither is installed, say exactly that rather than reporting an empty list, and fall back to the 10 most recently installed hotfixes (Get-HotFix sorted by InstalledOn) so the report is not empty. In the summary give the number of upgradable packages, or state that no package manager is available. Do not install anything and do not run follow-up commands on individual packages."
+    }
+  ]
+}

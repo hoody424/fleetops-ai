@@ -1,0 +1,65 @@
+{
+  "slug": "database",
+  "name": "Database Management",
+  "node_type": "windows",
+  "description": "Manage database instances, run queries, perform backups and restores",
+  "version": "3",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Check database service status"
+      },
+      {
+        "name": "query",
+        "description": "Run SQL queries"
+      },
+      {
+        "name": "backup",
+        "description": "Backup databases"
+      },
+      {
+        "name": "restore",
+        "description": "Restore databases"
+      },
+      {
+        "name": "users",
+        "description": "Manage database users/logins"
+      },
+      {
+        "name": "config",
+        "description": "Database configuration"
+      }
+    ],
+    "allowed_modules": [
+      "SqlServer",
+      "SQLPS"
+    ],
+    "allowed_commands": [
+      "Invoke-Sqlcmd",
+      "sqlcmd",
+      "Get-Service",
+      "Start-Service",
+      "Stop-Service",
+      "Restart-Service",
+      "mysql",
+      "psql",
+      "pg_dump",
+      "pg_restore",
+      "mysqldump",
+      "mongosh",
+      "mongodump",
+      "mongorestore",
+      "sqlite3"
+    ],
+    "slow_commands": [
+      "Backup-SqlDatabase",
+      "Restore-SqlDatabase",
+      "pg_dump",
+      "pg_restore",
+      "mysqldump"
+    ],
+    "system_prompt": "You are a Windows database management agent. For SQL Server use Invoke-Sqlcmd or sqlcmd. Check service: Get-Service MSSQLSERVER. For named instances: Get-Service 'MSSQL$InstanceName'. Default connection: Invoke-Sqlcmd -ServerInstance localhost -Query 'SELECT @@VERSION'. For MySQL/PostgreSQL use their native CLI tools. Always backup before schema changes."
+  }
+}

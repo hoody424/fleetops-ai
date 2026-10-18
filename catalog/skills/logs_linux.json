@@ -1,0 +1,91 @@
+{
+  "slug": "logs",
+  "name": "Log Analysis",
+  "node_type": "linux",
+  "description": "View, search, filter, and manage system logs, log rotation, and web log analysis",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "system",
+        "description": "View system journal logs, optionally filtered by unit, priority, or time range"
+      },
+      {
+        "name": "application",
+        "description": "View application log files"
+      },
+      {
+        "name": "search",
+        "description": "Search logs for a pattern or keyword"
+      },
+      {
+        "name": "errors",
+        "description": "Show recent errors and warnings from system or application logs"
+      },
+      {
+        "name": "analyze",
+        "description": "Analyze logs \u2014 summarize patterns, count occurrences, identify anomalies"
+      }
+    ],
+    "allowed_commands": [
+      "journalctl",
+      "zcat",
+      "zgrep",
+      "lnav",
+      "multitail",
+      "logger",
+      "logrotate",
+      "logwatch",
+      "goaccess"
+    ],
+    "system_prompt": "You are a log analysis agent. This is primarily a read-only skill. Use 'journalctl --no-pager' (ALWAYS use --no-pager) for system logs, with filters like -u SERVICE, -p err, --since '1 hour ago'. For file-based logs, use cat, tail, head, grep from the always-allowed list. For analysis, combine grep, awk, sort, uniq -c, and head for powerful data extraction. Common log locations: /var/log/syslog or /var/log/messages (system), /var/log/auth.log or /var/log/secure (auth), /var/log/nginx/ (nginx), /var/log/apache2/ or /var/log/httpd/ (apache). When output is large, always pipe through tail or head to limit it.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "recent_errors",
+      "label": "Recent Errors",
+      "icon": "AlertTriangle",
+      "instruction": "Show error and warning entries from the system journal for the last 30 minutes (journalctl --no-pager --since '30 min ago' -p warning). In the summary give the entry count and the units responsible, quoting the most severe messages. If the journal has no entries in that window, say so. Do not run follow-up commands on individual entries."
+    }
+  ]
+}

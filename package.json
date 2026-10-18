@@ -1,0 +1,20 @@
+{
+  "name": "fleetops-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted AI Fleet & Infrastructure Management Platform powered by Claude & Gemini subscriptions, Agentless SSH-Key & Outbound Go Agent connectivity, and built-in MCP server.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=packages/web && npm run build --workspace=packages/server",
+    "start": "npm run start --workspace=packages/server",
+    "dev:server": "npm run dev --workspace=packages/server",
+    "dev:web": "npm run dev --workspace=packages/web"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

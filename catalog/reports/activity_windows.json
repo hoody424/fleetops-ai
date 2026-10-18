@@ -1,0 +1,51 @@
+{
+  "type": "activity",
+  "name": "Activity Audit",
+  "node_type": "windows",
+  "version": "2",
+  "params": [
+    "since",
+    "minutes"
+  ],
+  "checks": {
+    "sessions": {
+      "name": "Login Sessions",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); $typeMap = @{'2'='Interactive';'3'='Network';'4'='Batch';'5'='Service';'7'='Unlock';'10'='RDP';'11'='CachedRDP'}; Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624; StartTime=$since} -MaxEvents 200 -ErrorAction SilentlyContinue | ForEach-Object { $e = $_; $d = ([xml]$e.ToXml()).Event.EventData.Data; $user = ($d | Where-Object Name -eq 'TargetUserName').'#text'; $domain = ($d | Where-Object Name -eq 'TargetDomainName').'#text'; $ip = ($d | Where-Object Name -eq 'IpAddress').'#text'; $typeName = $typeMap[($d | Where-Object Name -eq 'LogonType').'#text']; if ($typeName -and $user -notlike '*$' -and $user -ne 'SYSTEM' -and $user -ne 'ANONYMOUS LOGON' -and $user -notlike 'DWM-*' -and $user -notlike 'UMFD-*' -and $domain -ne 'NT AUTHORITY' -and $domain -ne 'Window Manager' -and $domain -ne 'Font Driver Host') { \"$($e.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) $domain\\$user type=$typeName from=$ip\" } }",
+      "timeout": 30
+    },
+    "failed_auth": {
+      "name": "Failed Authentication",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=$since} -MaxEvents 200 -ErrorAction SilentlyContinue | ForEach-Object { $e = $_; $d = ([xml]$e.ToXml()).Event.EventData.Data; $user = ($d | Where-Object Name -eq 'TargetUserName').'#text'; $domain = ($d | Where-Object Name -eq 'TargetDomainName').'#text'; $ip = ($d | Where-Object Name -eq 'IpAddress').'#text'; $reason = ($d | Where-Object Name -eq 'FailureReason').'#text'; \"$($e.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) FAILED $domain\\$user from=$ip reason=$reason\" }",
+      "timeout": 30
+    },
+    "sudo_commands": {
+      "name": "Elevated Process Creation",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4688; StartTime=$since} -MaxEvents 500 -ErrorAction SilentlyContinue | ForEach-Object { $e = $_; $d = ([xml]$e.ToXml()).Event.EventData.Data; if ((($d | Where-Object Name -eq 'TokenElevationType').'#text') -eq '%%1937') { $user = ($d | Where-Object Name -eq 'SubjectUserName').'#text'; $proc = ($d | Where-Object Name -eq 'NewProcessName').'#text'; $cmdline = ($d | Where-Object Name -eq 'CommandLine').'#text'; if ($user -ne 'SYSTEM' -and $user -notlike '*$') { \"$($e.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) USER=$user COMMAND=$proc $cmdline\" } } }",
+      "timeout": 30,
+      "max_output": 20000
+    },
+    "file_changes": {
+      "name": "File Changes",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); $paths = @(\"$env:SystemRoot\\System32\\drivers\\etc\", \"$env:SystemRoot\\System32\\Tasks\", \"$env:ProgramData\\ssh\", \"$env:SystemRoot\\System32\\GroupPolicy\"); foreach ($p in $paths) { if (Test-Path $p) { Get-ChildItem -Path $p -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -gt $since } | Sort-Object LastWriteTime -Descending | Select-Object -First 100 | ForEach-Object { \"$($_.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss')) $($_.FullName)\" } } }",
+      "timeout": 30,
+      "max_output": 20000
+    },
+    "reboots": {
+      "name": "Reboots",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); $map = @{6005='STARTUP';6006='CLEAN SHUTDOWN';6008='UNEXPECTED SHUTDOWN'}; Get-WinEvent -FilterHashtable @{LogName='System'; Id=6005,6006,6008; StartTime=$since} -MaxEvents 50 -ErrorAction SilentlyContinue | ForEach-Object { \"$($_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) $($map[[int]$_.Id])\" }",
+      "timeout": 15
+    },
+    "package_changes": {
+      "name": "Software Changes",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); Get-WinEvent -ProviderName msiinstaller -MaxEvents 200 -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated -gt $since } | ForEach-Object { \"$($_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) $($_.Message -replace '\\r?\\n',' ')\" }; Get-HotFix -ErrorAction SilentlyContinue | Where-Object { $_.InstalledOn -and $_.InstalledOn -gt $since } | ForEach-Object { \"$($_.InstalledOn.ToString('yyyy-MM-dd HH:mm:ss')) HOTFIX $($_.HotFixID) $($_.Description)\" }",
+      "timeout": 30,
+      "max_output": 30000
+    },
+    "service_changes": {
+      "name": "Service Changes",
+      "command": "$since = (Get-Date).AddMinutes(-{{minutes}}); $map = @{7045='NEW SERVICE';7036='STATE CHANGE';7040='START TYPE CHANGED'}; Get-WinEvent -FilterHashtable @{LogName='System'; Id=7045,7036,7040; StartTime=$since} -MaxEvents 100 -ErrorAction SilentlyContinue | ForEach-Object { \"$($_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')) $($map[[int]$_.Id]) $($_.Message -replace '\\r?\\n',' ')\" }",
+      "timeout": 20,
+      "max_output": 20000
+    }
+  }
+}

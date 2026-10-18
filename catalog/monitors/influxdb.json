@@ -1,0 +1,25 @@
+{
+  "slug": "influxdb",
+  "name": "InfluxDB",
+  "icon": "Database",
+  "category": "Database",
+  "check_type": "tcp",
+  "inventory_match": ["influxdb"],
+  "defaults": {
+    "port": 8086,
+    "timeout": 5
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

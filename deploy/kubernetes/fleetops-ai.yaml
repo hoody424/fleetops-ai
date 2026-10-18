@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleetops-ai
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fleetops-pgdata
+  namespace: fleetops-ai
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fleetops-aiprofiles
+  namespace: fleetops-ai
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: fleetops-ai
+spec:
+  selector:
+    app: fleetops-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetops-postgres
+  namespace: fleetops-ai
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: fleetops-postgres
+  template:
+    metadata:
+      labels:
+        app: fleetops-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              value: fleetops
+            - name: POSTGRES_USER
+              value: fleetops
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fleetops-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: fleetops-pgdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetops-portal
+  namespace: fleetops-ai
+spec:
+  selector:
+    app: fleetops-portal
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetops-portal
+  namespace: fleetops-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetops-portal
+  template:
+    metadata:
+      labels:
+        app: fleetops-portal
+    spec:
+      containers:
+        - name: portal
+          image: ghcr.io/fleetops-ai/fleetops-ai:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fleetops-secrets
+                  key: DATABASE_URL
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fleetops-secrets
+                  key: ENCRYPTION_KEY
+            - name: AI_PROFILES_DIR
+              value: /data/ai-profiles
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: aiprofiles
+              mountPath: /data/ai-profiles
+      volumes:
+        - name: aiprofiles
+          persistentVolumeClaim:
+            claimName: fleetops-aiprofiles

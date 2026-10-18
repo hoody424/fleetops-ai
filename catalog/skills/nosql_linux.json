@@ -1,0 +1,131 @@
+{
+  "slug": "nosql",
+  "name": "NoSQL Database Management",
+  "node_type": "linux",
+  "description": "Manage NoSQL databases — MongoDB, Redis, Elasticsearch, OpenSearch, Memcached: data operations, backups, clusters, and performance",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show database server status — version, health, connections, memory, cluster state"
+      },
+      {
+        "name": "query",
+        "description": "Run a query, command, or API call against the database"
+      },
+      {
+        "name": "databases",
+        "description": "List all databases, keyspaces, or indices with size information"
+      },
+      {
+        "name": "collections",
+        "description": "List collections, keys, or index mappings in a database"
+      },
+      {
+        "name": "backup",
+        "description": "Backup a database, index, or data store"
+      },
+      {
+        "name": "restore",
+        "description": "Restore from a backup"
+      },
+      {
+        "name": "user_management",
+        "description": "Manage database users, roles, and authentication"
+      },
+      {
+        "name": "indexes",
+        "description": "Manage indexes or mappings — list, create, drop, optimize"
+      },
+      {
+        "name": "performance",
+        "description": "Analyze performance — slow queries, memory, connections, throughput, cluster stats"
+      },
+      {
+        "name": "config",
+        "description": "View or edit server configuration"
+      }
+    ],
+    "allowed_commands": [
+      "mongosh",
+      "mongo",
+      "mongodump",
+      "mongorestore",
+      "mongoexport",
+      "mongoimport",
+      "mongostat",
+      "mongotop",
+      "redis-cli",
+      "redis-server",
+      "redis-check-aof",
+      "redis-check-rdb",
+      "redis-sentinel",
+      "redis-benchmark",
+      "elasticsearch-keystore",
+      "elasticsearch-plugin",
+      "elasticdump",
+      "curator",
+      "opensearch-keystore",
+      "opensearch-plugin",
+      "memcstat",
+      "memccat",
+      "memcflush",
+      "memcdump",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "gzip",
+      "gunzip",
+      "tar",
+      "systemctl"
+    ],
+    "system_prompt": "You are a NoSQL database management agent. CRITICAL: First detect which database(s) are installed by checking: 'which mongosh' or 'which mongo' (MongoDB), 'which redis-cli' (Redis), curl http://localhost:9200 (Elasticsearch/OpenSearch), 'which memcstat' or check port 11211 (Memcached). Check LOCAL CONTEXT / secrets for credentials.\n\nMONGODB: Credentials — MONGO_URI, MONGO_USER, MONGO_PASSWORD. Connect: 'mongosh' or 'mongosh \"mongodb://USER:PASS@HOST/DB\"'. Use --eval for inline commands, --quiet to suppress banners. Backup: 'mongodump --db DB --out /path' (--gzip for compressed). Performance: db.currentOp(), db.serverStatus(), db.collection.stats(). Use SCAN-like operations for large datasets.\n\nREDIS: Credentials — REDIS_PASSWORD, REDIS_URL. Connect: 'redis-cli' or 'redis-cli -h HOST -p PORT -a PASS'. Use --no-auth-warning. ALWAYS use SCAN instead of KEYS in production. Memory: 'redis-cli --bigkeys', 'MEMORY USAGE key'. Backup: BGSAVE then copy dump.rdb (find with CONFIG GET dir). Performance: INFO, SLOWLOG GET 25.\n\nELASTICSEARCH/OPENSEARCH: Credentials — ES_URL, ES_USER, ES_PASSWORD, ELASTIC_PASSWORD. Interact via curl REST API. Default: http://localhost:9200. Always use '?v' with _cat APIs, '?pretty' for readability. Detect ES vs OpenSearch from GET / response.\n\nMEMCACHED: Connect: 'echo stats | nc localhost 11211' or use memcstat. No auth by default. Flush: memcflush or 'echo flush_all | nc localhost 11211'. Stats: memcstat --servers=localhost.\n\nALWAYS: Verify backups after creation. Back up before destructive operations.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

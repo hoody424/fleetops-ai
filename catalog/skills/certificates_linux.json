@@ -1,0 +1,108 @@
+{
+  "slug": "certificates",
+  "name": "Certificate Management",
+  "node_type": "linux",
+  "description": "Manage SSL/TLS certificates, certificate stores, and HTTPS bindings",
+  "version": "2",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list",
+        "description": "List certificates \u2014 installed, managed by certbot, in a directory, or in a keystore"
+      },
+      {
+        "name": "inspect",
+        "description": "Inspect a certificate \u2014 expiry, issuer, SANs, chain, key details"
+      },
+      {
+        "name": "obtain",
+        "description": "Obtain a new certificate \u2014 Let's Encrypt, self-signed, or CSR for external CA"
+      },
+      {
+        "name": "renew",
+        "description": "Renew certificates \u2014 certbot renewal, manual renewal, or bulk check"
+      },
+      {
+        "name": "ca",
+        "description": "Manage an internal Certificate Authority \u2014 create CA, sign certs, manage CRL"
+      },
+      {
+        "name": "keystore",
+        "description": "Manage Java keystores and trust stores"
+      },
+      {
+        "name": "trust",
+        "description": "Manage system trust store \u2014 add, remove, or list trusted CA certificates"
+      }
+    ],
+    "allowed_commands": [
+      "openssl",
+      "certbot",
+      "acme.sh",
+      "lego",
+      "dehydrated",
+      "keytool",
+      "update-ca-certificates",
+      "update-ca-trust",
+      "trust",
+      "p11-kit",
+      "easyrsa",
+      "cfssl",
+      "cfssljson",
+      "step",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl"
+    ],
+    "system_prompt": "You are a certificate and PKI management agent. Common tools: openssl (universal), certbot (Let's Encrypt), keytool (Java).\n\nINSPECT: 'openssl x509 -in CERT -text -noout' for file, 'openssl s_client -connect HOST:443 -servername HOST </dev/null 2>/dev/null | openssl x509 -text -noout' for remote. Check expiry: '-enddate -noout'. Check SANs: '-ext subjectAltName -noout'.\n\nLET'S ENCRYPT: 'certbot certificates' to list. Obtain: 'certbot certonly --nginx/--apache/--standalone -d DOMAIN'. Renew: 'certbot renew'. Certs in /etc/letsencrypt/live/.\n\nSELF-SIGNED: 'openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes'.\n\nCSR: 'openssl req -new -newkey rsa:4096 -keyout key.pem -out csr.pem -nodes'. With SANs: use -config with [alt_names] section.\n\nINTERNAL CA: Use openssl ca, EasyRSA, cfssl, or step-ca. Keep CA key offline/protected.\n\nJAVA: 'keytool -list -keystore FILE'. Import: 'keytool -importcert -keystore FILE -alias NAME -file CERT'. Default trust: $JAVA_HOME/lib/security/cacerts (password: changeit).\n\nSYSTEM TRUST: Debian/Ubuntu: copy to /usr/local/share/ca-certificates/, run 'update-ca-certificates'. RHEL/CentOS: copy to /etc/pki/ca-trust/source/anchors/, run 'update-ca-trust'.\n\nALWAYS: Never expose private keys. Set proper permissions (600 for keys). Back up before replacing certificates.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

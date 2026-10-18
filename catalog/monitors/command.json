@@ -1,0 +1,29 @@
+{
+  "slug": "command",
+  "name": "Command / Script",
+  "icon": "Terminal",
+  "category": "System",
+  "check_type": "command",
+  "unit": "count",
+  "metric_label": "Value",
+  "inventory_match": [],
+  "defaults": {
+    "command": "",
+    "timeout": 30
+  },
+  "fields": [
+    {
+      "name": "command",
+      "label": "Command",
+      "type": "text",
+      "required": true,
+      "placeholder": "check_disk -w 80% -c 90% /"
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number",
+      "placeholder": "30"
+    }
+  ]
+}

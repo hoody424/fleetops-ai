@@ -1,0 +1,136 @@
+{
+  "id": "nis2",
+  "name": "NIS2 Directive",
+  "description": "EU Directive 2022/2555 — Network and Information Security measures for essential and important entities",
+  "version": "2022",
+  "url": "https://eur-lex.europa.eu/eli/dir/2022/2555",
+  "controls": [
+    {
+      "ref": "Art.21(2)(a)",
+      "name": "System hardening and vulnerability management",
+      "desc": "Mandatory access control, ASLR, SUID audit, and timely security patching as part of risk-based security policies.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "suid-binaries-reasonable",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(d)",
+      "name": "Network security controls",
+      "desc": "Firewall active, IP forwarding disabled, ICMP redirect protection, reverse path filtering, legacy SMBv1 and LLMNR disabled.",
+      "rule_slugs": [
+        "firewall-active",
+        "kernel-ip-forward",
+        "kernel-accept-redirects",
+        "kernel-send-redirects",
+        "kernel-rp-filter",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "pt-nmap-discovery",
+        "pt-nmap-full",
+        "pt-nmap-dns",
+        "pt-subfinder-enum"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(e)",
+      "name": "Security patching",
+      "desc": "Available security updates are applied to address known vulnerabilities; auto-updates enabled where appropriate; reboots not pending.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "auto-updates-enabled",
+        "no-pending-reboot",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "defender-signatures-fresh",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(f)",
+      "name": "Logging and monitoring",
+      "desc": "Audit daemon active, logon events recorded, time synchronized for cross-host correlation, failed logins surfaced.",
+      "rule_slugs": [
+        "auditd-active",
+        "audit-logon-events",
+        "time-synchronized",
+        "failed-logins-low",
+        "powershell-script-block-logging",
+        "defender-realtime",
+        "defender-antivirus-enabled"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(g)",
+      "name": "Authentication and access hygiene",
+      "desc": "SSH hardened with key-based auth, root login disabled, brute-force protection, no duplicate UID 0, RDP NLA enforced.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "ssh-max-auth-tries",
+        "no-extra-uid0",
+        "rdp-nla-enabled",
+        "account-lockout",
+        "guest-disabled",
+        "uac-enabled"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(h)",
+      "name": "Cryptography and encryption",
+      "desc": "Strong TLS protocols enforced, weak ciphers disabled, certificates not expired, SMB signing required, data at rest encrypted.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "disk-encryption-active",
+        "wdigest-off",
+        "pt-testssl-quick",
+        "pt-testssl-full",
+        "pt-spf-check",
+        "pt-dmarc-check"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(i)",
+      "name": "Access control and file permissions",
+      "desc": "No unauthorized root accounts, no world-writable system files, password hashes and shadow file protected, SSH access restricted.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "no-extra-uid0",
+        "no-world-writable-files",
+        "no-world-writable-dirs",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "password-min-length",
+        "password-complexity"
+      ]
+    },
+    {
+      "ref": "Art.21(2)(j)",
+      "name": "Secure authentication mechanisms",
+      "desc": "Public key authentication enabled, password auth disabled, X11 forwarding disabled, auto-login disabled.",
+      "rule_slugs": [
+        "ssh-pubkey-auth",
+        "ssh-password-auth",
+        "ssh-x11-forwarding",
+        "auto-login-disabled"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cis_docker",
+  "name": "CIS Docker",
+  "description": "Center for Internet Security Docker Benchmark",
+  "version": "1.6",
+  "url": "https://www.cisecurity.org/benchmark/docker",
+  "controls": [
+    {"ref": "3.15", "name": "Docker socket permissions", "desc": "A world-accessible Docker socket allows any local user to run containers with full host access.", "rule_slugs": ["docker-socket-perms"]},
+    {"ref": "4.1", "name": "Non-root container user", "desc": "Running containers as root means a container escape gives the attacker full host privileges.", "rule_slugs": ["docker-no-root-containers"]},
+    {"ref": "5.4", "name": "No privileged containers", "desc": "Privileged mode disables all container security boundaries, granting full access to host devices and kernel.", "rule_slugs": ["docker-no-privileged"]}
+  ]
+}

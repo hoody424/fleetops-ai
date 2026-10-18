@@ -1,0 +1,132 @@
+{
+  "slug": "security",
+  "name": "Security & Hardening",
+  "node_type": "linux",
+  "description": "Manage security hardening — fail2ban, SSH hardening, SELinux/AppArmor, auditd, ClamAV antivirus, AIDE integrity, rkhunter, chkrootkit, Lynis, PAM, and kernel sysctls (firewall rules live in the firewall skill)",
+  "version": "2",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "fail2ban",
+        "description": "Manage fail2ban \u2014 status, jails, banned IPs, configuration"
+      },
+      {
+        "name": "ssh_config",
+        "description": "View or harden SSH server configuration"
+      },
+      {
+        "name": "ssl",
+        "description": "Manage SSL/TLS certificates \u2014 list, generate, renew, inspect"
+      },
+      {
+        "name": "selinux",
+        "description": "Manage SELinux or AppArmor"
+      },
+      {
+        "name": "auth_logs",
+        "description": "Review authentication and security logs \u2014 failed logins, sudo usage, suspicious activity"
+      }
+    ],
+    "allowed_commands": [
+      "fail2ban-client",
+      "fail2ban-server",
+      "sshd",
+      "ssh-keygen",
+      "ssh-keyscan",
+      "certbot",
+      "openssl",
+      "semanage",
+      "setsebool",
+      "getsebool",
+      "restorecon",
+      "setenforce",
+      "getenforce",
+      "ausearch",
+      "audit2allow",
+      "auditctl",
+      "auditd",
+      "aureport",
+      "aa-status",
+      "aa-enforce",
+      "aa-complain",
+      "aa-disable",
+      "chkrootkit",
+      "rkhunter",
+      "lynis",
+      "clamscan",
+      "clamd",
+      "clamdscan",
+      "freshclam",
+      "aide",
+      "passwd",
+      "chage",
+      "pam_tally2",
+      "faillock",
+      "pwscore",
+      "sudo",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl",
+      "sysctl"
+    ],
+    "system_prompt": "You are a security management agent. When auditing, check: open ports (ss -tulnp), running services, SSH config (/etc/ssh/sshd_config), password policies, SUID binaries (find / -perm -4000), world-writable files, unauthorized users with sudo. For fail2ban: check /etc/fail2ban/ for config, use 'fail2ban-client status' for overview. For SSH hardening: always back up sshd_config first, validate with 'sshd -t' before reloading, and NEVER lock yourself out (ensure at least one auth method works). For SSL: check certificate expiry with 'openssl x509 -enddate -noout -in CERT'. Be thorough but cautious \u2014 security changes can lock out users.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "security_overview",
+      "label": "Security Overview",
+      "icon": "Shield",
+      "instruction": "Report three things in one pass: the listening TCP/UDP sockets (ss -tulnp), the effective SSH settings for PermitRootLogin, PasswordAuthentication, PubkeyAuthentication and Port, and the fail2ban status (fail2ban-client status). State plainly if fail2ban is not installed. In the summary flag anything weak \u2014 root login permitted, password authentication enabled, or a sensitive service bound to 0.0.0.0. Do not run follow-up commands on individual items."
+    }
+  ]
+}

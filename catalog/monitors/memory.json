@@ -1,0 +1,28 @@
+{
+  "slug": "memory",
+  "name": "Memory Usage",
+  "icon": "MemoryStick",
+  "category": "System",
+  "check_type": "memory",
+  "unit": "%",
+  "metric_label": "Memory Usage",
+  "inventory_match": [],
+  "defaults": {
+    "warn_percent": 80,
+    "crit_percent": 90
+  },
+  "fields": [
+    {
+      "name": "warn_percent",
+      "label": "Warning Threshold (%)",
+      "type": "number",
+      "placeholder": "80"
+    },
+    {
+      "name": "crit_percent",
+      "label": "Critical Threshold (%)",
+      "type": "number",
+      "placeholder": "90"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "slug": "smtp",
+  "name": "SMTP / SMTPS",
+  "icon": "Mail",
+  "category": "Email",
+  "check_type": "tcp",
+  "inventory_match": ["postfix", "exim", "sendmail", "exchange", "smtp"],
+  "defaults": {
+    "port": 25,
+    "timeout": 5,
+    "ssl": false,
+    "warn_days": 0,
+    "response_pattern": "220",
+    "starttls": "smtp"
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "ssl",
+      "label": "SSL / TLS",
+      "type": "boolean"
+    },
+    {
+      "name": "warn_days",
+      "label": "Certificate Warning (days)",
+      "type": "select",
+      "options": [
+        "0",
+        "7",
+        "14",
+        "30",
+        "60",
+        "90"
+      ]
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

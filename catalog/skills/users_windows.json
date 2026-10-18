@@ -1,0 +1,62 @@
+{
+  "slug": "users",
+  "name": "Users & Access Management",
+  "node_type": "windows",
+  "description": "Manage user accounts, groups, passwords, and file permissions",
+  "version": "3",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list",
+        "description": "List local users and groups"
+      },
+      {
+        "name": "create",
+        "description": "Create a new local user account"
+      },
+      {
+        "name": "modify",
+        "description": "Change user properties (full name, description, flags)"
+      },
+      {
+        "name": "delete",
+        "description": "Remove a local user account"
+      },
+      {
+        "name": "groups",
+        "description": "Manage group membership (add/remove members)"
+      },
+      {
+        "name": "permissions",
+        "description": "View or modify file and folder ACLs"
+      },
+      {
+        "name": "password",
+        "description": "Set or reset a user password"
+      }
+    ],
+    "allowed_modules": [
+      "Microsoft.PowerShell.LocalAccounts"
+    ],
+    "allowed_commands": [
+      "net",
+      "icacls",
+      "Get-Acl",
+      "Set-Acl",
+      "takeown",
+      "whoami",
+      "ntrights",
+      "runas"
+    ],
+    "system_prompt": "You are a Windows user and group management agent. Prefer 'net user' and 'net localgroup' for create/modify/delete \u2014 they work on all Windows versions. Use Get-LocalUser/Get-LocalGroup only for listing/reading. For ACLs prefer icacls, Get-Acl/Set-Acl for programmatic changes. For password resets: net user USERNAME NEWPASSWORD."
+  },
+  "quick_reports": [
+    {
+      "id": "user_accounts",
+      "label": "User Accounts",
+      "icon": "UserCheck",
+      "instruction": "List the local user accounts with name, enabled state, description and last password set (Get-LocalUser), then the local groups and their members (Get-LocalGroup and Get-LocalGroupMember). Windows local accounts have no POSIX UID, GID, home directory or login shell \u2014 do not report those fields. In the summary give the number of enabled accounts and name every member of the Administrators group. Do not run follow-up commands on individual accounts."
+    }
+  ]
+}

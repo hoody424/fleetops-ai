@@ -1,0 +1,123 @@
+{
+  "slug": "email",
+  "name": "Email Server Management",
+  "node_type": "windows",
+  "description": "Manage Exchange Server — mailboxes, databases, transport rules, queues, connectors, certificates, mailbox rules, calendar, and message tracking",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show Exchange server health — services, database status, queue size"
+      },
+      {
+        "name": "mailboxes",
+        "description": "Manage mailboxes — create, modify, disable, view statistics and quotas"
+      },
+      {
+        "name": "databases",
+        "description": "Manage mailbox databases — status, mount, dismount, move"
+      },
+      {
+        "name": "queue",
+        "description": "Manage mail queues — list, retry, suspend, remove messages"
+      },
+      {
+        "name": "transport",
+        "description": "Manage transport rules, send/receive connectors, and accepted domains"
+      },
+      {
+        "name": "tracking",
+        "description": "Search message tracking logs — delivery status, bounces, routing"
+      },
+      {
+        "name": "config",
+        "description": "View or modify Exchange server configuration"
+      }
+    ],
+    "allowed_commands": [
+      "Get-ExchangeServer",
+      "Get-MailboxServer",
+      "Get-TransportServer",
+      "Get-ClientAccessServer",
+      "Test-ServiceHealth",
+      "Get-ServerComponentState",
+      "Get-Mailbox",
+      "New-Mailbox",
+      "Set-Mailbox",
+      "Disable-Mailbox",
+      "Remove-Mailbox",
+      "Enable-Mailbox",
+      "Get-MailboxStatistics",
+      "Get-MailboxFolderStatistics",
+      "Get-MailboxPermission",
+      "Add-MailboxPermission",
+      "Remove-MailboxPermission",
+      "Get-MailboxDatabase",
+      "New-MailboxDatabase",
+      "Mount-Database",
+      "Dismount-Database",
+      "Get-MailboxDatabaseCopyStatus",
+      "New-MoveRequest",
+      "Get-MoveRequest",
+      "Get-Queue",
+      "Retry-Queue",
+      "Suspend-Queue",
+      "Resume-Queue",
+      "Get-Message",
+      "Remove-Message",
+      "Suspend-Message",
+      "Resume-Message",
+      "Get-TransportRule",
+      "New-TransportRule",
+      "Set-TransportRule",
+      "Remove-TransportRule",
+      "Get-SendConnector",
+      "Get-ReceiveConnector",
+      "Set-SendConnector",
+      "Set-ReceiveConnector",
+      "Get-AcceptedDomain",
+      "New-AcceptedDomain",
+      "Get-MessageTrackingLog",
+      "Get-TransportConfig",
+      "Set-TransportConfig",
+      "Get-DistributionGroup",
+      "New-DistributionGroup",
+      "Add-DistributionGroupMember",
+      "Remove-DistributionGroupMember",
+      "Get-DistributionGroupMember",
+      "Get-OrganizationConfig",
+      "Set-OrganizationConfig",
+      "Get-ExchangeCertificate",
+      "New-ExchangeCertificate",
+      "Enable-ExchangeCertificate",
+      "Test-MailFlow",
+      "Test-ReplicationHealth",
+      "Search-Mailbox",
+      "Get-MailboxExportRequest",
+      "New-MailboxExportRequest",
+      "Get-MailboxImportRequest",
+      "New-MailboxImportRequest",
+      "Get-InboxRule",
+      "New-InboxRule",
+      "Set-InboxRule",
+      "Remove-InboxRule",
+      "Get-CalendarProcessing",
+      "Set-CalendarProcessing",
+      "Get-ADPermission",
+      "Add-ADPermission",
+      "Remove-ADPermission",
+      "Get-Service"
+    ],
+    "slow_commands": [
+      "New-MoveRequest",
+      "Get-MessageTrackingLog",
+      "Get-MailboxFolderStatistics",
+      "Search-Mailbox",
+      "New-MailboxExportRequest",
+      "New-MailboxImportRequest"
+    ],
+    "system_prompt": "You are an Exchange Server management agent. Load the Exchange snap-in first: Add-PSSnapin Microsoft.Exchange.Management.PowerShell.SnapIn -ErrorAction SilentlyContinue. Check server health with Test-ServiceHealth and Get-ServerComponentState. For mailboxes use Get-Mailbox to list, Get-MailboxStatistics for size/item count. For queues use Get-Queue on the transport server. For message tracking use Get-MessageTrackingLog -Start (Get-Date).AddHours(-1) -ResultSize 100. Always verify database status with Get-MailboxDatabaseCopyStatus before database operations."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "zabbix",
+  "name": "Zabbix",
+  "icon": "BarChart3",
+  "category": "Monitoring",
+  "check_type": "tcp",
+  "inventory_match": ["zabbix"],
+  "defaults": {
+    "port": 10051,
+    "timeout": 5
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

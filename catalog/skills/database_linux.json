@@ -1,0 +1,127 @@
+{
+  "slug": "database",
+  "name": "Database Management",
+  "node_type": "linux",
+  "description": "Manage SQL database instances (MySQL/MariaDB, PostgreSQL, SQLite), run queries, perform backups and restores",
+  "version": "2",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "query",
+        "description": "Run a SQL query against a database"
+      },
+      {
+        "name": "databases",
+        "description": "List all databases with size and owner information"
+      },
+      {
+        "name": "tables",
+        "description": "List tables in a database with row counts and sizes"
+      },
+      {
+        "name": "backup",
+        "description": "Backup a database or all databases"
+      },
+      {
+        "name": "restore",
+        "description": "Restore a database from a backup file"
+      },
+      {
+        "name": "user_management",
+        "description": "Manage database users, roles, and permissions"
+      },
+      {
+        "name": "performance",
+        "description": "Analyze database performance \u2014 slow queries, connections, locks, buffers, cache hit ratio"
+      },
+      {
+        "name": "config",
+        "description": "View or edit database server configuration"
+      }
+    ],
+    "allowed_commands": [
+      "mysql",
+      "mysqldump",
+      "mysqladmin",
+      "mysqlcheck",
+      "mysqlimport",
+      "mysqlshow",
+      "mysqlslap",
+      "mariadb",
+      "mariadb-dump",
+      "mariadb-admin",
+      "mariadb-check",
+      "psql",
+      "pg_dump",
+      "pg_dumpall",
+      "pg_restore",
+      "createdb",
+      "dropdb",
+      "createuser",
+      "dropuser",
+      "pg_isready",
+      "pg_basebackup",
+      "pg_ctl",
+      "pg_config",
+      "pg_upgrade",
+      "pgbench",
+      "vacuumdb",
+      "reindexdb",
+      "clusterdb",
+      "sqlite3",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "gzip",
+      "gunzip",
+      "systemctl"
+    ],
+    "system_prompt": "You are a SQL database management agent. CRITICAL: First detect which database is installed by checking: 'which mysql' or 'which mariadb' (MySQL/MariaDB), 'which psql' (PostgreSQL), 'which sqlite3' (SQLite). Check LOCAL CONTEXT / secrets for credentials.\n\nMYSQL/MARIADB: Credentials \u2014 DB_USER, DB_PASSWORD, MYSQL_USER, MYSQL_PASSWORD. Connect: 'mysql -u $DB_USER -p\"$DB_PASSWORD\"' or 'mysql' (socket auth). Use -e for inline queries, -N for headerless, -B for batch mode. Backup: 'mysqldump --single-transaction DB > file.sql'. Detect MySQL vs MariaDB: 'mysql --version'. Performance: SHOW PROCESSLIST, SHOW STATUS, SHOW VARIABLES.\n\nPOSTGRESQL: Credentials \u2014 PGUSER, PGPASSWORD, PGHOST, PGDATABASE. Connect: 'psql -d DB' or 'sudo -u postgres psql' (peer auth). Use -c for inline queries, -t for tuples-only, -A for unaligned. Backup: 'pg_dump -Fc DB > file.dump' (custom format). Performance: pg_stat_activity, pg_stat_user_tables, pg_locks. Use --no-password and rely on env vars.\n\nSQLITE: Connect: 'sqlite3 /path/to/db.sqlite'. Use -header -column for readable output. Backup: '.backup /path/to/backup.db' or simply cp the file.\n\nALWAYS: Verify backups by checking file size. Back up before destructive operations. Test config changes before reloading.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "gdpr_art32",
+  "name": "GDPR Art. 32 — Security of processing",
+  "description": "EU Regulation 2016/679 (GDPR) Article 32 — technical measures appropriate to the risk of processing personal data. This file maps host-hardening rules to the four technical paragraphs of Art. 32(1).",
+  "version": "2016/679",
+  "url": "https://gdpr-info.eu/art-32-gdpr/",
+  "controls": [
+    {
+      "ref": "Art.32(1)(a)",
+      "name": "Pseudonymisation and encryption of personal data",
+      "desc": "Personal data must be encrypted at rest and in transit using strong, current cryptography. Weak protocols and ciphers must be disabled, certificates must be valid, and full-disk encryption applied to endpoints.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "smb-signing-required",
+        "disk-encryption-active",
+        "wdigest-off",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    },
+    {
+      "ref": "Art.32(1)(b) — Confidentiality",
+      "name": "Ongoing confidentiality of processing systems",
+      "desc": "Access controls preserve confidentiality: no extra UID 0, root SSH disabled, RDP NLA enforced, key-based auth, password policies, world-writable files prevented.",
+      "rule_slugs": [
+        "ssh-root-login",
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "no-extra-uid0",
+        "rdp-nla-enabled",
+        "guest-disabled",
+        "uac-enabled",
+        "password-min-length",
+        "password-complexity",
+        "account-lockout",
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "no-world-writable-files",
+        "no-world-writable-dirs"
+      ]
+    },
+    {
+      "ref": "Art.32(1)(b) — Integrity",
+      "name": "Ongoing integrity of processing systems",
+      "desc": "Mandatory access control, ASLR, restricted SUID, anti-malware and audit logging detect or prevent unauthorised modification of personal data and the systems that process it.",
+      "rule_slugs": [
+        "selinux-apparmor-active",
+        "aslr-enabled",
+        "suid-dumpable-disabled",
+        "suid-binaries-reasonable",
+        "auditd-active",
+        "audit-logon-events",
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh"
+      ]
+    },
+    {
+      "ref": "Art.32(1)(b) — Availability",
+      "name": "Ongoing availability and resilience of processing systems",
+      "desc": "Patches applied, no Known-Exploited / critical / high CVEs outstanding, network boundary controls active, legacy protocols (SMBv1, LLMNR) disabled.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "firewall-active",
+        "kernel-ip-forward",
+        "kernel-rp-filter",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web"
+      ]
+    },
+    {
+      "ref": "Art.32(1)(d)",
+      "name": "Regular testing and assessment",
+      "desc": "Regular technical testing of security measures: failed-login monitoring, time-synchronized logs for forensic accuracy, automated vulnerability scanning.",
+      "rule_slugs": [
+        "failed-logins-low",
+        "time-synchronized",
+        "powershell-script-block-logging",
+        "pt-nmap-discovery",
+        "pt-nmap-full",
+        "pt-testssl-quick"
+      ]
+    }
+  ]
+}

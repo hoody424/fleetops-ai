@@ -1,0 +1,25 @@
+{
+  "slug": "smb",
+  "name": "SMB / CIFS",
+  "icon": "FolderOpen",
+  "category": "File Sharing",
+  "check_type": "tcp",
+  "inventory_match": ["samba", "smbd", "smb"],
+  "defaults": {
+    "port": 445,
+    "timeout": 5
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

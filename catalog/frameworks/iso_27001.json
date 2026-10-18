@@ -1,0 +1,135 @@
+{
+  "id": "iso_27001",
+  "name": "ISO 27001",
+  "description": "ISO/IEC 27001:2022 Annex A — Information security controls (technical subset)",
+  "version": "2022",
+  "url": "https://www.iso.org/standard/27001",
+  "controls": [
+    {
+      "ref": "A.5.17",
+      "name": "Authentication information",
+      "desc": "Authentication secrets must be created, distributed and stored securely. Modern password hashing and root-only shadow file permissions are baseline requirements.",
+      "rule_slugs": [
+        "strong-password-hashing",
+        "shadow-perms-secure",
+        "password-min-length",
+        "password-complexity",
+        "account-lockout"
+      ]
+    },
+    {
+      "ref": "A.8.2",
+      "name": "Privileged access rights",
+      "desc": "Privileged access must be restricted and monitored. Extra UID 0 accounts and privileged containers bypass access controls.",
+      "rule_slugs": [
+        "no-extra-uid0",
+        "ssh-root-login",
+        "docker-no-privileged",
+        "uac-enabled",
+        "wdigest-off"
+      ]
+    },
+    {
+      "ref": "A.8.5",
+      "name": "Secure authentication",
+      "desc": "Authentication mechanisms must be strong enough to prevent unauthorized access. Password-only SSH and direct root login are insufficient.",
+      "rule_slugs": [
+        "ssh-password-auth",
+        "ssh-pubkey-auth",
+        "ssh-root-login",
+        "rdp-nla-enabled"
+      ]
+    },
+    {
+      "ref": "A.8.8",
+      "name": "Technical vulnerability management",
+      "desc": "Known vulnerabilities must be identified and remediated. This includes patching, strong TLS, and valid certificates.",
+      "rule_slugs": [
+        "security-updates-applied",
+        "no-pending-reboot",
+        "auto-updates-enabled",
+        "no-kev-vulnerabilities",
+        "no-critical-vulnerabilities",
+        "no-high-vulnerabilities",
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "cert-not-expired",
+        "pt-nuclei-basic",
+        "pt-nuclei-vuln",
+        "pt-nuclei-web",
+        "pt-nuclei-headers"
+      ]
+    },
+    {
+      "ref": "A.8.9",
+      "name": "Configuration management",
+      "desc": "System configurations must be hardened and monitored. World-writable files and excessive SUID binaries indicate weak configuration control.",
+      "rule_slugs": [
+        "no-world-writable-files",
+        "no-world-writable-dirs",
+        "suid-binaries-reasonable",
+        "smb1-disabled",
+        "llmnr-disabled",
+        "pt-ffuf-common"
+      ]
+    },
+    {
+      "ref": "A.8.15",
+      "name": "Logging",
+      "desc": "Security events must be logged and monitored. Excessive failed logins indicate an active attack or misconfiguration.",
+      "rule_slugs": [
+        "failed-logins-low",
+        "audit-logon-events"
+      ]
+    },
+    {
+      "ref": "A.8.16",
+      "name": "Monitoring activities",
+      "desc": "Security-relevant kernel events, authentication attempts and time-sync state must be continuously monitored to support detection and forensics.",
+      "rule_slugs": [
+        "auditd-active",
+        "time-synchronized",
+        "powershell-script-block-logging",
+        "defender-realtime",
+        "defender-antivirus-enabled",
+        "defender-signatures-fresh"
+      ]
+    },
+    {
+      "ref": "A.8.20",
+      "name": "Network security",
+      "desc": "Networks must be segmented and protected. Active firewalls, disabled IP forwarding, and reverse path filtering are baseline controls.",
+      "rule_slugs": [
+        "firewall-active",
+        "kernel-ip-forward",
+        "kernel-rp-filter",
+        "pt-nmap-discovery",
+        "pt-nmap-full",
+        "pt-nmap-dns",
+        "pt-subfinder-enum"
+      ]
+    },
+    {
+      "ref": "A.8.22",
+      "name": "Segregation of networks and container isolation",
+      "desc": "Network and execution domains must be segregated. Docker containers running with `--privileged` or with a world-accessible socket break out of these isolation boundaries.",
+      "rule_slugs": [
+        "docker-no-root-containers",
+        "docker-socket-perms"
+      ]
+    },
+    {
+      "ref": "A.8.24",
+      "name": "Use of cryptography",
+      "desc": "Cryptographic controls must use current standards. Weak protocols and ciphers must be disabled and data at rest encrypted.",
+      "rule_slugs": [
+        "no-weak-tls-protocols",
+        "no-weak-ciphers",
+        "smb-signing-required",
+        "disk-encryption-active",
+        "pt-testssl-quick",
+        "pt-testssl-full"
+      ]
+    }
+  ]
+}

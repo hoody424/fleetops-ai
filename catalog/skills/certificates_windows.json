@@ -1,0 +1,59 @@
+{
+  "slug": "certificates",
+  "name": "Certificate Management",
+  "node_type": "windows",
+  "description": "Manage SSL/TLS certificates, certificate stores, HTTPS bindings, and code-signing",
+  "version": "3",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "list",
+        "description": "Browse certificate stores"
+      },
+      {
+        "name": "import",
+        "description": "Import certificates"
+      },
+      {
+        "name": "export",
+        "description": "Export certificates"
+      },
+      {
+        "name": "request",
+        "description": "Create certificate requests"
+      },
+      {
+        "name": "delete",
+        "description": "Remove certificates"
+      },
+      {
+        "name": "bindings",
+        "description": "Manage IIS and HTTP.SYS SSL bindings"
+      },
+      {
+        "name": "validate",
+        "description": "Validate certificate chain and signatures"
+      }
+    ],
+    "allowed_modules": [
+      "PKI"
+    ],
+    "allowed_commands": [
+      "Import-Module",
+      "Get-ChildItem",
+      "Get-Item",
+      "Remove-Item",
+      "Get-PfxCertificate",
+      "Get-AuthenticodeSignature",
+      "certutil",
+      "certreq",
+      "Get-WebBinding",
+      "New-WebBinding",
+      "Set-WebBinding",
+      "Remove-WebBinding",
+      "netsh"
+    ],
+    "system_prompt": "You are a Windows certificate management agent. Certificate stores are accessed via Cert:\\ drive. Common stores: Cert:\\LocalMachine\\My (personal), Cert:\\LocalMachine\\Root (trusted root CAs), Cert:\\LocalMachine\\WebHosting (IIS). Use Get-ChildItem Cert:\\LocalMachine\\My to list. Use thumbprint for identification. Validate chains with Test-Certificate; inspect authenticode signatures with Get-AuthenticodeSignature. For HTTP.SYS (non-IIS) SSL bindings use 'netsh http add/delete sslcert'."
+  }
+}

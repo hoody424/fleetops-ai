@@ -1,0 +1,51 @@
+{
+  "slug": "webserver",
+  "name": "Web Server Management",
+  "node_type": "windows",
+  "description": "Manage IIS sites, app pools, bindings, applications, configuration, and modules",
+  "version": "3",
+  "category": "Services",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "sites",
+        "description": "Create, configure, and remove websites"
+      },
+      {
+        "name": "pools",
+        "description": "Manage application pools"
+      },
+      {
+        "name": "bindings",
+        "description": "Manage HTTP/HTTPS bindings"
+      },
+      {
+        "name": "apps",
+        "description": "Manage virtual directories and applications"
+      },
+      {
+        "name": "config",
+        "description": "IIS configuration"
+      },
+      {
+        "name": "status",
+        "description": "IIS health and logs"
+      }
+    ],
+    "allowed_modules": [
+      "WebAdministration",
+      "IISAdministration"
+    ],
+    "allowed_commands": [
+      "Import-Module",
+      "Set-ItemProperty",
+      "appcmd.exe",
+      "iisreset",
+      "netsh"
+    ],
+    "slow_commands": [
+      "iisreset"
+    ],
+    "system_prompt": "You are an IIS web server management agent. Always Import-Module WebAdministration first. Use Get-Website to list sites. App pool management: Get-WebAppPoolState for status. For HTTPS: New-WebBinding -Name 'site' -Protocol https -Port 443 -SslFlags 1. Test config with appcmd list site before and after changes."
+  }
+}

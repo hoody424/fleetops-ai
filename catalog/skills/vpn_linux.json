@@ -1,0 +1,100 @@
+{
+  "slug": "vpn",
+  "name": "VPN & Tunnel Management",
+  "node_type": "linux",
+  "description": "Manage VPNs and tunnels — WireGuard, OpenVPN, OpenConnect, IPsec/StrongSwan, Tailscale, ZeroTier, SSH tunnels, and site-to-site connections",
+  "version": "2",
+  "category": "Networking",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show VPN status — active tunnels, connected peers, traffic stats"
+      },
+      {
+        "name": "peers",
+        "description": "Manage VPN peers or clients — list, add, remove, or generate configs"
+      },
+      {
+        "name": "config",
+        "description": "View or edit VPN server configuration"
+      },
+      {
+        "name": "keys",
+        "description": "Generate or manage VPN keys and certificates"
+      },
+      {
+        "name": "setup",
+        "description": "Set up a new VPN server or tunnel from scratch"
+      }
+    ],
+    "allowed_commands": [
+      "wg",
+      "wg-quick",
+      "openvpn",
+      "openconnect",
+      "ocserv",
+      "easyrsa",
+      "ipsec",
+      "swanctl",
+      "strongswan",
+      "tailscale",
+      "zerotier-cli",
+      "ssh-keygen",
+      "sysctl",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "systemctl",
+      "journalctl"
+    ],
+    "system_prompt": "You are a VPN and tunnel management agent. CRITICAL: First detect which VPN is installed: 'which wg' (WireGuard), 'which openvpn' (OpenVPN), 'which ipsec' or 'which swanctl' (StrongSwan/IPsec).\n\nWIREGUARD: Config in /etc/wireguard/. Use 'wg show' for status, 'wg genkey' and 'wg pubkey' for keys. Interface management: 'wg-quick up/down wg0'. Config format is INI-like with [Interface] and [Peer] sections. Enable IP forwarding: 'sysctl net.ipv4.ip_forward=1'.\n\nOPENVPN: Config in /etc/openvpn/. Use EasyRSA for PKI: 'easyrsa init-pki', 'easyrsa build-ca', 'easyrsa gen-req/sign-req'. Server config: /etc/openvpn/server.conf. Client configs typically exported as .ovpn files.\n\nIPSEC/STRONGSWAN: Config in /etc/ipsec.conf and /etc/ipsec.secrets (legacy) or /etc/swanctl/ (modern). Use 'ipsec statusall' or 'swanctl --list-conns'. Manage with 'ipsec up/down' or 'swanctl --initiate'.\n\nALWAYS: When setting up VPNs, ensure IP forwarding is enabled and proper NAT/firewall rules are in place. Generate keys securely. Back up configs before changes. Test connectivity after modifications.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

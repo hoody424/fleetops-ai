@@ -1,0 +1,14 @@
+{
+  "type": "cert",
+  "name": "Certificate Discovery",
+  "node_type": "linux",
+  "version": "1",
+  "checks": {
+    "cert_files": {
+      "name": "Certificate Files",
+      "command": "find /etc /usr/local/etc /var /opt -path /opt/fleetops -prune -o -type f \\( -name '*.pem' -o -name '*.crt' -o -name '*.cer' -o -name '*.cert' \\) -not -path '/etc/ssl/certs/*' -not -path '/etc/pki/ca-trust/*' -not -path '/etc/pki/tls/certs/ca-bundle*' -not -name 'ca-certificates.crt' -not -name 'ca-bundle.crt' -not -name 'ca-bundle.trust.crt' -not -name 'privkey*.pem' -not -name '*-key.pem' -not -name 'key.pem' -not -name '*.key.pem' -print 2>/dev/null | head -n 500",
+      "timeout": 120,
+      "max_output": 200000
+    }
+  }
+}

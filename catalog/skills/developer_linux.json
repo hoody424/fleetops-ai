@@ -1,0 +1,227 @@
+{
+  "slug": "developer",
+  "name": "Developer Tools & Scripting",
+  "node_type": "linux",
+  "description": "Write scripts, compile code, manage dev environments, run builds, tests, linters, and Git repositories",
+  "version": "1",
+  "category": "Advanced",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "write_script",
+        "description": "Generate and write a script or program to a file — bash, Python, Node.js, Go, Ruby, Perl, PHP, or any language installed on the server"
+      },
+      {
+        "name": "run_script",
+        "description": "Execute a script or program and return the output"
+      },
+      {
+        "name": "compile",
+        "description": "Compile source code — gcc, g++, make, cmake, cargo build, go build, javac"
+      },
+      {
+        "name": "build",
+        "description": "Run build tools — make, npm run build, pip install, cargo build, go build, mvn package, gradle build"
+      },
+      {
+        "name": "test",
+        "description": "Run tests — pytest, npm test, go test, cargo test, phpunit, rspec, jest, mocha"
+      },
+      {
+        "name": "lint",
+        "description": "Run linters and formatters — eslint, pylint, flake8, rubocop, shellcheck, golangci-lint"
+      },
+      {
+        "name": "dependencies",
+        "description": "Manage project dependencies — pip install/freeze, npm install/update, composer install, cargo add, go mod tidy, bundle install"
+      },
+      {
+        "name": "environment",
+        "description": "Set up or manage dev environments — Python venv, nvm, rbenv, sdkman, rustup, goenv"
+      },
+      {
+        "name": "debug",
+        "description": "Debug scripts or programs — check syntax, trace execution, inspect errors, analyze core dumps"
+      },
+      {
+        "name": "git_status",
+        "description": "Show repository status — branch, changes, upstream tracking"
+      },
+      {
+        "name": "git_pull",
+        "description": "Pull latest changes from remote"
+      },
+      {
+        "name": "git_clone",
+        "description": "Clone a repository"
+      },
+      {
+        "name": "git_log",
+        "description": "Show commit history"
+      },
+      {
+        "name": "git_branches",
+        "description": "List, create, delete, or switch branches"
+      },
+      {
+        "name": "git_deploy",
+        "description": "Deploy by pulling latest code and optionally running post-deploy commands"
+      }
+    ],
+    "allowed_commands": [
+      "bash",
+      "sh",
+      "python3",
+      "python",
+      "pip3",
+      "pip",
+      "node",
+      "npm",
+      "npx",
+      "yarn",
+      "pnpm",
+      "go",
+      "cargo",
+      "rustc",
+      "rustup",
+      "gcc",
+      "g++",
+      "cc",
+      "make",
+      "cmake",
+      "javac",
+      "java",
+      "mvn",
+      "gradle",
+      "ruby",
+      "gem",
+      "bundle",
+      "irb",
+      "perl",
+      "php",
+      "composer",
+      "lua",
+      "luarocks",
+      "tee",
+      "chmod",
+      "chown",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "ln",
+      "cat",
+      "head",
+      "tail",
+      "sed",
+      "awk",
+      "grep",
+      "find",
+      "xargs",
+      "sort",
+      "uniq",
+      "wc",
+      "diff",
+      "patch",
+      "tsc",
+      "eslint",
+      "prettier",
+      "pylint",
+      "flake8",
+      "black",
+      "mypy",
+      "shellcheck",
+      "jq",
+      "yq",
+      "curl",
+      "wget",
+      "git",
+      "ssh-keygen",
+      "ssh-keyscan",
+      "env",
+      "which",
+      "whereis",
+      "ldd",
+      "strace",
+      "ltrace",
+      "file",
+      "strings",
+      "hexdump",
+      "od",
+      "crontab",
+      "nohup",
+      "timeout",
+      "time",
+      "mktemp",
+      "virtualenv",
+      "pipenv",
+      "poetry",
+      "nvm",
+      "rbenv",
+      "goenv"
+    ],
+    "system_prompt": "You are a software development agent. You can write, compile, build, test, and debug code on the server.\n\nWhen writing scripts:\n- Always add a shebang line (#!/usr/bin/env bash, #!/usr/bin/env python3, etc.)\n- Write clean, commented, production-quality code\n- Use <write> to create files — it handles content safely without shell escaping issues\n- Make scripts executable with chmod +x\n- Test the script after writing it unless told otherwise\n\nWhen compiling or building:\n- Check that the required compiler/toolchain is installed first\n- Use appropriate flags (e.g. gcc -Wall -O2)\n- Report errors clearly with the relevant line numbers\n\nWhen managing dependencies:\n- Use virtual environments for Python (python3 -m venv)\n- Use project-local installs where possible (npm install, not npm install -g)\n- Show what will be installed before installing\n\nWhen running tests:\n- Auto-detect the test framework from project files\n- Report pass/fail counts and any error details\n\nGit:\n- Always cd into the repo path before running git commands\n- Use 'git status' to understand state before operations\n- Check for uncommitted changes before destructive operations (checkout, reset, merge)\n- Never force-push without explicit user confirmation\n- For deploy workflows: pull first, check for conflicts, then run post-deploy steps\n\nSecurity rules:\n- Never write scripts that contain hardcoded passwords or secrets\n- Never write scripts that modify system files outside the project directory without explicit instruction\n- Never run scripts as root unless explicitly asked\n- Warn the user if a script could be destructive",
+    "slow_commands": [
+      "pip",
+      "pip3",
+      "npm",
+      "yarn",
+      "pnpm",
+      "cargo",
+      "go",
+      "mvn",
+      "gradle",
+      "make",
+      "cmake",
+      "composer",
+      "bundle",
+      "poetry",
+      "pipenv"
+    ],
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

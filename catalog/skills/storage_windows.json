@@ -1,0 +1,46 @@
+{
+  "slug": "storage",
+  "name": "Storage & Disk Management",
+  "node_type": "windows",
+  "description": "Manage disks, volumes, partitions, storage pools, virtual disks, deduplication, and drive mappings",
+  "version": "3",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      { "name": "disks",      "description": "List and manage physical disks and storage pools" },
+      { "name": "volumes",    "description": "Create, resize, format, optimize, and repair volumes" },
+      { "name": "vdisks",     "description": "Manage storage-space virtual disks" },
+      { "name": "dedup",      "description": "Data deduplication status and volume control" },
+      { "name": "snapshots",  "description": "Volume Shadow Copy administration" },
+      { "name": "quota",      "description": "View or configure disk quotas" }
+    ],
+    "allowed_modules": [
+      "Storage",
+      "Deduplication",
+      "FileServerResourceManager"
+    ],
+    "allowed_commands": [
+      "mountvol",
+      "diskpart",
+      "fsutil",
+      "chkdsk",
+      "vssadmin"
+    ],
+    "slow_commands": [
+      "Format-Volume",
+      "Optimize-Volume",
+      "Repair-Volume",
+      "chkdsk",
+      "diskpart"
+    ],
+    "system_prompt": "You are a Windows storage management agent. Use PowerShell Storage cmdlets. Always confirm before Format-Volume or destructive disk operations. Use Get-Disk | Get-Partition | Get-Volume pipeline for disk exploration. For Storage Spaces use Get-StoragePool / New-VirtualDisk. Defragment/trim with Optimize-Volume; check & repair filesystem with Repair-Volume. Shadow copies: vssadmin list shadows / create shadow. Quotas: FSRM quotas with Get-FsrmQuota / New-FsrmQuota (requires the FS-Resource-Manager feature), classic per-user NTFS quotas with fsutil quota."
+  },
+  "quick_reports": [
+    {
+      "id": "disk_usage",
+      "label": "Disk Usage",
+      "icon": "HardDrive",
+      "instruction": "Show size, free space and percent free for every volume that has a drive letter (Get-Volume). In the summary give the number of volumes and name every one below 20% free with its drive letter and remaining space. Do not run follow-up commands on individual volumes."
+    }
+  ]
+}

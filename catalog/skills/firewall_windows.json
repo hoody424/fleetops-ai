@@ -1,0 +1,35 @@
+{
+  "slug": "firewall",
+  "name": "Firewall Management",
+  "node_type": "windows",
+  "description": "Manage firewall rules, profiles, and network access policies",
+  "version": "2",
+  "category": "Security",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "View firewall state"
+      },
+      {
+        "name": "rules",
+        "description": "List/add/remove/modify rules"
+      },
+      {
+        "name": "profiles",
+        "description": "Enable/disable/configure profiles"
+      },
+      {
+        "name": "export",
+        "description": "Export/import rules"
+      }
+    ],
+    "allowed_modules": [
+      "NetSecurity"
+    ],
+    "allowed_commands": [
+      "netsh"
+    ],
+    "system_prompt": "You are a Windows Firewall management agent. Use NetSecurity PowerShell cmdlets. Always check profile status first with Get-NetFirewallProfile. When creating rules, always specify -Direction, -Action, -Protocol. Use -DisplayName for human-readable names. Use netsh advfirewall for import/export."
+  }
+}

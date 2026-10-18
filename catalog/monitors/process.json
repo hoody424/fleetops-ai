@@ -1,0 +1,29 @@
+{
+  "slug": "process",
+  "name": "Process Running",
+  "icon": "Activity",
+  "category": "System",
+  "check_type": "process",
+  "unit": "count",
+  "metric_label": "Instances",
+  "inventory_match": [],
+  "defaults": {
+    "pattern": "",
+    "min_count": 1
+  },
+  "fields": [
+    {
+      "name": "pattern",
+      "label": "Process Name",
+      "type": "text",
+      "required": true,
+      "placeholder": "nginx, postgres, java..."
+    },
+    {
+      "name": "min_count",
+      "label": "Minimum Instances",
+      "type": "number",
+      "placeholder": "1"
+    }
+  ]
+}

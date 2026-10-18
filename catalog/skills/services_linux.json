@@ -1,0 +1,139 @@
+{
+  "slug": "services",
+  "name": "Services & Process Management",
+  "node_type": "linux",
+  "description": "Manage services, processes, scheduled tasks (cron/at), and systemd units, timers, and transient runs",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Get status of a service including recent logs"
+      },
+      {
+        "name": "start",
+        "description": "Start a service"
+      },
+      {
+        "name": "stop",
+        "description": "Stop a service"
+      },
+      {
+        "name": "restart",
+        "description": "Restart a service"
+      },
+      {
+        "name": "enable",
+        "description": "Enable a service to start on boot"
+      },
+      {
+        "name": "disable",
+        "description": "Disable a service from starting on boot"
+      },
+      {
+        "name": "logs",
+        "description": "View logs for a service or the system journal"
+      },
+      {
+        "name": "list",
+        "description": "List all services, optionally filtered"
+      },
+      {
+        "name": "processes",
+        "description": "List or manage running processes \u2014 find, inspect, or kill processes"
+      },
+      {
+        "name": "cron",
+        "description": "Manage cron jobs \u2014 list, add, edit, or remove scheduled tasks"
+      }
+    ],
+    "allowed_commands": [
+      "systemctl",
+      "journalctl",
+      "loginctl",
+      "systemd-run",
+      "systemd-analyze",
+      "systemd-cgls",
+      "systemd-cgtop",
+      "kill",
+      "killall",
+      "pkill",
+      "pidof",
+      "pmap",
+      "nice",
+      "renice",
+      "nohup",
+      "timeout",
+      "crontab",
+      "at",
+      "atq",
+      "atrm",
+      "batch",
+      "tee",
+      "mkdir",
+      "cp",
+      "mv",
+      "rm",
+      "touch",
+      "chmod",
+      "ln"
+    ],
+    "system_prompt": "You are a service and process management agent. For services, use 'systemctl status SERVICE' and 'journalctl -u SERVICE --no-pager -n LINES'. Always use --no-pager with journalctl. When restarting, check status before and after. If a service fails, check its logs. For processes, use 'ps aux', 'top -bn1', or 'pgrep'. Before killing, identify what the process is. For cron: list with 'crontab -l', add with '(crontab -l 2>/dev/null; echo \"SCHEDULE COMMAND\") | crontab -'. Also check /etc/cron.d/, /etc/crontab, and systemd timers with 'systemctl list-timers'.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "service_inventory",
+      "label": "Service Inventory",
+      "icon": "ClipboardList",
+      "instruction": "List the systemd service units that are currently running (systemctl list-units --type=service --state=running --no-pager --no-legend), then the ones that are enabled but not running (systemctl list-unit-files --type=service --state=enabled --no-pager --no-legend). In the summary give both counts. Keep the output to those two commands: do not list every installed unit file, and do not run follow-up commands on individual services."
+    },
+    {
+      "id": "failed_services",
+      "label": "Failed Services",
+      "icon": "AlertCircle",
+      "instruction": "List the systemd units in failed state (systemctl list-units --state=failed --no-pager). Name every failed unit in the summary and give the count. Read the count off the output itself \u2014 only report zero failed units if the output lists none. Do not run follow-up commands on individual services."
+    }
+  ]
+}

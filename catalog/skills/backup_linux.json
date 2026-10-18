@@ -1,0 +1,113 @@
+{
+  "slug": "backup",
+  "name": "Backup & Restore",
+  "node_type": "linux",
+  "description": "Manage backup policies, perform backup and restore operations with tar/rsync and modern tools (restic, borg, duplicity, rclone, dd)",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "create",
+        "description": "Create a backup of files, directories, or configs"
+      },
+      {
+        "name": "restore",
+        "description": "Restore from a backup"
+      },
+      {
+        "name": "list",
+        "description": "List available backups in a directory"
+      },
+      {
+        "name": "verify",
+        "description": "Verify a backup is valid and complete"
+      },
+      {
+        "name": "sync",
+        "description": "Sync files between locations using rsync"
+      },
+      {
+        "name": "schedule",
+        "description": "Set up an automated backup schedule using cron"
+      }
+    ],
+    "allowed_commands": [
+      "tar",
+      "gzip",
+      "gunzip",
+      "bzip2",
+      "bunzip2",
+      "xz",
+      "unxz",
+      "zip",
+      "unzip",
+      "rsync",
+      "scp",
+      "sftp",
+      "restic",
+      "borg",
+      "duplicity",
+      "rclone",
+      "dd",
+      "crontab",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "touch",
+      "ln",
+      "fallocate",
+      "truncate"
+    ],
+    "system_prompt": "You are a backup and restore management agent. For file backups, prefer tar with compression: 'tar czf /backups/name-$(date +%Y%m%d).tar.gz /source/path'. For syncing, use rsync with -avz flags. Always verify backups after creation (check file size, list contents with tar tzf). When restoring, always show what will be restored before extracting. For scheduled backups, create a backup script and add it to crontab. Always check available disk space before creating backups. When setting up retention, use find with -mtime to clean old backups.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt",
+        "/home",
+        "/srv",
+        "/root"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

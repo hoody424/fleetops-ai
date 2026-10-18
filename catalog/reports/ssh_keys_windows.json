@@ -1,0 +1,25 @@
+{
+  "type": "ssh_keys",
+  "name": "Access & Privileges",
+  "node_type": "windows",
+  "version": "2",
+  "checks": {
+    "system_users": {
+      "name": "Local Accounts",
+      "command": "$profs = @{}; Get-CimInstance Win32_UserProfile -ErrorAction SilentlyContinue | ForEach-Object { $profs[$_.SID] = $_.LocalPath }; Get-LocalUser -ErrorAction SilentlyContinue | ForEach-Object { $s = $_.SID.Value; \"USER|$($_.Name)|$($_.Enabled)|$s|$($profs[$s])|$env:COMPUTERNAME\" }",
+      "timeout": 20,
+      "max_output": 20000
+    },
+    "group_members": {
+      "name": "Group Membership",
+      "command": "foreach ($g in (Get-LocalGroup -ErrorAction SilentlyContinue)) { $ms = @(); try { $ms = @(Get-LocalGroupMember -SID $g.SID -ErrorAction Stop) } catch { \"GROUPFAIL|$($g.Name)\"; continue }; foreach ($m in $ms) { $n = [string]$m.Name; $sid = ''; if ($m.SID) { $sid = $m.SID.Value }; if ($n -match '^S-1-') { try { $n = (New-Object System.Security.Principal.SecurityIdentifier($n)).Translate([System.Security.Principal.NTAccount]).Value } catch { } }; $dom = ''; if ($n -match '\\\\') { $dom = $n.Split('\\')[0]; $n = $n.Split('\\')[-1] }; \"MEMBER|$($g.SID.Value)|$($g.Name)|$dom|$n|$($m.ObjectClass)|$($m.PrincipalSource)|$sid\" } }",
+      "timeout": 90,
+      "max_output": 60000
+    },
+    "authorized_keys": {
+      "name": "SSH Authorized Keys",
+      "command": "$emit = { param($who, $line) $p = $line.Trim() -split '\\s+'; $fp = ''; try { $fp = (($line | ssh-keygen -lf - 2>$null) -split '\\s+')[1] } catch { }; $c = ''; if ($p.Length -ge 3) { $c = ($p[2..($p.Length-1)] -join ' ') }; \"USER=$who FP=$fp TYPE=$($p[0]) COMMENT=$c\" }; $admin = Join-Path \"$env:ProgramData\\ssh\" 'administrators_authorized_keys'; if (Test-Path $admin) { foreach ($l in (Get-Content $admin -ErrorAction SilentlyContinue)) { if ($l -and $l -notmatch '^\\s*#') { & $emit '@Administrators' $l } } }; $profs = @{}; Get-CimInstance Win32_UserProfile -ErrorAction SilentlyContinue | ForEach-Object { $profs[$_.SID] = $_.LocalPath }; foreach ($u in (Get-LocalUser -ErrorAction SilentlyContinue)) { $hp = $profs[$u.SID.Value]; if (-not $hp) { continue }; $ak = Join-Path $hp '.ssh\\authorized_keys'; if (-not (Test-Path $ak)) { continue }; foreach ($l in (Get-Content $ak -ErrorAction SilentlyContinue)) { if ($l -and $l -notmatch '^\\s*#') { & $emit $u.Name $l } } }",
+      "timeout": 30
+    }
+  }
+}

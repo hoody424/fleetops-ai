@@ -1,0 +1,33 @@
+{
+  "type": "ssh_keys",
+  "name": "SSH & Sudo Access",
+  "node_type": "linux",
+  "version": "1",
+  "checks": {
+    "system_users": {
+      "name": "System Users",
+      "command": "getent passwd | awk -F: '{print $1\":\"$3\":\"$5\":\"$6\":\"$7}'",
+      "timeout": 10
+    },
+    "authorized_keys": {
+      "name": "SSH Authorized Keys",
+      "command": "for home in /root $(awk -F: '$3>=1000 {print $6}' /etc/passwd); do [ -d \"$home\" ] || continue; f=\"$home/.ssh/authorized_keys\"; [ -f \"$f\" ] || continue; user=$(stat -c '%U' \"$home\" 2>/dev/null || ls -ld \"$home\" | awk '{print $3}'); while IFS= read -r line; do [ -z \"$line\" ] && continue; echo \"$line\" | grep -q '^#' && continue; fp=$(echo \"$line\" | ssh-keygen -lf - 2>/dev/null | awk '{print $2}'); type=$(echo \"$line\" | awk '{print $1}'); comment=$(echo \"$line\" | awk '{print $NF}'); echo \"USER=$user FP=$fp TYPE=$type COMMENT=$comment\"; done < \"$f\"; done",
+      "timeout": 15
+    },
+    "sudoers": {
+      "name": "Sudoers Rules",
+      "command": "echo '=== /etc/sudoers ==='; grep -v '^#' /etc/sudoers 2>/dev/null | grep -v '^$' | grep -v '^Defaults'; echo '=== /etc/sudoers.d/ ==='; for f in /etc/sudoers.d/*; do [ -f \"$f\" ] || continue; echo \"--- $(basename $f) ---\"; grep -v '^#' \"$f\" 2>/dev/null | grep -v '^$'; done",
+      "timeout": 10
+    },
+    "sudo_groups": {
+      "name": "Sudo Group Members",
+      "command": "for g in sudo wheel; do members=$(getent group $g 2>/dev/null | cut -d: -f4); [ -n \"$members\" ] && echo \"$g: $members\"; done",
+      "timeout": 5
+    },
+    "system_groups": {
+      "name": "System Groups",
+      "command": "awk -F: 'NR==FNR{if($3>=1000||$1==\"root\") u[$1]; next} $4!=\"\"{split($4,m,\",\"); r=\"\"; for(i in m) if(m[i] in u) r=r?r\",\"m[i]:m[i]; if(r) print $1\": \"r}' /etc/passwd /etc/group",
+      "timeout": 5
+    }
+  }
+}

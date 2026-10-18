@@ -1,0 +1,35 @@
+{
+  "slug": "cpu",
+  "name": "CPU Usage",
+  "icon": "Cpu",
+  "category": "System",
+  "check_type": "cpu",
+  "unit": "%",
+  "metric_label": "CPU Usage",
+  "inventory_match": [],
+  "defaults": {
+    "warn_percent": 80,
+    "crit_percent": 95,
+    "sample_seconds": 2
+  },
+  "fields": [
+    {
+      "name": "warn_percent",
+      "label": "Warning Threshold (%)",
+      "type": "number",
+      "placeholder": "80"
+    },
+    {
+      "name": "crit_percent",
+      "label": "Critical Threshold (%)",
+      "type": "number",
+      "placeholder": "95"
+    },
+    {
+      "name": "sample_seconds",
+      "label": "Sample Window (s)",
+      "type": "number",
+      "placeholder": "2"
+    }
+  ]
+}

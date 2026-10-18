@@ -1,0 +1,119 @@
+{
+  "slug": "virtualization",
+  "name": "Virtualization",
+  "node_type": "linux",
+  "description": "Manage virtual machines and disk images — KVM/QEMU, libvirt, guestfs, Proxmox, Vagrant, and VirtualBox",
+  "version": "2",
+  "category": "Platform",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Show virtualization overview — hypervisor type, running VMs, resource usage"
+      },
+      {
+        "name": "list",
+        "description": "List all VMs with their status"
+      },
+      {
+        "name": "start",
+        "description": "Start a VM"
+      },
+      {
+        "name": "stop",
+        "description": "Stop or shut down a VM"
+      },
+      {
+        "name": "console",
+        "description": "Execute a command inside a VM"
+      },
+      {
+        "name": "snapshot",
+        "description": "Manage snapshots — create, list, restore, or delete"
+      },
+      {
+        "name": "create",
+        "description": "Create a new VM"
+      },
+      {
+        "name": "info",
+        "description": "Show detailed information about a VM"
+      }
+    ],
+    "allowed_commands": [
+      "virsh",
+      "virt-install",
+      "virt-clone",
+      "virt-viewer",
+      "virt-customize",
+      "virt-resize",
+      "virt-df",
+      "virt-ls",
+      "virt-cat",
+      "virt-sparsify",
+      "virt-sysprep",
+      "guestmount",
+      "guestfish",
+      "qemu-img",
+      "qemu-system-x86_64",
+      "pvesh",
+      "pct",
+      "qm",
+      "pvecm",
+      "vagrant",
+      "VBoxManage",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "ln",
+      "systemctl"
+    ],
+    "system_prompt": "You are a virtualization management agent. CRITICAL: First detect the hypervisor by checking: 'which virsh' (KVM/libvirt), 'which qm' (Proxmox), 'which vagrant' (Vagrant), 'which VBoxManage' (VirtualBox).\n\nKVM/LIBVIRT: Use 'virsh list --all' for VMs, 'virsh dominfo NAME' for details, 'virsh start/shutdown/destroy NAME'. Create VMs with virt-install. Snapshots: 'virsh snapshot-create-as', 'virsh snapshot-list', 'virsh snapshot-revert'. Disk images managed with qemu-img.\n\nPROXMOX: Use 'qm list' for VMs, 'qm start/stop VMID'. API via pvesh.\n\nALWAYS: Check VM state before operations. For destructive ops (delete, destroy), verify the target first.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp",
+        "/opt"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "mount",
+      "umount2",
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "swapon",
+      "swapoff",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  }
+}

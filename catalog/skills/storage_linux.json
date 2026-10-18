@@ -1,0 +1,145 @@
+{
+  "slug": "storage",
+  "name": "Storage & Disk Management",
+  "node_type": "linux",
+  "description": "Manage disks, volumes, partitions, LVM, ZFS, Btrfs, LUKS encryption, iSCSI, multipath, and filesystem quotas",
+  "version": "2",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "overview",
+        "description": "Show storage overview: disks, partitions, filesystems, mounts, and usage"
+      },
+      {
+        "name": "disk_usage",
+        "description": "Show disk space usage, optionally for a specific path"
+      },
+      {
+        "name": "mount",
+        "description": "Mount or unmount a filesystem"
+      },
+      {
+        "name": "lvm",
+        "description": "Manage LVM volumes \u2014 create, extend, reduce, list physical/logical volumes"
+      },
+      {
+        "name": "partition",
+        "description": "Manage disk partitions \u2014 list, create, delete, resize"
+      },
+      {
+        "name": "swap",
+        "description": "Manage swap space \u2014 show, add, remove, resize"
+      }
+    ],
+    "allowed_commands": [
+      "fdisk",
+      "parted",
+      "gdisk",
+      "sfdisk",
+      "mkfs",
+      "mkfs.ext4",
+      "mkfs.xfs",
+      "mkfs.btrfs",
+      "mount",
+      "umount",
+      "blkid",
+      "pvcreate",
+      "pvdisplay",
+      "pvs",
+      "pvresize",
+      "vgcreate",
+      "vgdisplay",
+      "vgs",
+      "vgextend",
+      "lvcreate",
+      "lvdisplay",
+      "lvs",
+      "lvextend",
+      "lvreduce",
+      "lvresize",
+      "resize2fs",
+      "xfs_growfs",
+      "mdadm",
+      "swapon",
+      "swapoff",
+      "mkswap",
+      "smartctl",
+      "e2fsck",
+      "fsck",
+      "xfs_repair",
+      "dd",
+      "fallocate",
+      "truncate",
+      "exportfs",
+      "zfs",
+      "zpool",
+      "btrfs",
+      "cryptsetup",
+      "losetup",
+      "iscsiadm",
+      "multipath",
+      "multipathd",
+      "quotacheck",
+      "quotaon",
+      "quotaoff",
+      "repquota",
+      "edquota",
+      "snapper",
+      "tee",
+      "cp",
+      "mv",
+      "rm",
+      "mkdir",
+      "chmod",
+      "chown",
+      "ln"
+    ],
+    "system_prompt": "You are a storage management agent. Use 'lsblk -f' for filesystem overview, 'df -hT' for usage, 'blkid' for UUIDs. For LVM: 'pvs', 'vgs', 'lvs' for quick listings. CRITICAL SAFETY RULES: 1) Never format or partition a mounted filesystem. 2) Always verify the correct device before destructive operations (show 'lsblk' first). 3) When modifying fstab, always back it up first and use UUID-based entries. 4) After extending an LV, resize the filesystem too (resize2fs for ext4, xfs_growfs for XFS). 5) For RAID, always verify array status before changes.",
+    "sandbox_landlock": {
+      "read_paths": [
+        "/"
+      ],
+      "write_paths": [
+        "/etc",
+        "/var",
+        "/tmp"
+      ],
+      "exec_paths": [
+        "/"
+      ]
+    },
+    "sandbox_seccomp": [
+      "pivot_root",
+      "chroot",
+      "reboot",
+      "kexec_load",
+      "kexec_file_load",
+      "init_module",
+      "finit_module",
+      "delete_module",
+      "ptrace",
+      "bpf",
+      "userfaultfd",
+      "perf_event_open",
+      "settimeofday",
+      "clock_settime",
+      "sethostname",
+      "setdomainname",
+      "move_mount",
+      "fsopen",
+      "fsconfig",
+      "fsmount",
+      "fspick",
+      "open_tree"
+    ]
+  },
+  "quick_reports": [
+    {
+      "id": "disk_usage",
+      "label": "Disk Usage",
+      "icon": "HardDrive",
+      "instruction": "Show usage for all mounted filesystems with their type (df -hT), excluding tmpfs and devtmpfs. In the summary give the total number of filesystems and name every one at 80% used or above with its mount point and free space. Do not run follow-up commands on individual filesystems."
+    }
+  ]
+}

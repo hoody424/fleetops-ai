@@ -1,0 +1,45 @@
+{
+  "slug": "winrm",
+  "name": "WinRM",
+  "icon": "Terminal",
+  "category": "Remote Access",
+  "check_type": "tcp",
+  "inventory_match": ["winrm"],
+  "defaults": {
+    "port": 5985,
+    "timeout": 5,
+    "ssl": false,
+    "warn_days": 0
+  },
+  "fields": [
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "ssl",
+      "label": "SSL / TLS",
+      "type": "boolean"
+    },
+    {
+      "name": "warn_days",
+      "label": "Certificate Warning (days)",
+      "type": "select",
+      "options": [
+        "0",
+        "7",
+        "14",
+        "30",
+        "60",
+        "90"
+      ]
+    },
+    {
+      "name": "timeout",
+      "label": "Timeout (s)",
+      "type": "number"
+    }
+  ]
+}

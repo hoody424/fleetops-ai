@@ -1,0 +1,51 @@
+{
+  "slug": "backup",
+  "name": "Backup & Restore",
+  "node_type": "windows",
+  "description": "Manage backup policies, schedule, perform backup and restore operations",
+  "version": "3",
+  "category": "Core",
+  "skill_config": {
+    "operations": [
+      {
+        "name": "status",
+        "description": "Current backup status"
+      },
+      {
+        "name": "policy",
+        "description": "Backup policy management"
+      },
+      {
+        "name": "backup",
+        "description": "Start manual backup"
+      },
+      {
+        "name": "restore",
+        "description": "Restore files, volumes, system state, or Hyper-V VMs from backup"
+      },
+      {
+        "name": "schedule",
+        "description": "Manage backup schedule"
+      },
+      {
+        "name": "history",
+        "description": "Backup history"
+      }
+    ],
+    "allowed_modules": [
+      "WindowsServerBackup"
+    ],
+    "allowed_commands": [
+      "wbadmin"
+    ],
+    "slow_commands": [
+      "Start-WBBackup",
+      "Start-WBFileRecovery",
+      "Start-WBVolumeRecovery",
+      "Start-WBSystemStateRecovery",
+      "Start-WBHyperVRecovery",
+      "wbadmin"
+    ],
+    "system_prompt": "You are a Windows Server Backup management agent. Requires Windows Server Backup feature. Check with Get-WindowsFeature Windows-Server-Backup. Use Get-WBSummary for quick status. Create a policy with: $policy = New-WBPolicy; Add-WBVolume -Policy $policy -Volume (Get-WBVolume -VolumePath 'C:'); Add-WBBackupTarget -Policy $policy -Target (New-WBBackupTarget -VolumePath 'D:'); Set-WBPolicy -Policy $policy. Schedule via Set-WBSchedule. For recovery: list items with Get-WBRecoverableItem and restore with the matching Start-WB*Recovery cmdlet (or wbadmin start recovery). Always verify status with Get-WBJob / Get-WBBackupSet after operations."
+  }
+}
