@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="760" rx="14" fill="url(#bg)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Left Sidebar -->
+  <rect x="0" y="0" width="250" height="760" rx="14" fill="#090d16" stroke="#1e293b" stroke-width="1"/>
+  <rect x="18" y="18" width="36" height="36" rx="10" fill="url(#brand)"/>
+  <text x="29" y="42" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="800">F</text>
+  <text x="64" y="34" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="700">FleetOps AI</text>
+  <text x="64" y="50" fill="#818cf8" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600">9 HUBS • 55 MCPs • 12 AIs</text>
+
+  <!-- Sidebar Nav Items -->
+  <g font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">
+    <rect x="12" y="72" width="226" height="34" rx="8" fill="#4f46e5"/>
+    <text x="28" y="94" fill="#ffffff">Fleet Matrix &amp; Overview</text>
+    <rect x="202" y="80" width="26" height="18" rx="9" fill="#312e81"/>
+    <text x="210" y="93" fill="#e0e7ff" font-size="10">14</text>
+
+    <text x="28" y="130" fill="#94a3b8">AI Operations Center</text>
+    <text x="28" y="162" fill="#38bdf8">Kubernetes &amp; K3s Hub (7)</text>
+    <text x="28" y="194" fill="#22d3ee">Docker &amp; Compose Hub (6)</text>
+    <text x="28" y="226" fill="#34d399">Linux Server Fleet Hub (6)</text>
+    <text x="28" y="258" fill="#a78bfa">Windows Server &amp; AD Hub (6)</text>
+    <text x="28" y="290" fill="#fbbf24">Switches, FW &amp; Printers (6)</text>
+    <text x="28" y="322" fill="#e879f9">Proxmox, VM &amp; ZFS NAS (6)</text>
+    <text x="28" y="354" fill="#60a5fa">Databases &amp; Caches Hub (6)</text>
+    <text x="28" y="386" fill="#fb7185">SSO, Proxy &amp; SSL/PKI (6)</text>
+    <text x="28" y="418" fill="#2dd4bf">Observability &amp; SIEM (6)</text>
+    <text x="28" y="454" fill="#94a3b8">Web Console &amp; /etc Files</text>
+    <text x="28" y="486" fill="#94a3b8">Audits &amp; 13 Compliance</text>
+    <text x="28" y="518" fill="#94a3b8">Monitors (49) &amp; Skills (55)</text>
+    <text x="28" y="550" fill="#94a3b8">AES-256-GCM SSH Vault</text>
+  </g>
+
+  <!-- Sidebar Footer: Connected AI Subscriptions -->
+  <rect x="12" y="610" width="226" height="136" rx="10" fill="#0f172a" stroke="#1e293b"/>
+  <text x="24" y="630" fill="#64748b" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="700">CONNECTED AI BRAINS (12)</text>
+  <rect x="22" y="640" width="206" height="26" rx="6" fill="#020617" stroke="#1e293b"/>
+  <text x="32" y="657" fill="#cbd5e1" font-family="Inter, system-ui, sans-serif" font-size="11">Claude Code CLI (OAuth)</text>
+  <rect x="172" y="645" width="48" height="16" rx="4" fill="#064e3b"/>
+  <text x="179" y="656" fill="#34d399" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="700">ACTIVE</text>
+
+  <rect x="22" y="672" width="206" height="26" rx="6" fill="#020617" stroke="#1e293b"/>
+  <text x="32" y="689" fill="#cbd5e1" font-family="Inter, system-ui, sans-serif" font-size="11">Google Gemini CLI (OAuth)</text>
+  <rect x="172" y="677" width="48" height="16" rx="4" fill="#064e3b"/>
+  <text x="179" y="688" fill="#34d399" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="700">ACTIVE</text>
+
+  <rect x="22" y="706" width="206" height="28" rx="6" fill="#312e81" stroke="#4f46e5"/>
+  <text x="52" y="724" fill="#c7d2fe" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700">Environment &amp; AI Wizard</text>
+
+  <!-- Top Header Bar -->
+  <rect x="250" y="0" width="1030" height="60" fill="#090d16" stroke="#1e293b"/>
+  <text x="276" y="35" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700">Fleet Matrix &amp; Infrastructure Overview</text>
+  <text x="595" y="35" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="12">14 / 14 Systems Online • 55 MCP Plugins • Policy: AUTO_SAFE_APPEND</text>
+
+  <!-- Header Action Buttons -->
+  <rect x="930" y="16" width="110" height="28" rx="7" fill="#1e293b" stroke="#334155"/>
+  <text x="944" y="34" fill="#cbd5e1" font-family="Inter, system-ui, sans-serif" font-size="11">Search Ctrl+K</text>
+  <rect x="1048" y="16" width="108" height="28" rx="7" fill="#4f46e5"/>
+  <text x="1062" y="34" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700">+ Add System</text>
+  <rect x="1164" y="16" width="96" height="28" rx="7" fill="#450a0a" stroke="#ef4444"/>
+  <text x="1188" y="34" fill="#fca5a5" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="800">! PANIC</text>
+
+  <!-- KPI Row -->
+  <g transform="translate(274, 80)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="232" height="92" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="18" y="26" fill="#94a3b8" font-size="11">Managed Fleet Systems</text>
+    <text x="18" y="58" fill="#ffffff" font-size="26" font-weight="800">14 <tspan font-size="13" fill="#64748b" font-weight="500">/ 14 online</tspan></text>
+    <text x="18" y="78" fill="#34d399" font-size="11">Agentless SSH + 4.2MB Go Agent</text>
+
+    <rect x="248" y="0" width="232" height="92" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="266" y="26" fill="#94a3b8" font-size="11">Connectable AI Brains</text>
+    <text x="266" y="58" fill="#ffffff" font-size="26" font-weight="800">12 <tspan font-size="13" fill="#818cf8" font-weight="500">Providers Ready</tspan></text>
+    <text x="266" y="78" fill="#a5b4fc" font-size="11">Claude, Gemini, OpenAI, Grok, Ollama</text>
+
+    <rect x="496" y="0" width="232" height="92" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="514" y="26" fill="#94a3b8" font-size="11">Platform Hubs &amp; MCP Plugins</text>
+    <text x="514" y="58" fill="#ffffff" font-size="26" font-weight="800">55 <tspan font-size="13" fill="#38bdf8" font-weight="500">across 9 Hubs</tspan></text>
+    <text x="514" y="78" fill="#38bdf8" font-size="11">K8s, Docker, Linux, Win, Net, DB, Virt</text>
+
+    <rect x="744" y="0" width="238" height="92" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="762" y="26" fill="#94a3b8" font-size="11">Compliance &amp; Security Posture</text>
+    <text x="762" y="58" fill="#34d399" font-size="26" font-weight="800">94% <tspan font-size="13" fill="#94a3b8" font-weight="500">NIS2 / CIS L1</tspan></text>
+    <text x="762" y="78" fill="#fbbf24" font-size="11">13 Frameworks • 1-Click `/etc` Revert</text>
+  </g>
+
+  <!-- Host Fleet Matrix Table -->
+  <g transform="translate(274, 192)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="982" height="542" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="22" y="32" fill="#ffffff" font-size="14" font-weight="700">Live Connected Infrastructure Fleet (Servers, Clusters, Switches, Firewalls &amp; Printers)</text>
+    <line x1="0" y1="48" x2="982" y2="48" stroke="#1e293b"/>
+
+    <!-- Table Header -->
+    <g fill="#64748b" font-size="10" font-weight="700">
+      <text x="22" y="70">HOSTNAME / APPLIANCE</text>
+      <text x="215" y="70">IP &amp; CONNECTION</text>
+      <text x="385" y="70">PLATFORM / OS</text>
+      <text x="565" y="70">CPU / RAM / DISK</text>
+      <text x="735" y="70">AI GOVERNANCE</text>
+      <text x="875" y="70">QUICK ACTIONS</text>
+    </g>
+    <line x1="0" y1="82" x2="982" y2="82" stroke="#1e293b"/>
+
+    <!-- Host Rows -->
+    <g font-size="12">
+      <!-- Row 1 -->
+      <circle cx="28" cy="110" r="5" fill="#10b981"/>
+      <text x="42" y="114" fill="#ffffff" font-weight="700">k8s-ctrl-prod-01</text>
+      <text x="215" y="114" fill="#94a3b8" font-family="monospace">10.10.20.11 (SSH Key)</text>
+      <text x="385" y="114" fill="#38bdf8">Debian 13 • K3s v1.36</text>
+      <text x="565" y="114" fill="#cbd5e1" font-family="monospace">14% CPU • 42% RAM • 28% Disk</text>
+      <rect x="735" y="99" width="108" height="22" rx="6" fill="#1e1b4b" stroke="#4f46e5"/>
+      <text x="747" y="114" fill="#a5b4fc" font-size="10" font-weight="700">SUPERVISED</text>
+      <rect x="875" y="98" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="114" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 2 -->
+      <line x1="16" y1="134" x2="966" y2="134" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="160" r="5" fill="#10b981"/>
+      <text x="42" y="164" fill="#ffffff" font-weight="700">docker-gpu-node-02</text>
+      <text x="215" y="164" fill="#94a3b8" font-family="monospace">192.168.1.45 (Go Agent)</text>
+      <text x="385" y="164" fill="#22d3ee">Ubuntu 24.04 • Docker 27</text>
+      <text x="565" y="164" fill="#cbd5e1" font-family="monospace">22% CPU • 61% RAM • 44% Disk</text>
+      <rect x="735" y="149" width="108" height="22" rx="6" fill="#064e3b" stroke="#10b981"/>
+      <text x="745" y="164" fill="#6ee7b7" font-size="10" font-weight="700">AUTO-APPEND</text>
+      <rect x="875" y="148" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="164" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 3 -->
+      <line x1="16" y1="184" x2="966" y2="184" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="210" r="5" fill="#10b981"/>
+      <text x="42" y="214" fill="#ffffff" font-weight="700">win-dc01-corp</text>
+      <text x="215" y="214" fill="#94a3b8" font-family="monospace">10.10.20.50 (Go Agent)</text>
+      <text x="385" y="214" fill="#a78bfa">Windows Server 2025 AD</text>
+      <text x="565" y="214" fill="#cbd5e1" font-family="monospace">11% CPU • 54% RAM • 37% NTFS</text>
+      <rect x="735" y="199" width="108" height="22" rx="6" fill="#1e1b4b" stroke="#4f46e5"/>
+      <text x="747" y="214" fill="#a5b4fc" font-size="10" font-weight="700">SUPERVISED</text>
+      <rect x="875" y="198" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="214" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 4 -->
+      <line x1="16" y1="234" x2="966" y2="234" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="260" r="5" fill="#10b981"/>
+      <text x="42" y="264" fill="#ffffff" font-weight="700">pve-zfs-cluster-01</text>
+      <text x="215" y="264" fill="#94a3b8" font-family="monospace">10.10.20.80 (SSH Key)</text>
+      <text x="385" y="264" fill="#e879f9">Proxmox VE 8.3 • OpenZFS</text>
+      <text x="565" y="264" fill="#cbd5e1" font-family="monospace">19% CPU • 68% RAM • ZFS ONLINE</text>
+      <rect x="735" y="249" width="108" height="22" rx="6" fill="#1e1b4b" stroke="#4f46e5"/>
+      <text x="747" y="264" fill="#a5b4fc" font-size="10" font-weight="700">SUPERVISED</text>
+      <rect x="875" y="248" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="264" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 5 -->
+      <line x1="16" y1="284" x2="966" y2="284" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="310" r="5" fill="#10b981"/>
+      <text x="42" y="314" fill="#ffffff" font-weight="700">core-sw-aruba-01</text>
+      <text x="215" y="314" fill="#94a3b8" font-family="monospace">192.168.1.2 (SSH/SNMPv3)</text>
+      <text x="385" y="314" fill="#fbbf24">Managed L3 PoE+ Switch</text>
+      <text x="565" y="314" fill="#cbd5e1" font-family="monospace">48 Ports • 12 VLANs • PoE 185W</text>
+      <rect x="735" y="299" width="108" height="22" rx="6" fill="#1e1b4b" stroke="#4f46e5"/>
+      <text x="747" y="314" fill="#a5b4fc" font-size="10" font-weight="700">SUPERVISED</text>
+      <rect x="875" y="298" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="314" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 6 -->
+      <line x1="16" y1="334" x2="966" y2="334" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="360" r="5" fill="#10b981"/>
+      <text x="42" y="364" fill="#ffffff" font-weight="700">fw-opnsense-edge01</text>
+      <text x="215" y="364" fill="#94a3b8" font-family="monospace">192.168.1.1 (SSH/API)</text>
+      <text x="385" y="364" fill="#fb7185">OPNsense HA Firewall/VPN</text>
+      <text x="565" y="364" fill="#cbd5e1" font-family="monospace">4 WireGuard/IPsec Tunnels UP</text>
+      <rect x="735" y="349" width="108" height="22" rx="6" fill="#1e1b4b" stroke="#4f46e5"/>
+      <text x="747" y="364" fill="#a5b4fc" font-size="10" font-weight="700">SUPERVISED</text>
+      <rect x="875" y="348" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="364" fill="#e2e8f0" font-size="11">Prompt AI</text>
+
+      <!-- Row 7 -->
+      <line x1="16" y1="384" x2="966" y2="384" stroke="#1e293b" stroke-opacity="0.6"/>
+      <circle cx="28" cy="410" r="5" fill="#10b981"/>
+      <text x="42" y="414" fill="#ffffff" font-weight="700">mfp-kyocera-floor2</text>
+      <text x="215" y="414" fill="#94a3b8" font-family="monospace">192.168.1.210 (SNMP/IPP)</text>
+      <text x="385" y="414" fill="#34d399">Network MFP Printer (:9100)</text>
+      <text x="565" y="414" fill="#cbd5e1" font-family="monospace">Toner 78% • Drum 91% • Ready</text>
+      <rect x="735" y="399" width="108" height="22" rx="6" fill="#0f172a" stroke="#475569"/>
+      <text x="752" y="414" fill="#94a3b8" font-size="10" font-weight="700">READ-ONLY</text>
+      <rect x="875" y="398" width="86" height="24" rx="6" fill="#1e293b"/>
+      <text x="890" y="414" fill="#e2e8f0" font-size="11">Inspect</text>
+    </g>
+
+    <!-- Bottom Banner inside Table -->
+    <rect x="18" y="452" width="946" height="72" rx="10" fill="url(#cardGrad)" stroke="#4f46e5" stroke-opacity="0.5"/>
+    <text x="38" y="480" fill="#ffffff" font-size="13" font-weight="700">Outbound Go Client Agent (`fleetops-agent`) — 4.2 MB Static Binary • ~8.2 MB RAM RSS</text>
+    <text x="38" y="504" fill="#a5b4fc" font-size="11" font-family="monospace">curl -fsSL https://fleetops.example.com/api/agent/install.sh | sudo bash -s -- --server wss://fleetops.example.com/ws/agent</text>
+  </g>
+</svg>

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="hdr2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="760" rx="14" fill="url(#bg2)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Top Bar -->
+  <rect x="0" y="0" width="1280" height="64" rx="14" fill="url(#hdr2)"/>
+  <text x="28" y="38" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="800">AI Fleet Operations Center — Multi-Host Prompting, Diff Preview &amp; 1-Click Rollback</text>
+  <rect x="920" y="16" width="165" height="32" rx="8" fill="#0f172a" stroke="#6366f1"/>
+  <text x="935" y="36" fill="#c7d2fe" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700">Brain: Claude Sonnet 4.6</text>
+  <rect x="1096" y="16" width="160" height="32" rx="8" fill="#064e3b" stroke="#10b981"/>
+  <text x="1112" y="36" fill="#6ee7b7" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700">Scope: @group:k8s-prod</text>
+
+  <!-- Left Sessions & MCP Active Tools Column -->
+  <g transform="translate(24, 84)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="290" height="652" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="18" y="30" fill="#ffffff" font-size="13" font-weight="700">Active AI Sessions &amp; Runbooks</text>
+    <rect x="14" y="44" width="262" height="58" rx="8" fill="#1e1b4b" stroke="#4f46e5"/>
+    <text x="26" y="66" fill="#ffffff" font-size="12" font-weight="700">Zoraxy &amp; K3s Memory Triage</text>
+    <text x="26" y="86" fill="#a5b4fc" font-size="10">@group:k8s-prod • Claude CLI OAuth</text>
+
+    <rect x="14" y="112" width="262" height="54" rx="8" fill="#0f172a" stroke="#1e293b"/>
+    <text x="26" y="134" fill="#cbd5e1" font-size="12" font-weight="600">Switch VLAN &amp; Firewall Backup</text>
+    <text x="26" y="152" fill="#64748b" font-size="10">@group:network • Gemini 2.5 Pro</text>
+
+    <rect x="14" y="176" width="262" height="54" rx="8" fill="#0f172a" stroke="#1e293b"/>
+    <text x="26" y="198" fill="#cbd5e1" font-size="12" font-weight="600">PostgreSQL Slow Query Audit</text>
+    <text x="26" y="216" fill="#64748b" font-size="10">@prod-db-01 • DeepSeek R1</text>
+
+    <text x="18" y="264" fill="#94a3b8" font-size="11" font-weight="700">ATTACHED MCP TOOL SERVERS (55)</text>
+    <g font-size="11" fill="#cbd5e1" font-family="monospace">
+      <rect x="14" y="278" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="296" fill="#38bdf8">✓ mcp-server-kubernetes</text>
+      <rect x="14" y="312" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="330" fill="#34d399">✓ linux-systemd-journal-mcp</text>
+      <rect x="14" y="346" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="364" fill="#fbbf24">✓ netmiko-napalm-switch-mcp</text>
+      <rect x="14" y="380" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="398" fill="#e879f9">✓ proxmox-ve-pbs-mcp</text>
+      <rect x="14" y="414" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="432" fill="#60a5fa">✓ postgres-dba-tuning-mcp</text>
+      <rect x="14" y="448" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="466" fill="#fb7185">✓ reverse-proxy-waf-mcp</text>
+      <rect x="14" y="482" width="262" height="28" rx="6" fill="#0f172a" stroke="#1e293b"/>
+      <text x="24" y="500" fill="#2dd4bf">✓ prometheus-alertmanager-mcp</text>
+    </g>
+  </g>
+
+  <!-- Right Conversation & Approval Stream -->
+  <g transform="translate(334, 84)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="922" height="652" rx="12" fill="#0f172a" stroke="#1e293b"/>
+
+    <!-- User Prompt Bubble -->
+    <rect x="140" y="22" width="758" height="58" rx="12" fill="#312e81" stroke="#4f46e5"/>
+    <text x="160" y="44" fill="#e0e7ff" font-size="11" font-weight="700">OPERATOR PROMPT (@group:k8s-prod)</text>
+    <text x="160" y="64" fill="#ffffff" font-size="12">Check all nodes for OOMKilled pods or SSH hardening drift, and harden /etc/ssh/sshd_config with a rollback snapshot.</text>
+
+    <!-- AI Diagnostic Execution Bubble -->
+    <rect x="24" y="96" width="874" height="205" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="44" y="122" fill="#34d399" font-size="12" font-weight="700">Claude Sonnet 4.6 (Subscription CLI) — Executed Read-Only Diagnostics on 3 Hosts</text>
+    <rect x="44" y="136" width="834" height="84" rx="8" fill="#020617" stroke="#1e293b"/>
+    <g font-family="monospace" font-size="11" fill="#cbd5e1">
+      <text x="58" y="156" fill="#38bdf8">$ kubectl get pods -A --field-selector=status.phase!=Running &amp;&amp; sshd -T | grep -E 'permitrootlogin|maxauthtries'</text>
+      <text x="58" y="176" fill="#a7f3d0">[k8s-ctrl-prod-01] All 42 pods Running (0 OOMKills). sshd: maxauthtries 6 (CIS recommends &lt;= 4)</text>
+      <text x="58" y="194" fill="#a7f3d0">[k8s-work-prod-02] All 28 pods Running (0 OOMKills). sshd: maxauthtries 6 (CIS recommends &lt;= 4)</text>
+      <text x="58" y="212" fill="#34d399">✓ Read-only telemetry verified in 1.4s. Prepared idempotent remediation below.</text>
+    </g>
+    <text x="44" y="248" fill="#e2e8f0" font-size="12">All Kubernetes pods are healthy with zero OOMKills. However, `/etc/ssh/sshd_config` allows `MaxAuthTries 6`.</text>
+    <text x="44" y="268" fill="#94a3b8" font-size="12">Because this fleet is in <tspan fill="#fbbf24" font-weight="700">Supervised Governance Mode</tspan>, please approve the `/etc/ssh/sshd_config` update below:</text>
+
+    <!-- Supervised Human-in-the-Loop Approval Card -->
+    <rect x="24" y="318" width="874" height="238" rx="12" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="44" y="346" fill="#fbbf24" font-size="13" font-weight="800">PENDING USER APPROVAL — Mutating Action Paused by AI Governance Policy</text>
+    <text x="44" y="366" fill="#d6d3d1" font-size="11">Target: k8s-ctrl-prod-01 • Automatic pre-change snapshot of /etc/ssh/sshd_config will be saved to PostgreSQL Vault</text>
+
+    <rect x="44" y="380" width="834" height="112" rx="8" fill="#020617" stroke="#292524"/>
+    <g font-family="monospace" font-size="11">
+      <text x="58" y="402" fill="#94a3b8">--- a/etc/ssh/sshd_config (Snapshot #8492 created automatically)</text>
+      <text x="58" y="420" fill="#94a3b8">+++ b/etc/ssh/sshd_config</text>
+      <text x="58" y="440" fill="#f87171">-MaxAuthTries 6</text>
+      <text x="58" y="458" fill="#4ade80">+MaxAuthTries 4</text>
+      <text x="58" y="476" fill="#4ade80">+ClientAliveInterval 300</text>
+    </g>
+
+    <rect x="44" y="506" width="190" height="34" rx="8" fill="#059669"/>
+    <text x="66" y="527" fill="#ffffff" font-size="12" font-weight="700">✓ Approve &amp; Execute</text>
+    <rect x="246" y="506" width="150" height="34" rx="8" fill="#7f1d1d" stroke="#ef4444"/>
+    <text x="276" y="527" fill="#fecaca" font-size="12" font-weight="700">✕ Reject Action</text>
+    <rect x="408" y="506" width="220" height="34" rx="8" fill="#1e293b" stroke="#475569"/>
+    <text x="428" y="527" fill="#cbd5e1" font-size="12" font-weight="600">↺ 1-Click Revert Snapshot</text>
+
+    <!-- Bottom Prompt Input Bar -->
+    <rect x="24" y="578" width="746" height="50" rx="10" fill="#020617" stroke="#334155"/>
+    <text x="42" y="608" fill="#64748b" font-size="12">Ask Claude, Gemini, GPT-5, Grok, DeepSeek, or Local Ollama to inspect or remediate your fleet...</text>
+    <rect x="782" y="578" width="116" height="50" rx="10" fill="#4f46e5"/>
+    <text x="808" y="608" fill="#ffffff" font-size="13" font-weight="700">Send &rarr;</text>
+  </g>
+</svg>

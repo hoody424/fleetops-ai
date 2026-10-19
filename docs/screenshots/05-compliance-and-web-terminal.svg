@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="760" rx="14" fill="url(#bg5)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Left Half: 13 Compliance Frameworks & 1-Click Fix with AI -->
+  <g transform="translate(24, 24)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="604" height="712" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="22" y="34" fill="#ffffff" font-size="16" font-weight="800">13 Security &amp; Compliance Frameworks</text>
+    <text x="22" y="54" fill="#94a3b8" font-size="11">CIS L1, CIS Docker, CIS Windows, NIS2, ISO 27001, GDPR Art.32, DORA, SOC2, PCI-DSS, NIST, HIPAA</text>
+
+    <!-- Framework Badges -->
+    <g transform="translate(22, 72)" font-size="11" font-weight="700">
+      <rect x="0" y="0" width="128" height="32" rx="8" fill="#312e81" stroke="#6366f1"/>
+      <text x="14" y="20" fill="#ffffff">NIS2 Directive</text>
+      <rect x="138" y="0" width="128" height="32" rx="8" fill="#090d16" stroke="#1e293b"/>
+      <text x="152" y="20" fill="#cbd5e1">CIS Linux L1</text>
+      <rect x="276" y="0" width="128" height="32" rx="8" fill="#090d16" stroke="#1e293b"/>
+      <text x="292" y="20" fill="#cbd5e1">ISO 27001:2022</text>
+      <rect x="414" y="0" width="146" height="32" rx="8" fill="#090d16" stroke="#1e293b"/>
+      <text x="428" y="20" fill="#cbd5e1">CIS Docker / Win</text>
+    </g>
+
+    <!-- Score Card -->
+    <rect x="22" y="120" width="560" height="84" rx="10" fill="#090d16" stroke="#1e293b"/>
+    <text x="40" y="150" fill="#94a3b8" font-size="11" font-weight="700">OVERALL COMPLIANCE SCORE</text>
+    <text x="40" y="184" fill="#34d399" font-size="28" font-weight="800">94 / 100 <tspan font-size="12" fill="#cbd5e1" font-weight="500">(44 Passed • 2 Warnings • 0 Critical)</tspan></text>
+    <rect x="440" y="140" width="122" height="34" rx="8" fill="#1e293b"/>
+    <text x="458" y="161" fill="#e2e8f0" font-size="11" font-weight="600">Export PDF/HTML</text>
+
+    <!-- Findings List -->
+    <g transform="translate(22, 222)">
+      <rect x="0" y="0" width="560" height="92" rx="10" fill="#090d16" stroke="#f59e0b" stroke-opacity="0.5"/>
+      <text x="18" y="26" fill="#fbbf24" font-size="12" font-weight="700">[MEDIUM] CIS-5.2.16 — SSH MaxAuthTries Exceeds Threshold (6 &gt; 4)</text>
+      <text x="18" y="48" fill="#cbd5e1" font-size="11">Host: k8s-ctrl-prod-01 • Control: NIS2 Art. 21(2)(i) Access Control &amp; Hardening</text>
+      <rect x="406" y="54" width="138" height="28" rx="6" fill="#4f46e5"/>
+      <text x="420" y="72" fill="#ffffff" font-size="11" font-weight="700">✨ Fix Finding with AI</text>
+
+      <rect x="0" y="106" width="560" height="82" rx="10" fill="#090d16" stroke="#1e293b"/>
+      <text x="18" y="132" fill="#34d399" font-size="12" font-weight="700">[PASS] CIS-1.1 / NIS2 — Encrypted Vault &amp; TLS 1.3 Enforcement Verified</text>
+      <text x="18" y="154" fill="#94a3b8" font-size="11">All 14 hosts pass TLS certificate expiration and cipher strength checks.</text>
+
+      <rect x="0" y="202" width="560" height="82" rx="10" fill="#090d16" stroke="#1e293b"/>
+      <text x="18" y="228" fill="#34d399" font-size="12" font-weight="700">[PASS] DORA / ISO-27001 — Nightly Database &amp; ZFS Backup Snapshots Active</text>
+      <text x="18" y="250" fill="#94a3b8" font-size="11">PostgreSQL PITR, Proxmox PBS, and Switch running-config backups verified &lt; 24h.</text>
+    </g>
+  </g>
+
+  <!-- Right Half: Browser xterm.js Terminal + SFTP /etc Editor with Rollback -->
+  <g transform="translate(652, 24)" font-family="Inter, system-ui, sans-serif">
+    <!-- Top: Browser xterm.js Terminal -->
+    <rect x="0" y="0" width="604" height="346" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="22" y="32" fill="#ffffff" font-size="15" font-weight="800">Interactive Browser WebSocket Terminal (xterm.js)</text>
+    <rect x="466" y="14" width="118" height="24" rx="6" fill="#064e3b"/>
+    <text x="480" y="30" fill="#34d399" font-size="10" font-weight="700">● REC AUDIT LOG</text>
+
+    <rect x="18" y="48" width="568" height="280" rx="8" fill="#020617" stroke="#1e293b"/>
+    <g font-family="monospace" font-size="11" fill="#e2e8f0">
+      <text x="32" y="74" fill="#34d399">root@k8s-ctrl-prod-01:~# <tspan fill="#ffffff">kubectl get nodes</tspan></text>
+      <text x="32" y="96" fill="#94a3b8">NAME               STATUS   ROLES                AGE   VERSION</text>
+      <text x="32" y="114">k8s-ctrl-prod-01   Ready    control-plane,etcd   72d   v1.36.5+k3s1</text>
+      <text x="32" y="132">k8s-work-prod-02   Ready    worker               72d   v1.36.5+k3s1</text>
+      <text x="32" y="158" fill="#34d399">root@k8s-ctrl-prod-01:~# <tspan fill="#ffffff">zpool status -x</tspan></text>
+      <text x="32" y="178" fill="#a7f3d0">all pools are healthy</text>
+      <text x="32" y="204" fill="#34d399">root@k8s-ctrl-prod-01:~# <tspan fill="#ffffff">systemctl status ssh --no-pager | head -n 4</tspan></text>
+      <text x="32" y="224">● ssh.service - OpenBSD Secure Shell server</text>
+      <text x="32" y="242" fill="#34d399">     Active: active (running) since Sun 2026-10-18 08:00:12 CEST</text>
+      <text x="32" y="272" fill="#34d399">root@k8s-ctrl-prod-01:~# █</text>
+    </g>
+
+    <!-- Bottom: /etc Config File Editor & 1-Click Snapshot Rollback -->
+    <rect x="0" y="366" width="604" height="346" rx="12" fill="#0f172a" stroke="#1e293b"/>
+    <text x="22" y="398" fill="#ffffff" font-size="15" font-weight="800">Remote `/etc` Configuration Editor &amp; Snapshot Vault</text>
+    <rect x="438" y="378" width="146" height="28" rx="6" fill="#4f46e5"/>
+    <text x="452" y="396" fill="#ffffff" font-size="11" font-weight="700">Save + Auto-Snapshot</text>
+
+    <rect x="18" y="416" width="568" height="178" rx="8" fill="#020617" stroke="#1e293b"/>
+    <g font-family="monospace" font-size="11" fill="#cbd5e1">
+      <text x="32" y="440" fill="#64748b"># /etc/ssh/sshd_config — Managed by FleetOps AI</text>
+      <text x="32" y="460">Port 22</text>
+      <text x="32" y="480">PermitRootLogin prohibit-password</text>
+      <text x="32" y="500" fill="#34d399">MaxAuthTries 4</text>
+      <text x="32" y="520">PubkeyAuthentication yes</text>
+      <text x="32" y="540">PasswordAuthentication no</text>
+      <text x="32" y="560" fill="#38bdf8">ClientAliveInterval 300</text>
+    </g>
+
+    <!-- Rollback History Strip -->
+    <rect x="18" y="608" width="568" height="84" rx="8" fill="#090d16" stroke="#1e293b"/>
+    <text x="32" y="630" fill="#94a3b8" font-size="10" font-weight="700">AUTOMATIC PRE-CHANGE SNAPSHOT HISTORY (1-CLICK ROLLBACK)</text>
+    <text x="32" y="652" fill="#e2e8f0" font-size="11" font-family="monospace">Snapshot #8492 • /etc/ssh/sshd_config • SHA256: 9f84c2..e10b • 2 mins ago</text>
+    <rect x="458" y="636" width="112" height="28" rx="6" fill="#312e81" stroke="#6366f1"/>
+    <text x="472" y="654" fill="#c7d2fe" font-size="11" font-weight="700">↺ Revert Now</text>
+  </g>
+</svg>

@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="wizHdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="760" rx="14" fill="url(#bg4)" stroke="#4f46e5" stroke-width="2"/>
+
+  <!-- Wizard Header -->
+  <rect x="0" y="0" width="1280" height="74" rx="14" fill="url(#wizHdr)"/>
+  <text x="32" y="34" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="800">5-Step Environment Discovery, Credentials Vault, Connectable AIs &amp; Governance Wizard</text>
+  <text x="32" y="56" fill="#c7d2fe" font-family="Inter, system-ui, sans-serif" font-size="12">Onboard subnets &amp; appliances, store encrypted SSH/WinRM/SNMP credentials, connect all 12 AI providers, and set Agent Decision Rules</text>
+
+  <!-- 5-Step Progress Bar -->
+  <g transform="translate(32, 92)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="230" height="52" rx="10" fill="#064e3b" stroke="#10b981"/>
+    <text x="14" y="22" fill="#6ee7b7" font-size="12" font-weight="700">1. Environment &amp; Subnets</text>
+    <text x="14" y="40" fill="#a7f3d0" font-size="10">Sites, VLANs &amp; 9 Hubs ✓</text>
+
+    <rect x="244" y="0" width="230" height="52" rx="10" fill="#064e3b" stroke="#10b981"/>
+    <text x="258" y="22" fill="#6ee7b7" font-size="12" font-weight="700">2. System Credentials</text>
+    <text x="258" y="40" fill="#a7f3d0" font-size="10">SSH, Windows, Switch &amp; SNMP ✓</text>
+
+    <rect x="488" y="0" width="230" height="52" rx="10" fill="#064e3b" stroke="#10b981"/>
+    <text x="502" y="22" fill="#6ee7b7" font-size="12" font-weight="700">3. Connect All 12 AIs</text>
+    <text x="502" y="40" fill="#a7f3d0" font-size="10">Claude, Gemini, OpenAI, Local ✓</text>
+
+    <rect x="732" y="0" width="230" height="52" rx="10" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
+    <text x="746" y="22" fill="#ffffff" font-size="12" font-weight="800">4. Agent Governance</text>
+    <text x="746" y="40" fill="#c7d2fe" font-size="10">Approvals vs Auto-Append</text>
+
+    <rect x="976" y="0" width="240" height="52" rx="10" fill="#0f172a" stroke="#334155"/>
+    <text x="990" y="22" fill="#cbd5e1" font-size="12" font-weight="700">5. Schedules, SSO &amp; ChatOps</text>
+    <text x="990" y="40" fill="#64748b" font-size="10">Cron, Webhooks &amp; GitOps</text>
+  </g>
+
+  <!-- 4 AI Decision Governance Cards -->
+  <g transform="translate(32, 166)" font-family="Inter, system-ui, sans-serif">
+    <text x="0" y="18" fill="#ffffff" font-size="14" font-weight="700">How Should AI Agents Decide &amp; Execute Actions Across Your Infrastructure?</text>
+
+    <rect x="0" y="32" width="596" height="114" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="20" y="60" fill="#ffffff" font-size="13" font-weight="700">1. Strict Read-Only Observer Mode</text>
+    <rect x="466" y="42" width="110" height="22" rx="10" fill="#1e293b"/>
+    <text x="480" y="57" fill="#94a3b8" font-size="10" font-weight="700">Zero Mutation</text>
+    <text x="20" y="84" fill="#94a3b8" font-size="11">AI agents can inspect logs, metrics, switch configs, and run compliance scans,</text>
+    <text x="20" y="102" fill="#94a3b8" font-size="11">but all write, package, or restart commands are strictly blocked.</text>
+
+    <rect x="620" y="32" width="596" height="114" rx="12" fill="#1e1b4b" stroke="#6366f1" stroke-width="2"/>
+    <text x="640" y="60" fill="#ffffff" font-size="13" font-weight="800">2. Human-in-the-Loop Approval (Recommended)</text>
+    <rect x="1050" y="42" width="146" height="22" rx="10" fill="#312e81" stroke="#818cf8"/>
+    <text x="1062" y="57" fill="#e0e7ff" font-size="10" font-weight="700">User Approval Required</text>
+    <text x="640" y="84" fill="#e0e7ff" font-size="11">Read-only diagnostics run automatically. Any config edit, package install, or</text>
+    <text x="640" y="102" fill="#e0e7ff" font-size="11">service restart pauses for explicit User Approval with unified diff preview.</text>
+
+    <rect x="0" y="160" width="596" height="114" rx="12" fill="#064e3b" fill-opacity="0.35" stroke="#10b981" stroke-width="2"/>
+    <text x="20" y="188" fill="#ffffff" font-size="13" font-weight="800">3. Smart Auto-Append &amp; Guarded Delete</text>
+    <rect x="430" y="170" width="146" height="22" rx="10" fill="#064e3b" stroke="#34d399"/>
+    <text x="442" y="185" fill="#6ee7b7" font-size="10" font-weight="700">Auto-Append Enabled</text>
+    <text x="20" y="212" fill="#d1fae5" font-size="11">AI agents automatically append safe items (authorized_keys, new monitors, additive</text>
+    <text x="20" y="230" fill="#d1fae5" font-size="11">config rules with snapshot), while destructive/restart actions require User Approval.</text>
+
+    <rect x="620" y="160" width="596" height="114" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="640" y="188" fill="#ffffff" font-size="13" font-weight="700">4. Full Autonomous SRE Mode (with 1-Click Revert)</text>
+    <rect x="1040" y="170" width="156" height="22" rx="10" fill="#1e293b"/>
+    <text x="1052" y="185" fill="#fbbf24" font-size="10" font-weight="700">Auto-Fix + Snapshot</text>
+    <text x="640" y="212" fill="#94a3b8" font-size="11">AI agents autonomously execute multi-step remediations within assigned skills.</text>
+    <text x="640" y="230" fill="#94a3b8" font-size="11">Every file edit automatically saves a pre-change snapshot for 1-click rollback.</text>
+  </g>
+
+  <!-- Granular Guardrails & Connectable AI Providers Strip -->
+  <g transform="translate(32, 460)" font-family="Inter, system-ui, sans-serif">
+    <rect x="0" y="0" width="1216" height="218" rx="12" fill="#090d16" stroke="#1e293b"/>
+    <text x="22" y="30" fill="#ffffff" font-size="13" font-weight="700">Granular AI Decision Guardrails &amp; Universal AI Brain (All 12 Providers Connectable)</text>
+    <g font-size="12" fill="#cbd5e1">
+      <text x="22" y="60">☑ Allow AI to auto-append non-destructive entries (SSH authorized_keys, service monitors, additive rules)</text>
+      <text x="22" y="86">☑ Require explicit User Approval before restarting systemd/Windows services, containers, or rebooting hosts</text>
+      <text x="22" y="112">☑ Require explicit User Approval before modifying Firewall, Switch VLAN, or BGP/OSPF routing policies</text>
+      <text x="22" y="138">☑ Enforce mandatory pre-change config snapshot before any `/etc` or switch configuration edit (1-Click Revert)</text>
+    </g>
+
+    <!-- 12 AI Providers Badges -->
+    <g transform="translate(22, 162)" font-size="10" font-weight="700">
+      <rect x="0" y="0" width="142" height="32" rx="6" fill="#1e1b4b" stroke="#6366f1"/>
+      <text x="12" y="20" fill="#c7d2fe">Claude CLI (OAuth)</text>
+      <rect x="150" y="0" width="142" height="32" rx="6" fill="#1e1b4b" stroke="#6366f1"/>
+      <text x="162" y="20" fill="#c7d2fe">Gemini CLI (OAuth)</text>
+      <rect x="300" y="0" width="142" height="32" rx="6" fill="#1e1b4b" stroke="#6366f1"/>
+      <text x="312" y="20" fill="#c7d2fe">Codex CLI (OAuth)</text>
+      <rect x="450" y="0" width="120" height="32" rx="6" fill="#0f172a" stroke="#334155"/>
+      <text x="464" y="20" fill="#cbd5e1">OpenAI GPT-5</text>
+      <rect x="578" y="0" width="120" height="32" rx="6" fill="#0f172a" stroke="#334155"/>
+      <text x="592" y="20" fill="#cbd5e1">Anthropic API</text>
+      <rect x="706" y="0" width="110" height="32" rx="6" fill="#0f172a" stroke="#334155"/>
+      <text x="724" y="20" fill="#cbd5e1">xAI Grok 3</text>
+      <rect x="824" y="0" width="118" height="32" rx="6" fill="#0f172a" stroke="#334155"/>
+      <text x="838" y="20" fill="#cbd5e1">DeepSeek R1</text>
+      <rect x="950" y="0" width="110" height="32" rx="6" fill="#0f172a" stroke="#334155"/>
+      <text x="964" y="20" fill="#cbd5e1">OpenRouter</text>
+      <rect x="1068" y="0" width="104" height="32" rx="6" fill="#064e3b" stroke="#10b981"/>
+      <text x="1080" y="20" fill="#6ee7b7">Local Ollama</text>
+    </g>
+  </g>
+</svg>
