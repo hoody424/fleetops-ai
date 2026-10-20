@@ -1007,10 +1007,18 @@ app.get("/api/platforms/inspect", async (req) => {
     }
   } else if (platform === "linux") {
     const cmd = `
-      echo "===SYSTEMD_SERVICES===";
-      systemctl list-units --type=service --state=running --no-pager --no-legend 2>&1 | head -n 22 || ps aux | head -n 15;
-      echo "===FAILED_UNITS===";
-      systemctl --failed --no-pager 2>&1 || true;
+      if command -v systemctl >/dev/null 2>&1 && systemctl list-units --no-pager >/dev/null 2>&1; then
+        echo "===SYSTEMD_SERVICES===";
+        systemctl list-units --type=service --state=running --no-pager --no-legend 2>&1 | head -n 22;
+        echo "===FAILED_UNITS===";
+        systemctl --failed --no-pager 2>&1 || true;
+      else
+        echo "===SYSTEMD_SERVICES===";
+        echo "Systemd not active on host (SysV / Unraid / Slackware init) - Running Services & Daemons:";
+        ps -eo pid,user,comm,%cpu,%mem --sort=-%cpu 2>&1 | grep -v ' \\[' | head -n 20;
+        echo "===FAILED_UNITS===";
+        echo "None (Systemd not active on host)";
+      fi;
       echo "===STORAGE_MOUNTS===";
       df -hT -x tmpfs -x devtmpfs 2>&1 || df -h;
       echo "===LISTENING_PORTS===";
@@ -1181,9 +1189,9 @@ app.post("/api/platforms/action", async (req) => {
   } else if (action === "docker_prune_images") {
     cmd = `docker image prune -f 2>&1`;
   } else if (action === "linux_service_logs") {
-    cmd = `journalctl -u ${safeTarget} -n 60 --no-pager 2>&1`;
+    cmd = `if command -v journalctl >/dev/null 2>&1; then journalctl -u ${safeTarget} -n 60 --no-pager 2>&1; else (tail -n 60 /var/log/${safeTarget}.log 2>/dev/null || tail -n 60 /var/log/messages 2>/dev/null || echo "journalctl not available and no dedicated log found for ${safeTarget}"); fi`;
   } else if (action === "linux_restart_service") {
-    cmd = `systemctl restart ${safeTarget} && systemctl status ${safeTarget} --no-pager | head -n 15 2>&1`;
+    cmd = `if command -v systemctl >/dev/null 2>&1; then systemctl restart ${safeTarget} && systemctl status ${safeTarget} --no-pager | head -n 15 2>&1; elif [ -x /etc/rc.d/rc.${safeTarget} ]; then /etc/rc.d/rc.${safeTarget} restart 2>&1; elif [ -x /etc/init.d/${safeTarget} ]; then /etc/init.d/${safeTarget} restart 2>&1; elif command -v service >/dev/null 2>&1; then service ${safeTarget} restart 2>&1; else echo "No supported init service manager found to restart ${safeTarget}"; fi`;
   } else if (action === "linux_check_updates") {
     cmd = `if command -v apt-get >/dev/null 2>&1; then apt-get -s upgrade 2>&1 | grep -E '^(Inst |Conf |[0-9]+ upgraded)' | head -n 35; elif command -v dnf >/dev/null 2>&1; then dnf check-update 2>&1 | head -n 35; else echo "Package manager check complete"; fi`;
   } else if (action === "windows_restart_service") {
