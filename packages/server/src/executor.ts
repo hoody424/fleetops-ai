@@ -268,32 +268,87 @@ export async function executeOnHost(
   const start = Date.now();
 
   // Check if host has an active Outbound Go Client Agent WebSocket
-  const agentConn = connectedAgents.get(host.id);
-  if (agentConn && agentConn.ws.readyState === 1) {
-    const requestId = crypto.randomUUID();
-    return new Promise<ExecResult>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        agentConn.pendingRequests.delete(requestId);
-        reject(new Error(`Agent command timed out after ${timeoutMs}ms on ${host.hostname}`));
-      }, timeoutMs);
-      agentConn.pendingRequests.set(requestId, { resolve, reject, timer });
-      agentConn.ws.send(
-        JSON.stringify({
-          type: "exec",
-          requestId,
-          command,
-          timeoutMs,
-          readOnly: Boolean(host.read_only_ai),
-        })
-      );
-    });
+  if (host.connection_mode === "agent") {
+    const agentConn = connectedAgents.get(host.id);
+    if (agentConn && agentConn.ws.readyState === 1) {
+      const requestId = crypto.randomUUID();
+      return new Promise<ExecResult>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          agentConn.pendingRequests.delete(requestId);
+          reject(new Error(`Agent command timed out after ${timeoutMs}ms on ${host.hostname}`));
+        }, timeoutMs);
+        agentConn.pendingRequests.set(requestId, { resolve, reject, timer });
+        agentConn.ws.send(
+          JSON.stringify({
+            type: "exec",
+            requestId,
+            command,
+            timeoutMs,
+            readOnly: Boolean(host.read_only_ai),
+          })
+        );
+      });
+    }
+    throw new Error(`Outbound Go agent not connected for ${host.hostname}`);
   }
 
-  if (!privateKey) {
-    throw new Error(`No SSH private key configured for host ${host.hostname}`);
+  let conn: SSHClient | null = null;
+  let lastErr: any = null;
+
+  // 1. Try private key if available
+  if (privateKey) {
+    try {
+      conn = await connectSSH(host, privateKey);
+    } catch (err: any) {
+      lastErr = err;
+    }
   }
 
-  const conn = await connectSSH(host, privateKey);
+  // 2. If private key failed or wasn't present, try passwords in managed_credentials
+  if (!conn) {
+    const credRows = await pool.query(
+      `SELECT * FROM managed_credentials WHERE cred_type IN ('ssh_password', 'ssh_key') ORDER BY created_at ASC`
+    );
+    for (const cred of credRows.rows) {
+      try {
+        const rawSecret = decryptSecret(cred.secret_enc);
+        let password = rawSecret;
+        let tryUser = cred.target_user || host.ssh_user;
+        let tryPort = host.ssh_port || 22;
+        try {
+          const parsed = JSON.parse(rawSecret);
+          if (parsed && typeof parsed === "object") {
+            password = parsed.password || "";
+            if (parsed.username) tryUser = parsed.username;
+            if (parsed.sshPort) tryPort = Number(parsed.sshPort) || tryPort;
+          }
+        } catch {}
+
+        if (!password) continue;
+
+        conn = await connectSSH({ ...host, ssh_user: tryUser, ssh_port: tryPort }, null, password);
+
+        // Update host if user/port changed
+        if (tryUser !== host.ssh_user || tryPort !== host.ssh_port) {
+          await pool.query(`UPDATE hosts SET ssh_user = $1, ssh_port = $2 WHERE id = $3`, [tryUser, tryPort, host.id]);
+          host.ssh_user = tryUser;
+          host.ssh_port = tryPort;
+        }
+
+        // Bootstrap default SSH key in the background
+        bootstrapSSHKeyOnHost(host.id, password).catch(() => {});
+        break;
+      } catch (err: any) {
+        lastErr = err;
+      }
+    }
+  }
+
+  if (!conn) {
+    throw new Error(
+      lastErr?.message || `No valid SSH private key or password credentials available for host ${host.hostname}`
+    );
+  }
   try {
     return await new Promise<ExecResult>((resolve, reject) => {
       let stdout = "";
@@ -535,6 +590,22 @@ export async function probeHostHealth(hostId: string): Promise<{
     const hostRes = await pool.query(`SELECT * FROM hosts WHERE id = $1`, [hostId]);
     if (hostRes.rows.length === 0) throw new Error("Host not found");
     const host = hostRes.rows[0];
+
+    if (host.connection_mode === "agent") {
+      const agentConn = connectedAgents.get(host.id);
+      if (!agentConn || agentConn.ws.readyState !== 1) {
+        await pool.query(
+          `UPDATE hosts SET status = 'offline', last_error = 'Waiting for outbound Go agent connection' WHERE id = $1`,
+          [hostId]
+        );
+        return {
+          status: "offline",
+          metrics: {},
+          osInfo: host.os_info,
+          error: "Waiting for outbound Go agent connection",
+        };
+      }
+    }
 
     if (host.os_type === "windows") {
       const probeCmd = `powershell -NoProfile -Command "$os = (Get-CimInstance Win32_OperatingSystem); $cpu = (Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average; $mem = [math]::Round((($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize) * 100, 1); Write-Output \\"OS=$($os.Caption)|CPU=$cpu|MEM=$mem\\""`;

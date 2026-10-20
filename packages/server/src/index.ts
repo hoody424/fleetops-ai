@@ -47,6 +47,7 @@ import {
   runAIFleetPrompt,
 } from "./ai-bridge.js";
 import net from "node:net";
+import dns from "node:dns/promises";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = Fastify({ logger: true, bodyLimit: 10 * 1024 * 1024 });
@@ -679,6 +680,51 @@ app.post("/api/onboarding/save", async (req) => {
     );
   }
 
+  // Reconcile and probe existing hosts with newly entered credentials
+  try {
+    const existingHosts = await pool.query(
+      `SELECT id, hostname, ip_address, ssh_user, status FROM hosts WHERE connection_mode = 'ssh'`
+    );
+    for (const h of existingHosts.rows) {
+      if (Array.isArray(b.linuxCredentials)) {
+        const matchingProfile = b.linuxCredentials.find((lc: any) => {
+          if (!lc) return false;
+          const profName = (lc.name || "").toLowerCase();
+          const hostName = (h.hostname || "").toLowerCase();
+          return (
+            profName.includes(hostName) ||
+            hostName.includes(profName) ||
+            (lc.username && hostName.includes(lc.username.toLowerCase()))
+          );
+        });
+        if (matchingProfile && matchingProfile.username && matchingProfile.username !== h.ssh_user) {
+          await pool.query(`UPDATE hosts SET ssh_user = $1 WHERE id = $2`, [matchingProfile.username, h.id]);
+        }
+      }
+      probeHostHealth(h.id).catch(() => {});
+    }
+  } catch (err) {
+    console.error("Error reconciling hosts with updated credentials:", err);
+  }
+
+  // Automated Subnet & VLAN Discovery & Inventory Sweep
+  const subnetsToScan = (Array.isArray(b.subnets) ? b.subnets : [])
+    .map((s: any) => String(s).trim())
+    .filter(Boolean);
+
+  if (subnetsToScan.length > 0 && b.autoOnboardDiscovered !== false) {
+    // Launch background discovery sweep across configured subnets
+    (async () => {
+      for (const subnet of subnetsToScan) {
+        try {
+          await scanSubnetAndInventory(subnet, Boolean(b.autoOnboardDiscovered), b.primarySite || "Main Datacenter");
+        } catch (scanErr) {
+          console.error(`Subnet auto-discovery error on ${subnet}:`, scanErr);
+        }
+      }
+    })().catch(() => {});
+  }
+
   await logAudit(
     actor.username,
     "onboarding",
@@ -689,7 +735,7 @@ app.post("/api/onboarding/save", async (req) => {
 });
 
 // Fast TCP Port Prober for Subnet / IP Range Discovery
-function checkPortFast(ip: string, port: number, timeoutMs = 450): Promise<boolean> {
+function checkPortFast(ip: string, port: number, timeoutMs = 320): Promise<boolean> {
   return new Promise((resolve) => {
     const sock = new net.Socket();
     let settled = false;
@@ -708,17 +754,45 @@ function checkPortFast(ip: string, port: number, timeoutMs = 450): Promise<boole
   });
 }
 
-app.post("/api/onboarding/discover-subnet", async (req) => {
-  const { subnetOrRange = "127.0.0.1" } = (req.body as any) || {};
+export async function scanSubnetAndInventory(
+  subnetOrRange: string,
+  autoOnboard = false,
+  siteName = "Main Datacenter"
+): Promise<{
+  scannedCount: number;
+  discovered: Array<{
+    ip: string;
+    hostname: string;
+    openPorts: number[];
+    detectedType: string;
+    suggestedGroup: string;
+    osType: string;
+    onboarded?: boolean;
+    status?: string;
+  }>;
+}> {
   const ipsToProbe: string[] = [];
   const trimmed = String(subnetOrRange).trim();
 
   if (trimmed.includes("/")) {
-    // Parse /24 CIDR prefix and scan .1 .. .30 + .250 .. .254 for fast interactive discovery
-    const base = trimmed.split("/")[0].split(".").slice(0, 3).join(".");
-    if (base.split(".").length === 3) {
-      for (let i = 1; i <= 30; i++) ipsToProbe.push(`${base}.${i}`);
-      for (let i = 240; i <= 254; i++) ipsToProbe.push(`${base}.${i}`);
+    const [networkPart, maskPart] = trimmed.split("/");
+    const baseParts = networkPart.split(".");
+    if (baseParts.length === 4) {
+      const base = baseParts.slice(0, 3).join(".");
+      const mask = parseInt(maskPart, 10);
+      if (mask >= 24) {
+        for (let i = 1; i <= 254; i++) ipsToProbe.push(`${base}.${i}`);
+      } else {
+        for (let i = 1; i <= 128; i++) ipsToProbe.push(`${base}.${i}`);
+      }
+    }
+  } else if (trimmed.includes("-") && trimmed.includes(".")) {
+    const [startIp, endPart] = trimmed.split("-").map((s) => s.trim());
+    const base = startIp.split(".").slice(0, 3).join(".");
+    const startNum = parseInt(startIp.split(".")[3], 10) || 1;
+    const endNum = endPart.includes(".") ? parseInt(endPart.split(".")[3], 10) || 254 : parseInt(endPart, 10) || 254;
+    for (let i = Math.min(startNum, endNum); i <= Math.max(startNum, endNum) && i <= 254; i++) {
+      ipsToProbe.push(`${base}.${i}`);
     }
   } else if (trimmed.includes(",")) {
     for (const part of trimmed.split(",")) {
@@ -728,46 +802,151 @@ app.post("/api/onboarding/discover-subnet", async (req) => {
     ipsToProbe.push(trimmed);
   }
 
-  const probePorts = [22, 443, 631, 3389, 5985, 6443, 8443, 9100];
+  const probePorts = [22, 2002, 6443, 3389, 5985, 5986, 9100, 631, 443, 80];
   const discovered: Array<{
     ip: string;
+    hostname: string;
     openPorts: number[];
     detectedType: string;
     suggestedGroup: string;
     osType: string;
+    onboarded?: boolean;
+    status?: string;
   }> = [];
 
-  await Promise.all(
-    ipsToProbe.slice(0, 48).map(async (ip) => {
-      const checks = await Promise.all(probePorts.map(async (p) => ((await checkPortFast(ip, p)) ? p : null)));
-      const open = checks.filter((p): p is number => p !== null);
-      if (open.length > 0) {
+  const existingHostsRes = await pool.query(`SELECT id, hostname, ip_address, ssh_port, ssh_user, status FROM hosts`);
+  const knownIps = new Map<string, any>(existingHostsRes.rows.map((h) => [h.ip_address, h]));
+  const knownHostnames = new Set<string>(existingHostsRes.rows.map((h) => h.hostname.toLowerCase()));
+
+  const BATCH_SIZE = 32;
+  for (let i = 0; i < ipsToProbe.length; i += BATCH_SIZE) {
+    const chunk = ipsToProbe.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      chunk.map(async (ip) => {
+        const portChecks = await Promise.all(
+          probePorts.map(async (p) => ((await checkPortFast(ip, p, 320)) ? p : null))
+        );
+        const open = portChecks.filter((p): p is number => p !== null);
+        if (open.length === 0) return;
+
         let detectedType = "Linux Server";
         let suggestedGroup = "linux-servers";
         let osType = "linux";
-        if (open.includes(9100) || open.includes(631)) {
-          detectedType = "Network Printer / MFP (JetDirect / IPP)";
-          suggestedGroup = "network-printers";
-          osType = "printer";
-        } else if (open.includes(3389) || open.includes(5985)) {
-          detectedType = "Windows Server (RDP / WinRM)";
-          suggestedGroup = "windows-servers";
-          osType = "windows";
-        } else if (open.includes(6443)) {
+        let sshPort = 22;
+
+        if (open.includes(6443)) {
           detectedType = "Kubernetes / K3s Control Plane Node";
           suggestedGroup = "k3s-cluster";
           osType = "linux";
-        } else if ((open.includes(443) || open.includes(8443)) && !open.includes(22)) {
-          detectedType = "Firewall / Managed Switch Appliance";
+        } else if (open.includes(2002)) {
+          detectedType = "Docker / Unraid Server";
+          suggestedGroup = "docker-hosts";
+          osType = "linux";
+          sshPort = 2002;
+        } else if (open.includes(9100) || open.includes(631)) {
+          detectedType = "Network Printer / MFP (JetDirect / IPP)";
+          suggestedGroup = "network-printers";
+          osType = "printer";
+        } else if (open.includes(3389) || open.includes(5985) || open.includes(5986)) {
+          detectedType = "Windows Server (RDP / WinRM)";
+          suggestedGroup = "windows-servers";
+          osType = "windows";
+        } else if ((open.includes(443) || open.includes(80)) && !open.includes(22)) {
+          detectedType = "Switch / Router / Network Appliance";
           suggestedGroup = "network-appliances";
           osType = "firewall";
         }
-        discovered.push({ ip, openPorts: open, detectedType, suggestedGroup, osType });
-      }
-    })
-  );
+
+        let hostname = "";
+        const existing = knownIps.get(ip);
+        if (existing?.hostname) {
+          hostname = existing.hostname;
+        } else {
+          try {
+            const ptrs = await dns.reverse(ip);
+            if (ptrs && ptrs[0]) {
+              hostname = ptrs[0].split(".")[0];
+            }
+          } catch {}
+          if (!hostname || hostname.startsWith("192-") || hostname.startsWith("10-")) {
+            hostname = `node-${ip.replace(/\./g, "-")}`;
+          }
+        }
+
+        let onboarded = Boolean(existing);
+        let hostStatus = existing?.status || "discovered";
+
+        if (autoOnboard && !existing) {
+          let uniqueHostname = hostname;
+          let counter = 1;
+          while (knownHostnames.has(uniqueHostname.toLowerCase())) {
+            uniqueHostname = `${hostname}-${counter++}`;
+          }
+          knownHostnames.add(uniqueHostname.toLowerCase());
+
+          try {
+            const insRes = await pool.query(
+              `INSERT INTO hosts (hostname, display_name, ip_address, ssh_port, ssh_user, os_type, os_info, group_name, site_name, safety_tier)
+               VALUES ($1, $1, $2, $3, 'root', $4, $5, $6, $7, 'supervised')
+               ON CONFLICT (hostname) DO NOTHING
+               RETURNING id`,
+              [uniqueHostname, ip, sshPort, osType, detectedType, suggestedGroup, siteName]
+            );
+            if (insRes.rows.length > 0) {
+              const newHostId = insRes.rows[0].id;
+              onboarded = true;
+              knownIps.set(ip, { id: newHostId, hostname: uniqueHostname, ip_address: ip });
+
+              if (osType === "linux") {
+                probeHostHealth(newHostId).catch(() => {});
+              }
+            }
+          } catch (e) {
+            console.error(`Auto-onboard failed for ${ip}:`, e);
+          }
+        }
+
+        discovered.push({
+          ip,
+          hostname,
+          openPorts: open,
+          detectedType,
+          suggestedGroup,
+          osType,
+          onboarded,
+          status: hostStatus,
+        });
+      })
+    );
+  }
 
   return { scannedCount: ipsToProbe.length, discovered };
+}
+
+app.post("/api/onboarding/discover-subnet", async (req) => {
+  const { subnetOrRange = "127.0.0.1", autoOnboard = false } = (req.body as any) || {};
+  return await scanSubnetAndInventory(subnetOrRange, Boolean(autoOnboard));
+});
+
+app.post("/api/subnets/scan", async (req) => {
+  const actor = getActor(req);
+  const { subnet, autoOnboard } = (req.body as any) || {};
+  let targetSubnets: string[] = [];
+  if (subnet) {
+    targetSubnets = [String(subnet).trim()];
+  } else {
+    const prof = await pool.query(`SELECT subnets FROM environment_profile WHERE id = 'default'`);
+    targetSubnets = Array.isArray(prof.rows[0]?.subnets) ? prof.rows[0].subnets : [];
+  }
+
+  const results: any[] = [];
+  for (const s of targetSubnets) {
+    const res = await scanSubnetAndInventory(s, autoOnboard !== undefined ? Boolean(autoOnboard) : true);
+    results.push({ subnet: s, ...res });
+  }
+
+  await logAudit(actor.username, "network_discovery", `Ran subnet discovery scan on ${targetSubnets.join(", ")}`);
+  return { ok: true, results };
 });
 
 app.get("/api/ai/sessions", async () => {

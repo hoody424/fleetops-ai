@@ -468,16 +468,18 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
     setEnabledPlatforms((prev) => (prev.includes(plat) ? prev.filter((p) => p !== plat) : [...prev, plat]));
   };
 
-  const handleRunDiscovery = async () => {
+  const handleRunDiscovery = async (targetRange?: string) => {
     setScanningSubnet(true);
     try {
+      const rangeToUse = targetRange || scanSubnetInput || subnetsText.split(",")[0]?.trim() || "10.20.99.0/24";
       const r = await fetch("/api/onboarding/discover-subnet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subnetOrRange: scanSubnetInput }),
+        body: JSON.stringify({ subnetOrRange: rangeToUse, autoOnboard: autoOnboardDiscovered }),
       });
       const d = await r.json();
       setDiscoveredNodes(d.discovered || []);
+      if (autoOnboardDiscovered) onSaved();
     } finally {
       setScanningSubnet(false);
     }
@@ -490,9 +492,11 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        hostname: `node-${node.ip.replace(/\./g, "-")}`,
+        hostname: node.hostname || `node-${node.ip.replace(/\./g, "-")}`,
         ipAddress: node.ip,
-        sshPort: node.openPorts.includes(primaryLinux?.sshPort || 22)
+        sshPort: node.openPorts.includes(2002)
+          ? 2002
+          : node.openPorts.includes(primaryLinux?.sshPort || 22)
           ? primaryLinux?.sshPort || 22
           : node.openPorts[0] || 22,
         sshUser: node.osType === "windows" ? (primaryWin?.username || "Administrator") : (primaryLinux?.username || "root"),
@@ -750,17 +754,28 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
                           className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
                         >
                           <div>
-                            <div className="font-mono font-bold text-white">{n.ip}</div>
+                            <div className="font-mono font-bold text-white flex items-center gap-1.5">
+                              <span>{n.hostname || n.ip}</span>
+                              {n.hostname && n.hostname !== n.ip && (
+                                <span className="text-[10px] text-slate-400 font-normal">({n.ip})</span>
+                              )}
+                            </div>
                             <div className="text-[11px] text-slate-400">
                               {n.detectedType} &bull; Ports: {n.openPorts.join(", ")}
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleOnboardDiscoveredNode(n)}
-                            className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium"
-                          >
-                            + Add to Fleet
-                          </button>
+                          {n.onboarded ? (
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                              In Fleet
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleOnboardDiscoveredNode(n)}
+                              className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium"
+                            >
+                              + Add to Fleet
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
