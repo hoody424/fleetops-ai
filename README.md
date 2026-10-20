@@ -1,67 +1,94 @@
-# fleetops-ai
+<div align="center">
 
-**Self-Hosted AI Fleet & Infrastructure Operations Platform** — Manage Linux & Windows servers via **Agentless SSH Keys** or **Lightweight Outbound Go Agents**, powered directly by your existing **Claude (Pro/Max/Team)** and **Gemini (Google AI Pro/Workspace/CLI)** subscriptions (or local Ollama / OpenAI-compatible models).
+# FleetOps AI
 
----
+**Universal Self-Hosted AI Fleet & Infrastructure Operations Platform**
 
-## Key Features
+Manage Linux, Windows, Kubernetes, Docker, switches, firewalls, and network printers with **Agentless SSH Keys** or **Ultra-Lightweight Outbound Go Agents** — powered directly by your **Claude**, **Gemini**, or **Codex** CLI subscriptions, cloud APIs, and sovereign local LLMs.
 
-- **Universal AI Brain — Connect All Major Subscriptions, Cloud APIs & Local LLMs:**
-  - **Subscription CLI OAuth (No Double Billing):** Connect **Anthropic Claude (`claude` CLI — Pro/Max/Team)**, **Google Gemini (`gemini` CLI — AI Pro/Ultra/Workspace)**, and **OpenAI ChatGPT / Codex (`codex` CLI — Plus/Pro/Team)**.
-  - **All Cloud & Sovereign AI APIs:** Native support for **Anthropic API**, **OpenAI Platform (`GPT-5` / `o3` / `GPT-4.1`)**, **Google Gemini / Vertex AI**, **xAI Grok (`Grok 3`)**, **DeepSeek (`R1` Reasoner & `V3`)**, **Mistral & Codestral**, **OpenRouter / Groq LPU (300+ models)**, and **GitHub Copilot Models / Azure OpenAI**.
-  - **100% Air-Gapped Local AI:** Connect **Ollama**, **llama.cpp (`llama-server`)**, **vLLM**, **LM Studio**, or **LocalAI**.
-- **Interactive Environment Discovery, Credentials Vault & AI Governance Wizard:**
-  - **Subnet & Appliance Auto-Discovery:** Built-in TCP port & service scanner (`:22` SSH, `:6443` K8s, `:3389`/`:5985` Windows RDP/WinRM, `:443`/`:8443` Firewalls/Switches, `:9100`/`:631` JetDirect/IPP Network Printers) to discover and onboard systems in 1 click.
-  - **4-Mode AI Decision Governance:** Choose how AI agents decide: **Strict Read-Only**, **Human-in-the-Loop Approval** (with unified diff preview), **Smart Auto-Append** (automatically appends safe rules, `authorized_keys`, and monitors while requiring user approval for restarts/deletions), or **Full Autonomous SRE** (with mandatory `/etc` pre-change snapshots and 1-click revert).
-- **Hybrid Host Connectivity (Agentless SSH + Ultra-Lightweight Outbound Go Agent):**
-  - **Agentless SSH-Key / SNMP / IPP Mode:** Manage Linux, Windows, BSD, Cisco/Aruba/UniFi/MikroTik switches, FortiGate/OPNsense firewalls, and network printers using AES-256-GCM Vault-stored credentials (with 1-click password bootstrap to install `authorized_keys`).
-  - **Outbound Go Client Agent:** Zero-dependency pure-Go static binary (`fleetops-agent`, ~4.2 MB, ~8 MB RSS) for Linux & Windows that dials outbound over WebSocket (`ws://` / `wss://`) — zero inbound firewall ports required.
-- **9 Dedicated Platform & Infrastructure Hubs (55 Curated MCP Plugins):**
-  1. **Kubernetes Clusters & Cloud-Native Hub (7 MCPs):** Live node/pod/event telemetry, rollout restarts, `kubectl top`, and installable K8s MCP plugins (`mcp-server-kubernetes`, `k8sgpt-diagnostics-mcp`, `helm-gitops-mcp`, `promql-k8s-metrics-mcp`, `trivy-k8s-security-mcp`, `cilium-netpol-mcp`, `etcd-velero-backup-mcp`).
-  2. **Docker Hosts & Compose Stack Hub (6 MCPs):** Live container lifecycle, real-time `docker stats`, Compose stack discovery, disk pruning, and Docker MCP plugins (`mcp-server-docker`, `docker-compose-gitops-mcp`, `docker-security-cis-mcp`, `docker-disk-prune-mcp`, `docker-registry-watch-mcp`, `docker-reverse-proxy-mcp`).
-  3. **Linux Fleet & Systemd Hub (6 MCPs):** Live `systemd` service control, `journalctl` triage, security patch inspection, storage/socket telemetry, and Linux MCP plugins (`linux-systemd-journal-mcp`, `linux-apt-dnf-patch-mcp`, `linux-pam-ssh-hardening-mcp`, `linux-storage-lvm-zfs-mcp`, `linux-ebpf-network-mcp`, `linux-ansible-playbook-mcp`).
-  4. **Windows Server & Active Directory Hub (6 MCPs):** Live Windows Service management, Event Viewer System/Security audit logs, NTFS volumes, KB hotfix tracking, Defender status, and Windows MCP plugins (`windows-powershell-winrm-mcp`, `windows-eventlog-siem-mcp`, `windows-active-directory-gpo-mcp`, `windows-wsus-patch-mcp`, `windows-defender-cis-mcp`, `windows-iis-sqlserver-mcp`).
-  5. **Network Switches, Firewalls & Printers Hub (6 MCPs):** Running-config backup & VLAN matrix for switches, WAN/NAT/VPN tunnel audit for firewalls, SNMP Printer-MIB toner/drum/page-counter polling & CUPS queue control for printers (`netmiko-napalm-switch-mcp`, `firewall-policy-vpn-mcp`, `ipp-snmp-printer-fleet-mcp`, `snmp-lldp-topology-mcp`, `unifi-omada-sdn-mcp`, `oxidized-netbox-sot-mcp`).
-  6. **Virtualization, Hypervisors & Storage NAS/SAN Hub (6 MCPs):** Proxmox VE & PBS, VMware vSphere/ESXi, KVM/Libvirt, TrueNAS SCALE/CORE OpenZFS pools, Ceph/MinIO S3 storage, and SMART disk health (`proxmox-ve-pbs-mcp`, `truenas-zfs-storage-mcp`, `vmware-vsphere-esxi-mcp`, `libvirt-kvm-qemu-mcp`, `ceph-minio-object-mcp`, `synology-qnap-nas-mcp`).
-  7. **Databases, Caches & Message Brokers Hub (6 MCPs):** Percona PMM & Teleport-grade DBA operations for PostgreSQL, MySQL/MariaDB, Redis/Valkey, MongoDB, Elasticsearch/OpenSearch, and PITR backup verification (`postgres-dba-tuning-mcp`, `mysql-mariadb-galera-mcp`, `redis-valkey-cluster-mcp`, `mongodb-replica-mcp`, `elasticsearch-opensearch-mcp`, `pgbackrest-walg-backup-mcp`).
-  8. **Identity (SSO/IAM), Reverse Proxies, WAF & SSL/PKI Hub (6 MCPs):** Zoraxy, Traefik, Nginx, Caddy & HAProxy routes, Let's Encrypt / Internal PKI certificates, Authentik / Keycloak SSO, and CrowdSec / Fail2ban WAF (`reverse-proxy-waf-mcp`, `authentik-keycloak-iam-mcp`, `acme-stepca-pki-mcp`, `crowdsec-fail2ban-waf-mcp`, `cloudflare-dns-tunnel-mcp`, `hashicorp-vault-secrets-mcp`).
-  9. **Observability, SIEM, Alerting & Runbook Automation Hub (6 MCPs):** Prometheus & Alertmanager firing alerts, Loki/Syslog correlation, Wazuh/Auditd SIEM threat hunting, Scheduled Cron Runbooks, and ChatOps notifications (`prometheus-alertmanager-mcp`, `loki-victorialogs-mcp`, `wazuh-siem-edr-mcp`, `uptime-kuma-blackbox-mcp`, `rundeck-cron-scheduler-mcp`, `chatops-incident-notify-mcp`).
-- **Built-in Catalogs (55 Skills, 49 Service Monitors, 10 Scanners, 13 Compliance Frameworks):**
-  - Out-of-the-box System Inventory, Security Audits, **CIS Level 1 / CIS Docker / CIS Windows / NIS2 / ISO 27001 / GDPR Art. 32 / DORA / SOC2 / PCI-DSS / NIST / HIPAA** compliance evaluation with HTML/PDF export and **1-Click "Fix Finding with AI"**.
-  - Fleet-wide **SSH Key & Sudo Discovery + Sync**, **TLS Certificate Discovery & PKI Lifecycle**, **Multi-Host Credential Rotation**, **Software Keystore**, **Global `Ctrl+K` Command Palette**, and **Emergency Panic Button**.
-- **Built-in MCP Server (`/mcp`):**
-  - Connect external MCP clients (Claude Desktop, Claude Code, Antigravity, Cursor) to query and manage your entire fleet, dynamically exposing all 55 enabled MCP plugins.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Go](https://img.shields.io/badge/Go-1.22-00ADD8.svg?logo=go&logoColor=white)](https://go.dev/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=black)](https://react.dev/)
+[![Fastify](https://img.shields.io/badge/Fastify-5.0-black.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](./LICENSE)
+[![MCP Plugins](https://img.shields.io/badge/MCP_Plugins-55_Curated-violet.svg)](#9-dedicated-platform-hubs-55-mcp-plugins)
+[![Compliance](https://img.shields.io/badge/Compliance-13_Frameworks-cyan.svg)](#13-compliance-frameworks--remediation)
+[![Wiki](https://img.shields.io/badge/Documentation-Full_Wiki-indigo.svg)](./docs/wiki/Home.md)
+
+</div>
 
 ---
 
-## Comparison with Similar Platforms
+## 📸 Screenshots & UI Walkthrough
 
-| Capability Domain | ManageLM | Rundeck / AWX | Portainer / Komodo | Teleport | NetBox / Oxidized | **FleetOps AI** |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Claude / Gemini / Codex CLI OAuth Subscriptions** | Partial | No | No | No | No | **Yes (+ 12 Cloud/Local AIs)** |
-| **Agentless SSH + Ultra-Light Outbound Go Agent (4.2 MB)** | SSH | SSH | Agent | Agent | SSH/SNMP | **Both (SSH + 8 MB RSS Go Agent)** |
-| **Kubernetes, Docker, Linux & Windows Hubs** | Linux/Win | Playbooks | K8s/Docker | Access | Inventory | **All 4 + Live Telemetry** |
-| **Switches, Firewalls & Network Printers (SNMP/IPP)** | Basic | Manual | No | No | Switches | **Native Hub + 6 MCPs** |
-| **Proxmox VE, VMware, TrueNAS ZFS & Ceph Storage** | No | Manual | No | No | No | **Native Hub + 6 MCPs** |
-| **PostgreSQL, MySQL, Redis & PITR Backup DBA Hub** | No | Manual | No | DB Proxy | No | **Native Hub + 6 MCPs** |
-| **Reverse Proxies (Zoraxy/Traefik/Nginx), SSO & SSL/PKI** | Certs | No | No | SSO/PKI | No | **Native Hub + 6 MCPs** |
-| **Prometheus, Loki, Wazuh SIEM, Cron & ChatOps Webhooks** | Monitors | Cron/Jobs | No | Audit | Webhooks | **Native Hub + 5-Step Wizard** |
-| **13 Compliance Frameworks (CIS, NIS2, ISO27001, DORA)** | 6 | No | No | SOC2 | No | **13 Frameworks + 1-Click AI Fix** |
+| Screen | Preview | Highlights |
+| :--- | :--- | :--- |
+| **Fleet Operations Center** | [![Fleet Operations Overview](./docs/screenshots/01-fleet-dashboard-overview.svg)](./docs/screenshots/01-fleet-dashboard-overview.svg) | Live status of Linux, Windows, K8s, Docker, and Network nodes with telemetry, quick action runbooks, and node grouping. |
+| **AI Operations Center** | [![Universal AI Operations Center](./docs/screenshots/02-ai-operations-center.svg)](./docs/screenshots/02-ai-operations-center.svg) | Interactive AI chat with Claude/Gemini, multi-node prompt broadcasts, diagnostic streaming, and unified diff approvals. |
+| **9 Dedicated Platform Hubs** | [![9 Platform Hubs](./docs/screenshots/03-nine-platform-mcp-hubs.svg)](./docs/screenshots/03-nine-platform-mcp-hubs.svg) | Specialized operational workspaces for Kubernetes, Docker, Linux, Windows, Switches, DBs, Storage, SSO & SIEM. |
+| **Setup & Credentials Wizard** | [![Setup Wizard & Credentials](./docs/screenshots/04-onboarding-governance-wizard.svg)](./docs/screenshots/04-onboarding-governance-wizard.svg) | Subnet prober, multi-profile Linux SSH (key/sudo), Windows WinRM/RDP, Switch CLI, and multiple SNMP communities pool. |
+| **Compliance & Terminal** | [![Compliance & Terminal](./docs/screenshots/05-compliance-and-web-terminal.svg)](./docs/screenshots/05-compliance-and-web-terminal.svg) | 13 Compliance benchmarks (CIS, NIS2, ISO27001), 1-click AI fixes, interactive web SSH console, and SFTP config rollback. |
 
 ---
 
-## Quick Start (Docker Compose)
+## 📖 Comprehensive Wiki Documentation
+
+For in-depth architecture diagrams, operational guides, and tutorials, explore the **[FleetOps AI Wiki](./docs/wiki/Home.md)**:
+
+- 🏛️ **[System Architecture](./docs/wiki/Architecture.md)** — Hybrid connectivity, AES-256-GCM Vault, Keystore, and MCP server.
+- 🧙 **[Setup Wizard & Credentials](./docs/wiki/Setup-Wizard-and-Credentials.md)** — Subnet discovery, multiple SNMP communities, and multi-profile Linux/Windows/Switch credentials.
+- 🧠 **[AI Brains & Decision Governance](./docs/wiki/AI-Brains-and-Governance.md)** — 12 AI providers, CLI OAuth profiles, and 4 decision governance tiers.
+- 🧩 **[Platform Hubs & 55 MCP Catalog](./docs/wiki/Platform-Hubs-and-MCP-Catalog.md)** — Guide to the 9 specialized hubs and installable MCP servers.
+- ⚡ **[Outbound Go Client Agent](./docs/wiki/Agent-Go-Deployment.md)** — Zero-inbound-port client agent (`fleetops-agent`) for Linux and Windows.
+- 🛡️ **[Compliance & Runbooks](./docs/wiki/Compliance-and-Runbooks.md)** — 13 compliance benchmarks, 1-click AI remediation, and ChatOps notifications.
+
+---
+
+## 🌟 Key Features
+
+### 1. Universal AI Brain (No Double Billing)
+- **Subscription CLI OAuth:** Connect your existing paid **Anthropic Claude (`claude` CLI — Pro/Max/Team)**, **Google Gemini (`gemini` CLI — AI Pro/Ultra/Workspace)**, and **OpenAI Codex (`codex` CLI — Plus/Pro/Team)** subscriptions directly.
+- **Cloud & Sovereign APIs:** Anthropic API (Claude 3.7 Sonnet Thinking / Opus), OpenAI Platform (GPT-4.5 / o3), Google Vertex AI, xAI Grok (Grok 3), DeepSeek (R1 / V3), Mistral / Codestral, and OpenRouter / Groq LPU (300+ models).
+- **100% Air-Gapped Local LLMs:** Native endpoints for **Ollama**, **llama.cpp (`llama-server`)**, **vLLM**, **LM Studio**, and **LocalAI**.
+
+### 2. Multi-Profile Credentials & Multiple SNMP Communities
+- **Multiple SNMP Communities Pool:** Configure an extensible list of SNMP communities across VLANs (v1, v2c, and v3 USM with SHA/AES authentication and privacy protocols), with bulk comma-separated import and Printer-MIB toner polling.
+- **Multi-Profile Linux SSH Credentials:** Define multiple Linux credential profiles with custom ports, password auth, RSA/Ed25519 private keys, separate sudo escalation passwords, and privilege modes (`root`, `sudo`, `doas`, `su`).
+- **Windows & Switch Profiles:** WinRM HTTPS (`:5986`), WinRM HTTP (`:5985`), Windows OpenSSH (`:22`), RDP (`:3389`), and Switch CLI/API tokens with Cisco Enable secrets.
+
+### 3. Hybrid Host Connectivity
+- **Agentless SSH / Network Mode:** Direct SSH, WinRM, SNMP, and IPP connectivity without installing agents.
+- **Outbound Go Client Agent (`fleetops-agent`):** Zero-dependency pure Go static binary (~4.2 MB, ~8 MB RSS) communicating via outbound WebSocket (`wss://`) — requires zero inbound firewall openings.
+
+### 4. 9 Dedicated Platform Hubs (55 Curated MCP Plugins)
+1. **Kubernetes Clusters & Cloud-Native Hub (7 MCPs)**
+2. **Docker Hosts & Compose Stack Hub (6 MCPs)**
+3. **Linux Fleet & Systemd Hub (6 MCPs)**
+4. **Windows Server & Active Directory Hub (6 MCPs)**
+5. **Network Switches, Firewalls & Printers Hub (6 MCPs)**
+6. **Virtualization, Hypervisors & Storage NAS/SAN Hub (6 MCPs)**
+7. **Databases, Caches & Message Brokers Hub (6 MCPs)**
+8. **Identity (SSO/IAM), Reverse Proxies, WAF & SSL/PKI Hub (6 MCPs)**
+9. **Observability, SIEM, Alerting & Runbook Automation Hub (6 MCPs)**
+
+### 5. 13 Compliance Frameworks & 1-Click AI Fix
+Evaluate nodes against **CIS Linux Levels 1 & 2**, **CIS Docker**, **CIS Windows**, **NIS2**, **ISO/IEC 27001**, **GDPR Art. 32**, **DORA**, **SOC 2 Type II**, **PCI-DSS v4.0**, **NIST SP 800-53**, **HIPAA**, and **BSI IT-Grundschutz** with 1-click AI-assisted remediation.
+
+---
+
+## 🚀 Quick Start (Docker Compose)
 
 ### 1. Production Stack
 ```bash
 cp .env.example .env
-# Edit .env and set ENCRYPTION_KEY / POSTGRES_PASSWORD
+# Set ENCRYPTION_KEY and POSTGRES_PASSWORD in .env
 docker compose up -d --build
 ```
-Open `http://localhost:3000`.
+Open **`http://localhost:3000`** in your browser.
 
-### 2. Sandbox Environment (Includes Disposable SSH Target Hosts)
-To spin up the full platform alongside two isolated Linux SSH target containers (`sandbox-ubuntu` and `sandbox-alpine`) pre-wired for testing SSH bootstrap, AI Fleet Chat, `/etc` rollback, and CIS compliance scans:
+### 2. Sandbox Stack (With Disposable Target Hosts)
+Spins up the core platform alongside two isolated Linux SSH target containers (`sandbox-ubuntu` and `sandbox-alpine`) for testing:
 ```bash
 cp .env.example .env
 docker compose -f docker-compose.yml -f docker-compose.sandbox.yml up -d --build
@@ -69,16 +96,16 @@ docker compose -f docker-compose.yml -f docker-compose.sandbox.yml up -d --build
 
 ---
 
-## Kubernetes / k3s Deployment
+## ☸️ Kubernetes & k3s Deployment
 
-Apply the manifests in `deploy/kubernetes/`:
+Manifests are located in `deploy/kubernetes/`:
 ```bash
 kubectl apply -k deploy/kubernetes/
 ```
-See `deploy/kubernetes/README.md` for Authentik / Traefik ForwardAuth SSO, Longhorn PVC sizing, and external seed configuration (`SEED_CONFIG_PATH`).
+See [`deploy/kubernetes/README.md`](./deploy/kubernetes/README.md) for Traefik ForwardAuth SSO, Longhorn storage class configuration, and seed configuration.
 
 ---
 
-## License
+## 📄 License
 
 MIT License — see [LICENSE](./LICENSE).
