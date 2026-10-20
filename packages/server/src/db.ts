@@ -304,6 +304,9 @@ export async function initDatabase(): Promise<void> {
       );
 
       INSERT INTO environment_profile (id) VALUES ('default') ON CONFLICT (id) DO NOTHING;
+
+      ALTER TABLE environment_profile ADD COLUMN IF NOT EXISTS snmp_communities JSONB NOT NULL DEFAULT '[]'::jsonb;
+      ALTER TABLE environment_profile ADD COLUMN IF NOT EXISTS credential_presets JSONB NOT NULL DEFAULT '{}'::jsonb;
     `);
 
     await seedDefaultUserAndKey(client);

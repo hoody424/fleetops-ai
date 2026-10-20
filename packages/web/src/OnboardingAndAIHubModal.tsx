@@ -3,23 +3,85 @@ import {
   Bot,
   CheckCircle2,
   Compass,
+  Copy,
   Cpu,
+  Eye,
+  EyeOff,
+  FolderKey,
+  Globe,
+  Key,
   KeyRound,
   Layers,
   Loader2,
   Lock,
   Network,
   Plus,
+  PlusCircle,
   Radar,
   Router,
   Search,
   Server,
+  Shield,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Terminal,
+  Trash2,
   Wand2,
   X,
 } from "lucide-react";
+
+export interface SnmpCommunityOption {
+  id: string;
+  name: string;
+  community: string;
+  version: "v2c" | "v1" | "v3";
+  port: number;
+  access: "ro" | "rw";
+  isPrimary?: boolean;
+  secName?: string;
+  authProtocol?: "SHA" | "MD5" | "SHA-256";
+  authPassword?: string;
+  privProtocol?: "AES" | "DES" | "AES-256";
+  privPassword?: string;
+}
+
+export interface LinuxCredentialOption {
+  id: string;
+  name: string;
+  username: string;
+  authType: "password" | "key" | "key_and_sudo" | "password_and_sudo";
+  password?: string;
+  privateKey?: string;
+  passphrase?: string;
+  sudoPassword?: string;
+  sshPort: number;
+  elevationMode: "root" | "sudo" | "sudo_nopasswd" | "doas" | "su";
+  isPrimary?: boolean;
+}
+
+export interface WindowsCredentialOption {
+  id: string;
+  name: string;
+  username: string;
+  password?: string;
+  domain?: string;
+  protocol: "winrm_https" | "winrm_http" | "rdp" | "ssh";
+  port: number;
+  isPrimary?: boolean;
+}
+
+export interface NetworkCredentialOption {
+  id: string;
+  name: string;
+  username: string;
+  authType: "ssh" | "api_token" | "telnet";
+  password?: string;
+  apiToken?: string;
+  enableSecret?: string;
+  port: number;
+  isPrimary?: boolean;
+}
 
 interface OnboardingWizardProps {
   isOpen: boolean;
@@ -64,14 +126,250 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
   const [scanningSubnet, setScanningSubnet] = useState(false);
   const [discoveredNodes, setDiscoveredNodes] = useState<any[]>([]);
 
-  // Step 2: Default System & Network Credentials
-  const [defaultLinuxUser, setDefaultLinuxUser] = useState("root");
-  const [defaultLinuxPassword, setDefaultLinuxPassword] = useState("");
-  const [defaultWindowsUser, setDefaultWindowsUser] = useState("Administrator");
-  const [defaultWindowsPassword, setDefaultWindowsPassword] = useState("");
-  const [defaultNetworkUser, setDefaultNetworkUser] = useState("admin");
-  const [defaultNetworkPassword, setDefaultNetworkPassword] = useState("");
-  const [snmpCommunity, setSnmpCommunity] = useState("public");
+  // Step 2: System Credentials, Linux SSH Options & SNMP Communities
+  const [activeCredTab, setActiveCredTab] = useState<"linux" | "windows" | "network" | "snmp" | "all">("linux");
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+
+  const toggleShowPassword = (key: string) => {
+    setShowPasswords((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Linux Credential Options
+  const [linuxCredentials, setLinuxCredentials] = useState<LinuxCredentialOption[]>([
+    {
+      id: "linux-1",
+      name: "Default Linux Root SSH",
+      username: "root",
+      authType: "password",
+      password: "",
+      privateKey: "",
+      passphrase: "",
+      sudoPassword: "",
+      sshPort: 22,
+      elevationMode: "root",
+      isPrimary: true,
+    },
+  ]);
+
+  // Windows Credential Options
+  const [windowsCredentials, setWindowsCredentials] = useState<WindowsCredentialOption[]>([
+    {
+      id: "win-1",
+      name: "Default Windows Server Admin",
+      username: "Administrator",
+      password: "",
+      domain: "",
+      protocol: "winrm_https",
+      port: 5986,
+      isPrimary: true,
+    },
+  ]);
+
+  // Switch & Firewall Network Credential Options
+  const [networkCredentials, setNetworkCredentials] = useState<NetworkCredentialOption[]>([
+    {
+      id: "net-1",
+      name: "Default Switch / Firewall Admin",
+      username: "admin",
+      authType: "ssh",
+      password: "",
+      enableSecret: "",
+      apiToken: "",
+      port: 22,
+      isPrimary: true,
+    },
+  ]);
+
+  // Multiple SNMP Communities
+  const [snmpCommunities, setSnmpCommunities] = useState<SnmpCommunityOption[]>([
+    {
+      id: "snmp-1",
+      name: "Public (Standard Read-Only)",
+      community: "public",
+      version: "v2c",
+      port: 161,
+      access: "ro",
+      isPrimary: true,
+    },
+    {
+      id: "snmp-2",
+      name: "Printer-MIB Fleet",
+      community: "printers",
+      version: "v2c",
+      port: 161,
+      access: "ro",
+      isPrimary: false,
+    },
+  ]);
+  const [bulkSnmpInput, setBulkSnmpInput] = useState("");
+
+  // Helpers for Linux Credentials
+  const addLinuxProfile = (preset?: Partial<LinuxCredentialOption>) => {
+    const id = `linux-${Date.now()}`;
+    const newProfile: LinuxCredentialOption = {
+      id,
+      name: preset?.name || `Linux Profile ${linuxCredentials.length + 1}`,
+      username: preset?.username || "root",
+      authType: preset?.authType || "password",
+      password: preset?.password || "",
+      privateKey: preset?.privateKey || "",
+      passphrase: preset?.passphrase || "",
+      sudoPassword: preset?.sudoPassword || "",
+      sshPort: preset?.sshPort || 22,
+      elevationMode: preset?.elevationMode || (preset?.username === "root" ? "root" : "sudo"),
+      isPrimary: false,
+    };
+    setLinuxCredentials((prev) => [...prev, newProfile]);
+  };
+
+  const updateLinuxProfile = (id: string, updates: Partial<LinuxCredentialOption>) => {
+    setLinuxCredentials((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+  };
+
+  const deleteLinuxProfile = (id: string) => {
+    if (linuxCredentials.length <= 1) return;
+    setLinuxCredentials((prev) => {
+      const filtered = prev.filter((p) => p.id !== id);
+      if (!filtered.some((p) => p.isPrimary)) filtered[0].isPrimary = true;
+      return filtered;
+    });
+  };
+
+  const setPrimaryLinuxProfile = (id: string) => {
+    setLinuxCredentials((prev) => prev.map((p) => ({ ...p, isPrimary: p.id === id })));
+  };
+
+  // Helpers for Windows Credentials
+  const addWindowsProfile = (preset?: Partial<WindowsCredentialOption>) => {
+    const id = `win-${Date.now()}`;
+    const newProfile: WindowsCredentialOption = {
+      id,
+      name: preset?.name || `Windows Profile ${windowsCredentials.length + 1}`,
+      username: preset?.username || "Administrator",
+      password: preset?.password || "",
+      domain: preset?.domain || "",
+      protocol: preset?.protocol || "winrm_https",
+      port: preset?.port || (preset?.protocol === "rdp" ? 3389 : preset?.protocol === "ssh" ? 22 : 5986),
+      isPrimary: false,
+    };
+    setWindowsCredentials((prev) => [...prev, newProfile]);
+  };
+
+  const updateWindowsProfile = (id: string, updates: Partial<WindowsCredentialOption>) => {
+    setWindowsCredentials((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+  };
+
+  const deleteWindowsProfile = (id: string) => {
+    if (windowsCredentials.length <= 1) return;
+    setWindowsCredentials((prev) => {
+      const filtered = prev.filter((p) => p.id !== id);
+      if (!filtered.some((p) => p.isPrimary)) filtered[0].isPrimary = true;
+      return filtered;
+    });
+  };
+
+  const setPrimaryWindowsProfile = (id: string) => {
+    setWindowsCredentials((prev) => prev.map((p) => ({ ...p, isPrimary: p.id === id })));
+  };
+
+  // Helpers for Network Credentials
+  const addNetworkProfile = (preset?: Partial<NetworkCredentialOption>) => {
+    const id = `net-${Date.now()}`;
+    const newProfile: NetworkCredentialOption = {
+      id,
+      name: preset?.name || `Network Profile ${networkCredentials.length + 1}`,
+      username: preset?.username || "admin",
+      authType: preset?.authType || "ssh",
+      password: preset?.password || "",
+      enableSecret: preset?.enableSecret || "",
+      apiToken: preset?.apiToken || "",
+      port: preset?.port || (preset?.authType === "api_token" ? 443 : 22),
+      isPrimary: false,
+    };
+    setNetworkCredentials((prev) => [...prev, newProfile]);
+  };
+
+  const updateNetworkProfile = (id: string, updates: Partial<NetworkCredentialOption>) => {
+    setNetworkCredentials((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+  };
+
+  const deleteNetworkProfile = (id: string) => {
+    if (networkCredentials.length <= 1) return;
+    setNetworkCredentials((prev) => {
+      const filtered = prev.filter((p) => p.id !== id);
+      if (!filtered.some((p) => p.isPrimary)) filtered[0].isPrimary = true;
+      return filtered;
+    });
+  };
+
+  const setPrimaryNetworkProfile = (id: string) => {
+    setNetworkCredentials((prev) => prev.map((p) => ({ ...p, isPrimary: p.id === id })));
+  };
+
+  // Helpers for SNMP Communities
+  const addSnmpCommunity = (preset?: Partial<SnmpCommunityOption>) => {
+    const id = `snmp-${Date.now()}`;
+    const newComm: SnmpCommunityOption = {
+      id,
+      name: preset?.name || `Community ${snmpCommunities.length + 1}`,
+      community: preset?.community || "public",
+      version: preset?.version || "v2c",
+      port: preset?.port || 161,
+      access: preset?.access || "ro",
+      secName: preset?.secName || "",
+      authProtocol: preset?.authProtocol || "SHA",
+      authPassword: preset?.authPassword || "",
+      privProtocol: preset?.privProtocol || "AES",
+      privPassword: preset?.privPassword || "",
+      isPrimary: false,
+    };
+    setSnmpCommunities((prev) => [...prev, newComm]);
+  };
+
+  const updateSnmpCommunity = (id: string, updates: Partial<SnmpCommunityOption>) => {
+    setSnmpCommunities((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  };
+
+  const deleteSnmpCommunity = (id: string) => {
+    if (snmpCommunities.length <= 1) return;
+    setSnmpCommunities((prev) => {
+      const filtered = prev.filter((c) => c.id !== id);
+      if (!filtered.some((c) => c.isPrimary)) filtered[0].isPrimary = true;
+      return filtered;
+    });
+  };
+
+  const setPrimarySnmpCommunity = (id: string) => {
+    setSnmpCommunities((prev) => prev.map((c) => ({ ...c, isPrimary: c.id === id })));
+  };
+
+  const handleBulkAddSnmp = () => {
+    if (!bulkSnmpInput.trim()) return;
+    const parts = bulkSnmpInput
+      .split(/[,;\s]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const existing = new Set(snmpCommunities.map((c) => c.community.toLowerCase()));
+    const toAdd: SnmpCommunityOption[] = [];
+    parts.forEach((p, idx) => {
+      if (!existing.has(p.toLowerCase())) {
+        existing.add(p.toLowerCase());
+        toAdd.push({
+          id: `snmp-${Date.now()}-${idx}`,
+          name: `${p.toUpperCase()} Community`,
+          community: p,
+          version: "v2c",
+          port: 161,
+          access: "ro",
+          isPrimary: false,
+        });
+      }
+    });
+    if (toAdd.length > 0) {
+      setSnmpCommunities((prev) => [...prev, ...toAdd]);
+      setBulkSnmpInput("");
+    }
+  };
 
   // Step 3: Default AI Provider & Fallback
   const [defaultAiProvider, setDefaultAiProvider] = useState(envProfile?.default_ai_provider || "claude-sub");
@@ -132,6 +430,35 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
       if (envProfile.agent_decision_mode) setAgentDecisionMode(envProfile.agent_decision_mode);
       if (envProfile.default_ai_provider) setDefaultAiProvider(envProfile.default_ai_provider);
       if (envProfile.default_ai_model) setDefaultAiModel(envProfile.default_ai_model);
+
+      if (Array.isArray(envProfile.snmp_communities) && envProfile.snmp_communities.length > 0) {
+        setSnmpCommunities(envProfile.snmp_communities);
+      } else if (envProfile.snmp_community) {
+        setSnmpCommunities([
+          {
+            id: "snmp-1",
+            name: "Primary Community",
+            community: envProfile.snmp_community,
+            version: "v2c",
+            port: 161,
+            access: "ro",
+            isPrimary: true,
+          },
+        ]);
+      }
+
+      if (envProfile.credential_presets) {
+        const cp = envProfile.credential_presets;
+        if (Array.isArray(cp.linuxCredentials) && cp.linuxCredentials.length > 0) {
+          setLinuxCredentials(cp.linuxCredentials);
+        }
+        if (Array.isArray(cp.windowsCredentials) && cp.windowsCredentials.length > 0) {
+          setWindowsCredentials(cp.windowsCredentials);
+        }
+        if (Array.isArray(cp.networkCredentials) && cp.networkCredentials.length > 0) {
+          setNetworkCredentials(cp.networkCredentials);
+        }
+      }
     }
   }, [envProfile]);
 
@@ -157,14 +484,18 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
   };
 
   const handleOnboardDiscoveredNode = async (node: any) => {
+    const primaryLinux = linuxCredentials.find((c) => c.isPrimary) || linuxCredentials[0];
+    const primaryWin = windowsCredentials.find((c) => c.isPrimary) || windowsCredentials[0];
     await fetch("/api/hosts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         hostname: `node-${node.ip.replace(/\./g, "-")}`,
         ipAddress: node.ip,
-        sshPort: node.openPorts.includes(22) ? 22 : node.openPorts[0] || 22,
-        sshUser: node.osType === "windows" ? defaultWindowsUser : defaultLinuxUser,
+        sshPort: node.openPorts.includes(primaryLinux?.sshPort || 22)
+          ? primaryLinux?.sshPort || 22
+          : node.openPorts[0] || 22,
+        sshUser: node.osType === "windows" ? (primaryWin?.username || "Administrator") : (primaryLinux?.username || "root"),
         osType: node.osType,
         osInfo: node.detectedType,
         groupName: node.suggestedGroup,
@@ -197,6 +528,12 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
+
+      const primaryLinux = linuxCredentials.find((c) => c.isPrimary) || linuxCredentials[0];
+      const primaryWin = windowsCredentials.find((c) => c.isPrimary) || windowsCredentials[0];
+      const primaryNet = networkCredentials.find((c) => c.isPrimary) || networkCredentials[0];
+      const primarySnmp = snmpCommunities.find((c) => c.isPrimary) || snmpCommunities[0];
+
       await fetch("/api/onboarding/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -214,13 +551,23 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
           defaultAiProvider,
           defaultAiModel,
           fallbackAiProvider,
-          snmpCommunity,
-          defaultLinuxUser,
-          defaultLinuxPassword,
-          defaultWindowsUser,
-          defaultWindowsPassword,
-          defaultNetworkUser,
-          defaultNetworkPassword,
+          snmpCommunity: primarySnmp?.community || "public",
+          snmpCommunities,
+          defaultLinuxUser: primaryLinux?.username || "root",
+          defaultLinuxPassword: primaryLinux?.password || "",
+          defaultWindowsUser: primaryWin?.username || "Administrator",
+          defaultWindowsPassword: primaryWin?.password || "",
+          defaultNetworkUser: primaryNet?.username || "admin",
+          defaultNetworkPassword: primaryNet?.password || primaryNet?.apiToken || "",
+          linuxCredentials,
+          windowsCredentials,
+          networkCredentials,
+          credentialPresets: {
+            linuxCredentials,
+            windowsCredentials,
+            networkCredentials,
+            snmpCommunities,
+          },
           applyDecisionModeToFleet,
           slackTeamsWebhook,
           ntfyPagerdutyUrl,
@@ -425,101 +772,988 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardProps> = ({
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-200">
-                All credentials entered below are encrypted at rest with <strong>AES-256-GCM</strong> inside the FleetOps Vault and used for 1-click SSH key bootstrap, WinRM/RDP, Switch/Firewall config backup, and Printer SNMP polling.
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold text-emerald-400">Linux Fleet Default SSH / Sudo Credentials</h4>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">Default SSH Username</label>
-                    <input
-                      value={defaultLinuxUser}
-                      onChange={(e) => setDefaultLinuxUser(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">
-                      Default SSH Bootstrap / Sudo Password (Optional)
-                    </label>
-                    <input
-                      type="password"
-                      value={defaultLinuxPassword}
-                      onChange={(e) => setDefaultLinuxPassword(e.target.value)}
-                      placeholder="Encrypted in AES-256-GCM Vault"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold text-violet-400">Windows Server / Active Directory Credentials</h4>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">
-                      Default Windows Admin Username (Domain\User or Local)
-                    </label>
-                    <input
-                      value={defaultWindowsUser}
-                      onChange={(e) => setDefaultWindowsUser(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">
-                      Windows OpenSSH / WinRM / RDP Password (Optional)
-                    </label>
-                    <input
-                      type="password"
-                      value={defaultWindowsPassword}
-                      onChange={(e) => setDefaultWindowsPassword(e.target.value)}
-                      placeholder="Encrypted in AES-256-GCM Vault"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold text-amber-400">Switches & Firewalls CLI / API Credentials</h4>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">Switch / Firewall Admin User</label>
-                    <input
-                      value={defaultNetworkUser}
-                      onChange={(e) => setDefaultNetworkUser(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">Switch / Firewall Password or API Token</label>
-                    <input
-                      type="password"
-                      value={defaultNetworkPassword}
-                      onChange={(e) => setDefaultNetworkPassword(e.target.value)}
-                      placeholder="Cisco / Aruba / UniFi / FortiGate / OPNsense"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold text-cyan-400">Network Printers & SNMPv2c/v3 Community</h4>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">
-                      SNMP Community String (Printer-MIB Toner & Switch LLDP Polling)
-                    </label>
-                    <input
-                      value={snmpCommunity}
-                      onChange={(e) => setSnmpCommunity(e.target.value)}
-                      placeholder="public"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono"
-                    />
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    Used by `ipp-snmp-printer-fleet-mcp` and `snmp-lldp-topology-mcp` to read toner levels, page counters, and switch port tables.
-                  </p>
+              <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-200 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                <div>
+                  All credentials entered below are encrypted at rest with <strong>AES-256-GCM</strong> inside the FleetOps Vault.
+                  You can configure <strong>multiple SNMP communities</strong> (v1, v2c, v3 USM), <strong>custom Linux SSH credential & sudo escalation options</strong>, Windows OpenSSH/WinRM/RDP targets, and Switch/Firewall CLI profiles for discovery and fleet operations.
                 </div>
               </div>
+
+              {/* Category Sub-Tabs Navigation */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setActiveCredTab("linux")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                      activeCredTab === "linux"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <Terminal className="w-3.5 h-3.5" />
+                    Linux SSH & Sudo
+                    <span className="px-1.5 py-0.2 rounded-full bg-slate-900 border border-emerald-500/30 text-[10px] text-emerald-300 font-mono">
+                      {linuxCredentials.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCredTab("windows")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                      activeCredTab === "windows"
+                        ? "bg-violet-600 text-white shadow-sm"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <Server className="w-3.5 h-3.5" />
+                    Windows & WinRM
+                    <span className="px-1.5 py-0.2 rounded-full bg-slate-900 border border-violet-500/30 text-[10px] text-violet-300 font-mono">
+                      {windowsCredentials.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCredTab("network")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                      activeCredTab === "network"
+                        ? "bg-amber-600 text-white shadow-sm"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <Router className="w-3.5 h-3.5" />
+                    Switches & Firewalls
+                    <span className="px-1.5 py-0.2 rounded-full bg-slate-900 border border-amber-500/30 text-[10px] text-amber-300 font-mono">
+                      {networkCredentials.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCredTab("snmp")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                      activeCredTab === "snmp"
+                        ? "bg-cyan-600 text-white shadow-sm"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <Network className="w-3.5 h-3.5" />
+                    SNMP Communities
+                    <span className="px-1.5 py-0.2 rounded-full bg-slate-900 border border-cyan-500/30 text-[10px] text-cyan-300 font-mono">
+                      {snmpCommunities.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCredTab("all")}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition ${
+                      activeCredTab === "all"
+                        ? "bg-slate-800 text-white"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    View All
+                  </button>
+                </div>
+              </div>
+
+              {/* 1. Linux Fleet SSH & Privilege Escalation Section */}
+              {(activeCredTab === "linux" || activeCredTab === "all") && (
+                <div className="space-y-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <Terminal className="w-4 h-4 text-emerald-400" />
+                        Linux Fleet SSH Credential Profiles & Sudo Escalation ({linuxCredentials.length})
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Supports password authentication, SSH private keys (PEM/Ed25519), custom ports, and separate sudo escalation passwords.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addLinuxProfile({
+                            name: "Ansible / Sudo Deployer",
+                            username: "ansible",
+                            authType: "password_and_sudo",
+                            elevationMode: "sudo",
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-emerald-300 font-medium"
+                      >
+                        + Add 'ansible' (sudo)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addLinuxProfile({
+                            name: "SSH Key Profile (Ed25519)",
+                            username: "root",
+                            authType: "key",
+                            elevationMode: "root",
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-emerald-300 font-medium"
+                      >
+                        + Add SSH Key Profile
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addLinuxProfile()}
+                        className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Profile
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    {linuxCredentials.map((p, idx) => {
+                      const isPwdVisible = Boolean(showPasswords[`linux-pwd-${p.id}`]);
+                      const isSudoVisible = Boolean(showPasswords[`linux-sudo-${p.id}`]);
+                      return (
+                        <div
+                          key={p.id}
+                          className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              <input
+                                value={p.name}
+                                onChange={(e) => updateLinuxProfile(p.id, { name: e.target.value })}
+                                placeholder="Profile Name (e.g. Primary Root, Sudo Deployer)"
+                                className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-white w-56"
+                              />
+                              {p.isPrimary ? (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                                  ★ Primary Default
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setPrimaryLinuxProfile(p.id)}
+                                  className="px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                                >
+                                  Make Primary
+                                </button>
+                              )}
+                            </div>
+                            {linuxCredentials.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => deleteLinuxProfile(p.id)}
+                                className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition"
+                                title="Remove Profile"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Auth Method Pills */}
+                          <div>
+                            <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                              Authentication Method:
+                            </label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                              {[
+                                { val: "password", label: "SSH Password", sub: "Standard Password" },
+                                { val: "key", label: "SSH Private Key", sub: "PEM / Ed25519 Key" },
+                                { val: "password_and_sudo", label: "Password + Sudo", sub: "Login + Sudo Pass" },
+                                { val: "key_and_sudo", label: "Key + Sudo", sub: "SSH Key + Sudo Pass" },
+                              ].map((m) => (
+                                <button
+                                  key={m.val}
+                                  type="button"
+                                  onClick={() => updateLinuxProfile(p.id, { authType: m.val as any })}
+                                  className={`p-2 rounded-lg text-left border transition ${
+                                    p.authType === m.val
+                                      ? "bg-emerald-600/20 border-emerald-500 text-white"
+                                      : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"
+                                  }`}
+                                >
+                                  <div className="text-xs font-semibold">{m.label}</div>
+                                  <div className="text-[10px] opacity-70">{m.sub}</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Inputs Row */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">SSH Username</label>
+                              <input
+                                value={p.username}
+                                onChange={(e) => updateLinuxProfile(p.id, { username: e.target.value })}
+                                placeholder="root, ansible, ubuntu"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">SSH Port</label>
+                              <input
+                                type="number"
+                                value={p.sshPort}
+                                onChange={(e) =>
+                                  updateLinuxProfile(p.id, { sshPort: Number(e.target.value) || 22 })
+                                }
+                                placeholder="22"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Privilege Escalation</label>
+                              <select
+                                value={p.elevationMode}
+                                onChange={(e) =>
+                                  updateLinuxProfile(p.id, { elevationMode: e.target.value as any })
+                                }
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              >
+                                <option value="root">Direct root (No sudo)</option>
+                                <option value="sudo">sudo (Interactive password)</option>
+                                <option value="sudo_nopasswd">sudo NOPASSWD</option>
+                                <option value="doas">doas</option>
+                                <option value="su">su - root</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Password Field */}
+                          {(p.authType === "password" || p.authType === "password_and_sudo") && (
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">
+                                SSH Login Password
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={isPwdVisible ? "text" : "password"}
+                                  value={p.password || ""}
+                                  onChange={(e) => updateLinuxProfile(p.id, { password: e.target.value })}
+                                  placeholder="Encrypted in AES-256-GCM Vault"
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white pr-9"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleShowPassword(`linux-pwd-${p.id}`)}
+                                  className="absolute right-2 top-2 text-slate-400 hover:text-white"
+                                >
+                                  {isPwdVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Private Key Field */}
+                          {(p.authType === "key" || p.authType === "key_and_sudo") && (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="block text-[11px] text-slate-400">
+                                  SSH Private Key (PEM / OpenSSH format)
+                                </label>
+                                <span className="text-[10px] text-slate-400">
+                                  Saved into Fleet Keystore & Vault
+                                </span>
+                              </div>
+                              <textarea
+                                value={p.privateKey || ""}
+                                onChange={(e) => updateLinuxProfile(p.id, { privateKey: e.target.value })}
+                                placeholder="-----BEGIN OPENSSH PRIVATE KEY-----&#10;...&#10;-----END OPENSSH PRIVATE KEY-----"
+                                rows={3}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-[11px] text-emerald-300 font-mono"
+                              />
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div>
+                                  <label className="block text-[10px] text-slate-400 mb-1">
+                                    Key Passphrase (if encrypted)
+                                  </label>
+                                  <input
+                                    type="password"
+                                    value={p.passphrase || ""}
+                                    onChange={(e) => updateLinuxProfile(p.id, { passphrase: e.target.value })}
+                                    placeholder="Optional Passphrase"
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Separate Sudo Password Field */}
+                          {(p.authType === "password_and_sudo" || p.authType === "key_and_sudo") && (
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">
+                                Sudo Escalation Password (if different from login)
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={isSudoVisible ? "text" : "password"}
+                                  value={p.sudoPassword || ""}
+                                  onChange={(e) => updateLinuxProfile(p.id, { sudoPassword: e.target.value })}
+                                  placeholder="Sudo password for administrative commands"
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white pr-9"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleShowPassword(`linux-sudo-${p.id}`)}
+                                  className="absolute right-2 top-2 text-slate-400 hover:text-white"
+                                >
+                                  {isSudoVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Windows Server & Active Directory Section */}
+              {(activeCredTab === "windows" || activeCredTab === "all") && (
+                <div className="space-y-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-violet-400 flex items-center gap-1.5">
+                        <Server className="w-4 h-4 text-violet-400" />
+                        Windows Server & Active Directory Credentials ({windowsCredentials.length})
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Supports WinRM HTTPS (5986), WinRM HTTP (5985), Windows OpenSSH (22), and RDP Console (3389).
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addWindowsProfile({
+                            name: "WinRM HTTPS Administrator",
+                            protocol: "winrm_https",
+                            port: 5986,
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-violet-300 font-medium"
+                      >
+                        + WinRM 5986
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addWindowsProfile({
+                            name: "RDP Console Admin",
+                            protocol: "rdp",
+                            port: 3389,
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-violet-300 font-medium"
+                      >
+                        + RDP 3389
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addWindowsProfile()}
+                        className="px-2.5 py-1 rounded bg-violet-600 hover:bg-violet-500 text-white text-[11px] font-semibold flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Profile
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    {windowsCredentials.map((p, idx) => {
+                      const isPwdVisible = Boolean(showPasswords[`win-pwd-${p.id}`]);
+                      return (
+                        <div
+                          key={p.id}
+                          className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 text-[11px] font-bold flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              <input
+                                value={p.name}
+                                onChange={(e) => updateWindowsProfile(p.id, { name: e.target.value })}
+                                placeholder="Profile Name"
+                                className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-white w-56"
+                              />
+                              {p.isPrimary ? (
+                                <span className="px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] font-bold">
+                                  ★ Primary Default
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setPrimaryWindowsProfile(p.id)}
+                                  className="px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                                >
+                                  Make Primary
+                                </button>
+                              )}
+                            </div>
+                            {windowsCredentials.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => deleteWindowsProfile(p.id)}
+                                className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Protocol</label>
+                              <select
+                                value={p.protocol}
+                                onChange={(e) => {
+                                  const proto = e.target.value as any;
+                                  const autoPort =
+                                    proto === "rdp"
+                                      ? 3389
+                                      : proto === "winrm_http"
+                                      ? 5985
+                                      : proto === "ssh"
+                                      ? 22
+                                      : 5986;
+                                  updateWindowsProfile(p.id, { protocol: proto, port: autoPort });
+                                }}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              >
+                                <option value="winrm_https">WinRM HTTPS (:5986)</option>
+                                <option value="winrm_http">WinRM HTTP (:5985)</option>
+                                <option value="rdp">RDP Console (:3389)</option>
+                                <option value="ssh">Windows OpenSSH (:22)</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">
+                                Domain (Optional)
+                              </label>
+                              <input
+                                value={p.domain || ""}
+                                onChange={(e) => updateWindowsProfile(p.id, { domain: e.target.value })}
+                                placeholder="CORP or DOMAIN"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Admin Username</label>
+                              <input
+                                value={p.username}
+                                onChange={(e) => updateWindowsProfile(p.id, { username: e.target.value })}
+                                placeholder="Administrator"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Port</label>
+                              <input
+                                type="number"
+                                value={p.port}
+                                onChange={(e) =>
+                                  updateWindowsProfile(p.id, { port: Number(e.target.value) || 5986 })
+                                }
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] text-slate-400 mb-1">Password</label>
+                            <div className="relative">
+                              <input
+                                type={isPwdVisible ? "text" : "password"}
+                                value={p.password || ""}
+                                onChange={(e) => updateWindowsProfile(p.id, { password: e.target.value })}
+                                placeholder="Encrypted in AES-256-GCM Vault"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white pr-9"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => toggleShowPassword(`win-pwd-${p.id}`)}
+                                className="absolute right-2 top-2 text-slate-400 hover:text-white"
+                              >
+                                {isPwdVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Switches & Firewalls Section */}
+              {(activeCredTab === "network" || activeCredTab === "all") && (
+                <div className="space-y-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <Router className="w-4 h-4 text-amber-400" />
+                        Switches & Firewalls CLI / API Profiles ({networkCredentials.length})
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Supports Cisco/Aruba/FortiGate/Junos SSH CLI, Cisco Enable secret, and REST API tokens.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addNetworkProfile({
+                            name: "Cisco Switch (SSH + Enable)",
+                            authType: "ssh",
+                            port: 22,
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-amber-300 font-medium"
+                      >
+                        + Cisco Enable
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addNetworkProfile({
+                            name: "Firewall REST API Token",
+                            authType: "api_token",
+                            port: 443,
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-amber-300 font-medium"
+                      >
+                        + API Token
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addNetworkProfile()}
+                        className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-semibold flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Profile
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    {networkCredentials.map((p, idx) => {
+                      const isPwdVisible = Boolean(showPasswords[`net-pwd-${p.id}`]);
+                      const isEnableVisible = Boolean(showPasswords[`net-enable-${p.id}`]);
+                      return (
+                        <div
+                          key={p.id}
+                          className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              <input
+                                value={p.name}
+                                onChange={(e) => updateNetworkProfile(p.id, { name: e.target.value })}
+                                placeholder="Profile Name"
+                                className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-white w-56"
+                              />
+                              {p.isPrimary ? (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                                  ★ Primary Default
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setPrimaryNetworkProfile(p.id)}
+                                  className="px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                                >
+                                  Make Primary
+                                </button>
+                              )}
+                            </div>
+                            {networkCredentials.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => deleteNetworkProfile(p.id)}
+                                className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Access Mode</label>
+                              <select
+                                value={p.authType}
+                                onChange={(e) => {
+                                  const a = e.target.value as any;
+                                  const autoPort = a === "api_token" ? 443 : a === "telnet" ? 23 : 22;
+                                  updateNetworkProfile(p.id, { authType: a, port: autoPort });
+                                }}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              >
+                                <option value="ssh">SSH CLI (:22)</option>
+                                <option value="api_token">REST API Token (:443)</option>
+                                <option value="telnet">Telnet CLI (:23)</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Username / Key Name</label>
+                              <input
+                                value={p.username}
+                                onChange={(e) => updateNetworkProfile(p.id, { username: e.target.value })}
+                                placeholder="admin"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Port</label>
+                              <input
+                                type="number"
+                                value={p.port}
+                                onChange={(e) =>
+                                  updateNetworkProfile(p.id, { port: Number(e.target.value) || 22 })
+                                }
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">
+                                {p.authType === "api_token" ? "API Token / Bearer Key" : "Login Password"}
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={isPwdVisible ? "text" : "password"}
+                                  value={p.authType === "api_token" ? p.apiToken || "" : p.password || ""}
+                                  onChange={(e) =>
+                                    updateNetworkProfile(p.id, {
+                                      password: e.target.value,
+                                      apiToken: e.target.value,
+                                    })
+                                  }
+                                  placeholder={
+                                    p.authType === "api_token"
+                                      ? "OPNsense / UniFi API Key"
+                                      : "Switch / Router Login Password"
+                                  }
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white pr-9"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleShowPassword(`net-pwd-${p.id}`)}
+                                  className="absolute right-2 top-2 text-slate-400 hover:text-white"
+                                >
+                                  {isPwdVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">
+                                Enable / Privileged EXEC Secret (Optional)
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={isEnableVisible ? "text" : "password"}
+                                  value={p.enableSecret || ""}
+                                  onChange={(e) => updateNetworkProfile(p.id, { enableSecret: e.target.value })}
+                                  placeholder="Cisco enable password"
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white pr-9"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleShowPassword(`net-enable-${p.id}`)}
+                                  className="absolute right-2 top-2 text-slate-400 hover:text-white"
+                                >
+                                  {isEnableVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Multiple SNMP Communities Section */}
+              {(activeCredTab === "snmp" || activeCredTab === "all") && (
+                <div className="space-y-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                        <Network className="w-4 h-4 text-cyan-400" />
+                        SNMP Community Pool ({snmpCommunities.length} configured)
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Polled by Printer-MIB (:161) for toner levels & page counters, and LLDP/CDP switch neighbor discovery across your VLANs.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addSnmpCommunity({
+                            name: "General Read-Only",
+                            community: "public",
+                            version: "v2c",
+                            access: "ro",
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-cyan-300 font-medium"
+                      >
+                        + 'public' (v2c)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addSnmpCommunity({
+                            name: "Printer Fleet MIB",
+                            community: "printers-ro",
+                            version: "v2c",
+                            access: "ro",
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-cyan-300 font-medium"
+                      >
+                        + 'printers-ro'
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addSnmpCommunity({
+                            name: "Secure Core SNMPv3",
+                            version: "v3",
+                            community: "v3-auth-priv",
+                            secName: "snmpv3admin",
+                            authProtocol: "SHA",
+                            privProtocol: "AES",
+                          })
+                        }
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] text-cyan-300 font-medium"
+                      >
+                        + SNMPv3 USM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addSnmpCommunity()}
+                        className="px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-semibold flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Community
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bulk Input Bar */}
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-[11px] text-slate-400 shrink-0 font-medium">Quick Bulk Add:</span>
+                    <input
+                      value={bulkSnmpInput}
+                      onChange={(e) => setBulkSnmpInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleBulkAddSnmp();
+                        }
+                      }}
+                      placeholder="Enter comma-separated communities, e.g. public, private, sab-snmp, printers"
+                      className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-xs text-white font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleBulkAddSnmp}
+                      className="px-3 py-1 rounded bg-cyan-700 hover:bg-cyan-600 text-white text-xs font-medium shrink-0"
+                    >
+                      + Bulk Add
+                    </button>
+                  </div>
+
+                  {/* Communities List */}
+                  <div className="space-y-3 pt-1">
+                    {snmpCommunities.map((c, idx) => (
+                      <div
+                        key={c.id}
+                        className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[11px] font-bold flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[11px] font-medium text-slate-400">Community String:</span>
+                            <input
+                              value={c.community}
+                              onChange={(e) => updateSnmpCommunity(c.id, { community: e.target.value })}
+                              placeholder="public"
+                              className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-cyan-300 w-44"
+                            />
+                            {c.isPrimary ? (
+                              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold">
+                                ★ Primary Default
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setPrimarySnmpCommunity(c.id)}
+                                className="px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                              >
+                                Make Primary
+                              </button>
+                            )}
+                          </div>
+                          {snmpCommunities.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => deleteSnmpCommunity(c.id)}
+                              className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-[11px] text-slate-400 mb-1">Label / Scope</label>
+                            <input
+                              value={c.name}
+                              onChange={(e) => updateSnmpCommunity(c.id, { name: e.target.value })}
+                              placeholder="e.g. Office Printers, Switches"
+                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] text-slate-400 mb-1">SNMP Version</label>
+                            <select
+                              value={c.version}
+                              onChange={(e) =>
+                                updateSnmpCommunity(c.id, { version: e.target.value as any })
+                              }
+                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                            >
+                              <option value="v2c">SNMPv2c (Standard)</option>
+                              <option value="v1">SNMPv1 (Legacy)</option>
+                              <option value="v3">SNMPv3 (Secure USM)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[11px] text-slate-400 mb-1">Port</label>
+                            <input
+                              type="number"
+                              value={c.port}
+                              onChange={(e) =>
+                                updateSnmpCommunity(c.id, { port: Number(e.target.value) || 161 })
+                              }
+                              placeholder="161"
+                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] text-slate-400 mb-1">Access Mode</label>
+                            <select
+                              value={c.access}
+                              onChange={(e) =>
+                                updateSnmpCommunity(c.id, { access: e.target.value as any })
+                              }
+                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                            >
+                              <option value="ro">Read-Only (RO)</option>
+                              <option value="rw">Read-Write (RW)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* SNMPv3 USM Parameters */}
+                        {c.version === "v3" && (
+                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2.5">
+                            <div className="text-[11px] font-semibold text-cyan-300">
+                              SNMPv3 USM Security Parameters:
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Security / Username</label>
+                                <input
+                                  value={c.secName || ""}
+                                  onChange={(e) => updateSnmpCommunity(c.id, { secName: e.target.value })}
+                                  placeholder="snmpv3user"
+                                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white font-mono"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Auth Protocol</label>
+                                <select
+                                  value={c.authProtocol || "SHA"}
+                                  onChange={(e) =>
+                                    updateSnmpCommunity(c.id, { authProtocol: e.target.value as any })
+                                  }
+                                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                                >
+                                  <option value="SHA">SHA-1</option>
+                                  <option value="SHA-256">SHA-256</option>
+                                  <option value="MD5">MD5</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Auth Password</label>
+                                <input
+                                  type="password"
+                                  value={c.authPassword || ""}
+                                  onChange={(e) => updateSnmpCommunity(c.id, { authPassword: e.target.value })}
+                                  placeholder="Auth Passphrase"
+                                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Privacy Protocol</label>
+                                <select
+                                  value={c.privProtocol || "AES"}
+                                  onChange={(e) =>
+                                    updateSnmpCommunity(c.id, { privProtocol: e.target.value as any })
+                                  }
+                                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                                >
+                                  <option value="AES">AES-128</option>
+                                  <option value="AES-256">AES-256</option>
+                                  <option value="DES">DES</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1">Privacy Password</label>
+                                <input
+                                  type="password"
+                                  value={c.privPassword || ""}
+                                  onChange={(e) => updateSnmpCommunity(c.id, { privPassword: e.target.value })}
+                                  placeholder="Privacy / Encryption Passphrase"
+                                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

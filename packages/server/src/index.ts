@@ -5,6 +5,7 @@ import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import path from "node:path";
 import fs from "node:fs";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { initDatabase, logAudit, pool } from "./db.js";
 import {
@@ -164,7 +165,15 @@ app.get("/api/overview", async () => {
     recentAuditLogs: logsRes.rows,
     aiStatus: getAISubscriptionStatus(),
     aiProviders: aiProvsRes.rows,
-    envProfile: envProfRes.rows[0] || null,
+    envProfile: (() => {
+      const p = envProfRes.rows[0] || null;
+      if (p && p.snmp_community_enc) {
+        try {
+          p.snmp_community = decryptSecret(p.snmp_community_enc);
+        } catch {}
+      }
+      return p;
+    })(),
   };
 });
 
@@ -473,13 +482,27 @@ app.post("/api/ai/providers/:id/test", async (req) => {
 // Environment Onboarding, Subnet Discovery & AI Governance Policy
 app.get("/api/onboarding/profile", async () => {
   const res = await pool.query(`SELECT * FROM environment_profile WHERE id = 'default' LIMIT 1`);
-  return res.rows[0] || null;
+  const prof = res.rows[0] || null;
+  if (prof && prof.snmp_community_enc) {
+    try {
+      prof.snmp_community = decryptSecret(prof.snmp_community_enc);
+    } catch {}
+  }
+  return prof;
 });
 
 app.post("/api/onboarding/save", async (req) => {
   const actor = getActor(req);
   const b = (req.body as any) || {};
-  const snmpEnc = b.snmpCommunity ? encryptSecret(b.snmpCommunity) : null;
+
+  // Extract primary SNMP community for backward-compatible encryption
+  const primarySnmp = b.snmpCommunity
+    ? b.snmpCommunity
+    : Array.isArray(b.snmpCommunities) && b.snmpCommunities[0]?.community
+    ? b.snmpCommunities[0].community
+    : null;
+  const snmpEnc = primarySnmp ? encryptSecret(primarySnmp) : null;
+
   const upd = await pool.query(
     `UPDATE environment_profile SET
        org_name = COALESCE($1, org_name),
@@ -496,6 +519,8 @@ app.post("/api/onboarding/save", async (req) => {
        default_ai_model = COALESCE($12, default_ai_model),
        fallback_ai_provider = COALESCE($13, fallback_ai_provider),
        snmp_community_enc = COALESCE($14, snmp_community_enc),
+       snmp_communities = COALESCE($15, snmp_communities),
+       credential_presets = COALESCE($16, credential_presets),
        onboarding_completed = true,
        updated_at = NOW()
      WHERE id = 'default'
@@ -515,6 +540,8 @@ app.post("/api/onboarding/save", async (req) => {
       b.defaultAiModel ?? null,
       b.fallbackAiProvider ?? null,
       snmpEnc,
+      b.snmpCommunities ? JSON.stringify(b.snmpCommunities) : null,
+      b.credentialPresets ? JSON.stringify(b.credentialPresets) : null,
     ]
   );
 
@@ -532,15 +559,88 @@ app.post("/api/onboarding/save", async (req) => {
     ]);
   }
 
-  // If default credentials were supplied in the wizard, save them into managed_credentials Vault
-  if (b.defaultLinuxPassword) {
+  // 1. Multiple SNMP Communities Vault Storage
+  if (Array.isArray(b.snmpCommunities) && b.snmpCommunities.length > 0) {
+    for (const c of b.snmpCommunities) {
+      if (c && c.community) {
+        await pool.query(
+          `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
+           VALUES ($1, 'snmp_community', $2, $3, 90)`,
+          [
+            c.name || `SNMP ${c.version || "v2c"} Community (${c.community})`,
+            c.version === "v3" ? (c.secName || "snmpv3user") : "public",
+            encryptSecret(JSON.stringify(c)),
+          ]
+        );
+      }
+    }
+  }
+
+  // 2. Linux Fleet Credentials (Multiple Profiles, SSH Keys, Sudo Passwords, Ports)
+  if (Array.isArray(b.linuxCredentials) && b.linuxCredentials.length > 0) {
+    for (const lc of b.linuxCredentials) {
+      if (lc && (lc.password || lc.privateKey || lc.sudoPassword)) {
+        const payload = JSON.stringify({
+          username: lc.username || "root",
+          authType: lc.authType || "password",
+          password: lc.password || "",
+          privateKey: lc.privateKey || "",
+          passphrase: lc.passphrase || "",
+          sudoPassword: lc.sudoPassword || "",
+          sshPort: lc.sshPort || 22,
+          elevationMode: lc.elevationMode || "root",
+        });
+        await pool.query(
+          `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
+           VALUES ($1, $2, $3, $4, 90)`,
+          [
+            lc.name || `Linux SSH (${lc.username || "root"}:${lc.sshPort || 22})`,
+            lc.authType === "key" || lc.authType === "key_and_sudo" ? "ssh_key" : "ssh_password",
+            lc.username || "root",
+            encryptSecret(payload),
+          ]
+        );
+
+        if (lc.privateKey && lc.privateKey.includes("PRIVATE KEY")) {
+          const keyName = lc.name ? `${lc.name} Key` : `SSH Key (${lc.username || "root"})`;
+          await pool.query(
+            `INSERT INTO ssh_keys (name, key_type, public_key, private_key_enc, fingerprint, is_default)
+             VALUES ($1, 'imported', $2, $3, $4, false)
+             ON CONFLICT DO NOTHING`,
+            [
+              keyName,
+              "(Imported from setup wizard)",
+              encryptSecret(lc.privateKey),
+              `fp-${crypto.randomBytes(4).toString("hex")}`,
+            ]
+          ).catch(() => {});
+        }
+      }
+    }
+  } else if (b.defaultLinuxPassword) {
     await pool.query(
       `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
        VALUES ($1, 'ssh_password', $2, $3, 90)`,
       ["Default Linux SSH / Sudo Credential", b.defaultLinuxUser || "root", encryptSecret(b.defaultLinuxPassword)]
     );
   }
-  if (b.defaultWindowsPassword) {
+
+  // 3. Windows Server Credentials (Multiple Profiles, WinRM HTTPS/HTTP, RDP, OpenSSH)
+  if (Array.isArray(b.windowsCredentials) && b.windowsCredentials.length > 0) {
+    for (const wc of b.windowsCredentials) {
+      if (wc && wc.password) {
+        await pool.query(
+          `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
+           VALUES ($1, 'winrm_rdp', $2, $3, 90)`,
+          [
+            wc.name || `Windows Server (${wc.username || "Administrator"})`,
+            wc.username || "Administrator",
+            encryptSecret(JSON.stringify(wc)),
+          ]
+        );
+      }
+    }
+  } else if (b.defaultWindowsPassword) {
     await pool.query(
       `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
        VALUES ($1, 'winrm_rdp', $2, $3, 90)`,
@@ -551,7 +651,23 @@ app.post("/api/onboarding/save", async (req) => {
       ]
     );
   }
-  if (b.defaultNetworkPassword) {
+
+  // 4. Switches & Firewalls Credentials (Multiple Profiles, SSH CLI, API Token, Enable Secret)
+  if (Array.isArray(b.networkCredentials) && b.networkCredentials.length > 0) {
+    for (const nc of b.networkCredentials) {
+      if (nc && (nc.password || nc.apiToken || nc.enableSecret)) {
+        await pool.query(
+          `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
+           VALUES ($1, 'network_appliance', $2, $3, 90)`,
+          [
+            nc.name || `Network Appliance (${nc.username || "admin"})`,
+            nc.username || "admin",
+            encryptSecret(JSON.stringify(nc)),
+          ]
+        );
+      }
+    }
+  } else if (b.defaultNetworkPassword) {
     await pool.query(
       `INSERT INTO managed_credentials (name, cred_type, target_user, secret_enc, rotation_days)
        VALUES ($1, 'network_appliance', $2, $3, 90)`,
